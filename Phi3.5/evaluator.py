@@ -1,5 +1,6 @@
 import re
 import string
+import multiprocessing
 
 def normalize_text(s):
     """Lower text and remove punctuation, articles and extra whitespace."""
@@ -18,39 +19,53 @@ def normalize_text(s):
 
     return white_space_fix(remove_articles(remove_punc(lower(s))))
 
+def _humaneval_worker(full_code, test_code, entry_point, result_queue):
+    """Runs the code in an isolated process to allow for hard timeouts."""
+    try:
+        exec_globals = {}
+        exec("import math\nimport re\nfrom typing import List, Dict, Tuple, Optional, Any", exec_globals)
+        exec(full_code, exec_globals)
+        exec(test_code, exec_globals)
+        exec(f"check({entry_point})", exec_globals)
+        result_queue.put(True)
+    except Exception:
+        # Any syntax error, assertion error, or runtime error means it failed
+        result_queue.put(False)
+
 def evaluate_humaneval_entry(generated_text, sample):
-    """
-    HumanEval Logic: Exec the code and run the test case.
-    """
+    """Specific evaluation logic for HumanEval with a hard timeout to prevent hangs."""
     # 1. Extract Code
     pattern = r"```(?:python)?\n(.*?)```"
     match = re.search(pattern, generated_text, re.DOTALL)
     code_body = match.group(1) if match else generated_text
 
-    # 2. Reconstruct Full Function
-    # If the model only output the body, prepend the signature (prompt)
     if "def " not in code_body:
         full_code = sample['prompt'] + code_body
     else:
         full_code = code_body
 
-    # 3. Execution Check
-    try:
-        exec_globals = {}
-        # Pre-import common libraries used in HumanEval solutions
-        exec("import math\nimport re\nfrom typing import List, Dict, Tuple, Optional, Any", exec_globals)
-        
-        # Run the generated solution
-        exec(full_code, exec_globals)
-        
-        # Run the hidden test case provided by the dataset
-        exec(sample['test'], exec_globals)
-        
-        # Verify the entry point
-        exec(f"check({sample['entry_point']})", exec_globals)
-        return True
-    except Exception:
-        return False
+    # 2. Setup isolated process
+    result_queue = multiprocessing.Queue()
+    p = multiprocessing.Process(
+        target=_humaneval_worker, 
+        args=(full_code, sample['test'], sample['entry_point'], result_queue)
+    )
+    
+    # 3. Start and wait with a 5-second timeout
+    p.start()
+    p.join(timeout=5.0) 
+
+    # 4. Check if it hung
+    if p.is_alive():
+        p.terminate() # Kill the infinite loop
+        p.join()
+        return False  # Timeout counts as a failure
+
+    # 5. Get result if it finished cleanly
+    if not result_queue.empty():
+        return result_queue.get()
+    
+    return False
 
 def evaluate_gsm8k_entry(generated_text, sample):
     """
@@ -81,27 +96,34 @@ def evaluate_gsm8k_entry(generated_text, sample):
 
 def evaluate_multiple_choice_entry(generated_text, sample):
     """
-    MMLU / ARC Logic: Look for the final answer letter (A, B, C, D).
-    Input sample['answer'] is usually an integer (0-3) or letter (A-D).
+    MMLU / ARC Logic: Look for the final answer letter or number.
+    Handles both MMLU (sample['answer'] as int) and ARC (sample['answerKey'] as str).
     """
-    # 1. Parse Ground Truth
-    truth = sample['answer']
-    # Convert index (0) to Letter (A) if necessary (common in MMLU)
+    # 1. Parse Ground Truth based on dataset schema
+    if 'answerKey' in sample:
+        truth = sample['answerKey']  # ARC format
+    else:
+        truth = sample['answer']     # MMLU format
+        
+    # Convert MMLU integer index (0, 1, 2, 3) to Letter (A, B, C, D)
     if isinstance(truth, int):
         truth = ["A", "B", "C", "D"][truth]
+        
+    # Ensure truth is a clean, uppercase string (ARC sometimes uses '1', '2', etc.)
+    truth = str(truth).strip().upper()
     
     # 2. Parse Prediction
-    # Look for "Answer: A" or "(A)" or just "A" at the end
-    # We scan the LAST few characters for a standalone letter
-    match = re.search(r"Answer:\s*([A-D])", generated_text, re.IGNORECASE)
+    # Look for "Answer: A" or "Answer: 1"
+    match = re.search(r"Answer:\s*([A-D1-4])", generated_text, re.IGNORECASE)
     if match:
         pred = match.group(1).upper()
     else:
-        # Fallback: Look for the last capital letter A-D surrounded by spaces/punctuation
-        matches = re.findall(r"\b([A-D])\b", generated_text.upper())
+        # Fallback: Look for the last capital letter A-D or number 1-4
+        matches = re.findall(r"\b([A-D1-4])\b", generated_text.upper())
         pred = matches[-1] if matches else None
 
     return pred == truth
+
 
 def evaluate_squad_entry(generated_text, sample):
     """
@@ -129,12 +151,37 @@ def evaluate_squad_entry(generated_text, sample):
 
 def evaluate_bbh_entry(generated_text, sample):
     """
-    BBH Logic: Often requires extracting the final answer from a CoT.
-    The target is usually in sample['target'].
+    Strict BBH Logic: Handles multiple choice (A-G) and exact word matches
+    by extracting the specific prediction, ignoring the 'a' article bug.
     """
-    truth = normalize_text(sample['target'])
-    pred = normalize_text(generated_text)
+    truth = sample['target'].strip()
     
-    # BBH is strict. Usually we check if the exact answer word is at the end.
-    # Simple 'contains' is often enough for a robustness check.
-    return truth in pred
+    # 1. Handle Multiple Choice Formats (e.g., "(A)", "(B)")
+    truth_letter_match = re.match(r"^\(([A-Z])\)$", truth, re.IGNORECASE)
+    
+    if truth_letter_match:
+        truth_letter = truth_letter_match.group(1).upper()
+        
+        # Try to find a formal answer declaration first
+        match = re.search(r"Answer:\s*\(?([A-Z])\)?", generated_text, re.IGNORECASE)
+        if match:
+            pred = match.group(1).upper()
+        else:
+            # Fallback: Grab the last standalone capital letter in the text
+            matches = re.findall(r"\b([A-Z])\b", generated_text.upper())
+            # Filter out common single-letter words if they aren't at the very end
+            pred = matches[-1] if matches else None
+            
+        return pred == truth_letter
+
+    # 2. Handle Text Formats (e.g., "valid", "invalid")
+    else:
+        truth_clean = truth.lower()
+        
+        # Extract just the words, discarding punctuation
+        words = re.findall(r"\b\w+\b", generated_text.lower())
+        
+        # Only look at the final 5 words of the output to avoid CoT leakage
+        last_few_words = words[-5:] if words else []
+        
+        return truth_clean in last_few_words

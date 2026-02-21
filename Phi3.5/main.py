@@ -29,6 +29,8 @@ def main():
     MODEL_ID = args.model
     OUTPUT_FILE = f"results_{DATASET_NAME}.txt"
 
+    print(f"\n--- Running Dataset: {DATASET_NAME} ---") 
+
     # 1. Initialize Components
     # ------------------------
     model_wrapper = ModelWrapper(MODEL_ID)
@@ -40,12 +42,12 @@ def main():
     # 2. Define Experiments
     # ---------------------
     experiments = [
-#        {"name": "Baseline",       "type": None,          "rate": 0.0},
+        {"name": "Baseline",       "type": None,          "rate": 0.0},
         
         # Surface / Token Level
-#        {"name": "OCR_5%",         "type": "ocr",         "rate": 0.05},
-#        {"name": "Typos_5%",       "type": "typos",       "rate": 0.05},
-#        {"name": "Whitespace_10%", "type": "whitespace",  "rate": 0.10},
+        {"name": "OCR_5%",         "type": "ocr",         "rate": 0.05},
+        {"name": "Typos_5%",       "type": "typos",       "rate": 0.05},
+        {"name": "Whitespace_10%", "type": "whitespace",  "rate": 0.10},
         
         # Semantic Level
         {"name": "Homophones_20%", "type": "homophones",  "rate": 0.20},
