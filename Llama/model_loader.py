@@ -18,10 +18,10 @@ class ModelWrapper:
 
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_id,
-            device_map={"": 0},
-            torch_dtype=torch.float16,
+            device_map="auto",
+            torch_dtype=torch.bfloat16,
             trust_remote_code=True,
-            attn_implementation="eager"
+            attn_implementation="sdpa"
         )
         
         self.pipe = pipeline(
