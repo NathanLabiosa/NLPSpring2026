@@ -1,5 +1,3 @@
-import os
-import torch
 import argparse
 from tqdm import tqdm
 from transformers.pipelines.pt_utils import KeyDataset
@@ -13,29 +11,28 @@ from model_loader import ModelWrapper
 from evaluator import (
     evaluate_humaneval_entry,
     evaluate_gsm8k_entry,
-    evaluate_multiple_choice_entry, 
-    evaluate_squad_entry, 
+    evaluate_multiple_choice_entry,
+    evaluate_squad_entry,
     evaluate_bbh_entry
 )
 
 def main():
-
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, required=True, help="humaneval, gsm8k, mmlu, etc.")
-    parser.add_argument("--model", type=str, default="microsoft/Phi-3.5-mini-instruct")
+    parser.add_argument("--dataset", type=str, default="mmlu", help="humaneval, gsm8k, mmlu, etc.")
+    parser.add_argument("--model", type=str, default="mistral", help="phi, llama, mistral")
     args = parser.parse_args()
 
     DATASET_NAME = args.dataset
-    MODEL_ID = args.model
-    OUTPUT_FILE = f"results_{DATASET_NAME}.txt"
+    MODEL_NAME = args.model
+    OUTPUT_FILE = f"results_{MODEL_NAME}_{DATASET_NAME}.txt"
 
-    print(f"\n--- Running Dataset: {DATASET_NAME} ---") 
+    print(f"\n--- Running Dataset: {DATASET_NAME} ---")
 
     # 1. Initialize Components
     # ------------------------
-    model_wrapper = ModelWrapper(MODEL_ID)
+    model_wrapper = ModelWrapper(MODEL_NAME)
     pipe, tokenizer = model_wrapper.load()
-    
+
     data_manager = DatasetManager(tokenizer)
     perturber = PerturbationEngine()
 
@@ -43,16 +40,16 @@ def main():
     # ---------------------
     experiments = [
         {"name": "Baseline",       "type": None,          "rate": 0.0},
-        
+
         # Surface / Token Level
         {"name": "OCR_5%",         "type": "ocr",         "rate": 0.05},
         {"name": "Typos_5%",       "type": "typos",       "rate": 0.05},
         {"name": "Whitespace_10%", "type": "whitespace",  "rate": 0.10},
-        
+
         # Semantic Level
         {"name": "Homophones_20%", "type": "homophones",  "rate": 0.20},
         {"name": "Speech_10%",     "type": "speech",      "rate": 0.10},
-        
+
         # Internal Level (Latent Space)
         {"name": "Gaussian_0.05",  "type": "internal",    "rate": 0.05},
     ]
@@ -63,22 +60,22 @@ def main():
     # ------------------
     for exp in experiments:
         print(f"\n--- Running: {exp['name']} ---")
-        
+
         # A. Handle Perturbation Logic
         p_func = None
-        
+
         if exp['type'] == "internal":
             # CASE 1: Internal Noise (Gaussian)
             # We register the hook on the model wrapper
             model_wrapper.register_embedding_noise(exp['rate'])
             # No text perturbation needed
             p_func = None
-            
+
         else:
             # CASE 2: Text Noise (Typos, OCR, etc.)
             # Ensure internal noise is OFF
             model_wrapper.register_embedding_noise(0.0)
-            
+
             # Create the text perturbation function
             if exp['type']:
                 p_func = lambda text: perturber.apply(text, exp['type'], exp['rate'])
@@ -92,7 +89,7 @@ def main():
         # C. Run Inference
         correct = 0
         total = 0
-        
+
         # Generation settings (Greedy decoding for reproducibility)
         gen_kwargs = {
             "max_new_tokens": 600,
@@ -102,30 +99,30 @@ def main():
         }
 
         BATCH_SIZE = 8
-        
+
         # D. Processing Loop
         for i, out in enumerate(tqdm(pipe(KeyDataset(dataset, "formatted_prompt"), batch_size=BATCH_SIZE, **gen_kwargs), total=len(dataset), mininterval=10.0)):
             generated_text = out[0]['generated_text']
             sample = dataset[i]
-            
+
             # --- Dynamic Evaluator Dispatch ---
             is_correct = False
-            
+
             if DATASET_NAME == "humaneval":
                 is_correct = evaluate_humaneval_entry(generated_text, sample)
-            
+
             elif DATASET_NAME == "gsm8k":
                 is_correct = evaluate_gsm8k_entry(generated_text, sample)
-            
+
             elif DATASET_NAME in ["mmlu", "arc"]:
                 is_correct = evaluate_multiple_choice_entry(generated_text, sample)
-            
+
             elif DATASET_NAME == "squad":
                 is_correct = evaluate_squad_entry(generated_text, sample)
-            
+
             elif DATASET_NAME == "bbh":
                 is_correct = evaluate_bbh_entry(generated_text, sample)
-            
+
             if is_correct: correct += 1
             total += 1
 
