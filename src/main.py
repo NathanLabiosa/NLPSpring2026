@@ -32,6 +32,11 @@ def main():
     # ------------------------
     model_wrapper = ModelWrapper(MODEL_NAME)
     pipe, tokenizer = model_wrapper.load()
+<<<<<<< Updated upstream:src/main.py
+=======
+    
+    #model_wrapper.load_stabilizer("./stabilizer_weights/stabilizer_final.pt", inject_layer=16)
+>>>>>>> Stashed changes:Phi3.5/main.py
 
     data_manager = DatasetManager(tokenizer)
     perturber = PerturbationEngine()
@@ -45,6 +50,10 @@ def main():
         {"name": "OCR_5%",         "type": "ocr",         "rate": 0.05},
         {"name": "Typos_5%",       "type": "typos",       "rate": 0.05},
         {"name": "Whitespace_10%", "type": "whitespace",  "rate": 0.10},
+<<<<<<< Updated upstream:src/main.py
+=======
+        {"name": "Case_10%",       "type": "case",        "rate": 0.10},
+>>>>>>> Stashed changes:Phi3.5/main.py
 
         # Semantic Level
         {"name": "Homophones_20%", "type": "homophones",  "rate": 0.20},
