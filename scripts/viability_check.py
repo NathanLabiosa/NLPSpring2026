@@ -19,7 +19,7 @@ def main():
     n_samples = 50
     gate_accuracy = 70.0  # threshold to proceed
 
-    print(f"=== Qwen2.5-7B-Instruct Viability Check (B0) ===")
+    print(f"Qwen2.5-7B-Instruct Viability Check (B0) ")
     print(f"Samples: {n_samples}, Gate: {gate_accuracy}%\n")
 
     # load model exactly as main.py / model_loader.py does
