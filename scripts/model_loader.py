@@ -7,7 +7,7 @@ class ModelWrapper:
         self.tokenizer = None
         self.model = None
         self.pipe = None
-        self.hook_handle = None
+        self.hook_handle = None  # for embedding noise experiments
 
     def load(self):
         print(f"Loading {self.model_id}...")
@@ -15,15 +15,17 @@ class ModelWrapper:
         self.tokenizer.padding_side = "left"
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
+            # print("set pad token to eos")
 
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_id,
             device_map={"": 0},
             torch_dtype=torch.bfloat16,
             trust_remote_code=True,
-            attn_implementation="sdpa"
+            attn_implementation="sdpa"  # tried "flash_attention_2" but got OOM
         )
-        
+
+        # create pipeline for easier generation
         self.pipe = pipeline(
             "text-generation",
             model=self.model,
@@ -31,29 +33,31 @@ class ModelWrapper:
             pad_token_id=self.tokenizer.pad_token_id
         )
         return self.pipe, self.tokenizer
-    
+
     def register_embedding_noise(self, noise_alpha=0.0):
         """
         Registers a hook to inject Gaussian noise into embeddings.
         noise_alpha: Standard deviation of the noise (e.g., 0.05).
+        This was used for some early robustness experiments but we ended up
+        not using it for the final paper.
         """
-        # 1. Clear existing hook if any
+        # clear existing hook if any
         if self.hook_handle:
             self.hook_handle.remove()
             self.hook_handle = None
 
         if noise_alpha <= 0:
-            return
+            return  # no noise
 
-        # 2. Define the hook function
+        # define the hook function
         def noise_hook(module, args, output):
             # output is the tensor of embeddings: [Batch, Seq, Dim]
-            # Create noise tensor on the same device/dtype
             noise = torch.randn_like(output) * noise_alpha
+            # print(f"Injecting noise with std={noise_alpha}")
             return output + noise
 
-        # 3. Attach to the embedding layer
-        # For Phi-3.5 and Llama models, this is usually model.model.embed_tokens
-        # Check your specific model architecture if this fails.
+        # attach to the embedding layer
+        # for Phi-3.5 and Llama models, this is usually model.model.embed_tokens
+        # TODO: might need to adjust for other architectures
         self.hook_handle = self.model.model.embed_tokens.register_forward_hook(noise_hook)
         print(f"Registered Gaussian Noise Hook (alpha={noise_alpha})")

@@ -90,13 +90,14 @@ def load_model_and_tokenizer(model_id: str, device: str = "cuda"):
     tokenizer.padding_side = "left"
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+        # print("set pad token to eos")
 
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
         device_map={"": 0},
         torch_dtype=torch.bfloat16,
         trust_remote_code=True,
-        attn_implementation="sdpa",
+        attn_implementation="sdpa",  # faster than eager for inference
     )
     model.eval()
     return model, tokenizer
@@ -149,7 +150,7 @@ class RepresentationExtractor:
 def cosine_distance(a: np.ndarray, b: np.ndarray) -> float:
     dot  = np.dot(a, b)
     norm = np.linalg.norm(a) * np.linalg.norm(b)
-    return 0.0 if norm < 1e-9 else float(1.0 - dot / norm)
+    return 0.0 if norm < 1e-9 else float(1.0 - dot / norm)  # avoid div-by-zero
 
 
 def compute_lrd_profile(clean: np.ndarray, noisy: np.ndarray) -> np.ndarray:
@@ -163,10 +164,11 @@ def compute_perturbed_token_lrd(
     clean_tokens:  list,
     noisy_tokens:  list,
 ) -> Optional[np.ndarray]:
+    """Compute LRD over only the token positions that changed due to perturbation."""
     min_len   = min(len(clean_tokens), len(noisy_tokens))
     diff_pos  = [i for i in range(min_len) if clean_tokens[i] != noisy_tokens[i]]
 
-    if not diff_pos:
+    if not diff_pos:  # no tokens changed (e.g., whitespace at boundaries only)
         return None
 
     n_layers   = len(clean_per_tok)
@@ -193,8 +195,9 @@ def cascade_slope(lrd_profile: np.ndarray) -> float:
 
 
 def recovery_test(lrd_profile: np.ndarray) -> dict:
+    """Test if LRD recovers in final layers (late < 0.8 * early)."""
     n = len(lrd_profile)
-    q = max(1, n // 4)
+    q = max(1, n // 4)  # first and last quartile
     early = float(lrd_profile[:q].mean())
     late  = float(lrd_profile[-q:].mean())
     return {"early_lrd": early, "late_lrd": late, "recovered": late < early * 0.8}
@@ -214,13 +217,14 @@ def greedy_generate(model, tokenizer, prompt: str,
     out = model.generate(
         **inputs,
         max_new_tokens=max_new_tokens,
-        do_sample=False,
+        do_sample=False,  # greedy decoding for reproducibility
         temperature=None,
         top_p=None,
         top_k=None,
         pad_token_id=tokenizer.pad_token_id or tokenizer.eos_token_id,
         use_cache=use_cache,
     )
+    # strip prompt from output
     return tokenizer.decode(
         out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True
     )
@@ -287,8 +291,9 @@ def run_diagnostics(
     clean_ds = dm.load_and_format(dataset_name, perturbation_func=None)
 
     clean_correct = []
-    clean_fail    = []
+    clean_fail    = []  # for exclusion bias analysis
 
+    # Pre-filter: sample 4x requested size to get enough clean-correct examples
     for i in tqdm(range(min(n_samples * 4, len(clean_ds))), desc="Pre-filter"):
         try:
             gen = greedy_generate(

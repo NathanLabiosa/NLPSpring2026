@@ -82,7 +82,7 @@ MODELS = {
 
 def normalize_01(arr):
     lo, hi = np.nanmin(arr), np.nanmax(arr)
-    if hi - lo < 1e-12:
+    if hi - lo < 1e-12:  # avoid div-by-zero for constant signals
         return np.zeros_like(arr)
     return (arr - lo) / (hi - lo)
 
@@ -112,14 +112,15 @@ def lora_delta_per_layer(sweep_dirs, n_layers):
         vals = [v["delta"] for k, v in ev.items()
                 if k != "clean_baseline" and "delta" in v]
         if vals:
-            centres.append((lo + hi) / 2.0)
+            centres.append((lo + hi) / 2.0)  # window midpoint
             deltas.append(float(np.mean(vals)))
 
-    if len(centres) < 2:
+    if len(centres) < 2:  # need at least 2 points for interpolation
         return np.zeros(n_layers)
 
     centres = np.array(centres)
     deltas = np.array(deltas)
+    # linear interpolation between window midpoints to get per-layer estimates
     interp = interp1d(centres, deltas, kind="linear",
                       bounds_error=False, fill_value=(deltas[0], deltas[-1]))
     return interp(np.arange(n_layers, dtype=float))
@@ -128,6 +129,7 @@ def lora_delta_per_layer(sweep_dirs, n_layers):
 # ── Block Bootstrap ───────────────────────────────────────────────────────────
 
 def block_bootstrap_spearman(x, y, block_size=5, n_boot=10000, seed=42):
+    """Block bootstrap to account for layer-wise autocorrelation."""
     rng = np.random.default_rng(seed)
     n = len(x)
     rho_point, _ = spearmanr(x, y)
@@ -137,17 +139,18 @@ def block_bootstrap_spearman(x, y, block_size=5, n_boot=10000, seed=42):
 
     boot_rhos = np.empty(n_boot)
     for i in range(n_boot):
+        # sample random block starts with replacement
         starts = rng.integers(0, max_start + 1, size=n_blocks)
         idx = []
         for s in starts:
             idx.extend(range(s, s + block_size))
-        idx = np.array(idx[:n])
+        idx = np.array(idx[:n])  # trim to original length
         rho_b, _ = spearmanr(x[idx], y[idx])
         boot_rhos[i] = rho_b
 
     ci_low, ci_high = np.percentile(boot_rhos, [2.5, 97.5])
     frac_neg = float((boot_rhos < 0).mean())
-    p_two = 2.0 * min(frac_neg, 1.0 - frac_neg)
+    p_two = 2.0 * min(frac_neg, 1.0 - frac_neg)  # two-tailed p-value
 
     return {
         "rho": round(float(rho_point), 4),
@@ -162,10 +165,11 @@ def block_bootstrap_spearman(x, y, block_size=5, n_boot=10000, seed=42):
 # ── Autocorrelation ──────────────────────────────────────────────────────────
 
 def compute_autocorrelation(signal, max_lag=8):
+    """Compute ACF, decorrelation lag (1/e threshold), VIF, and effective N."""
     n = len(signal)
     s = signal - signal.mean()
     var = float((s ** 2).mean())
-    if var < 1e-12:
+    if var < 1e-12:  # constant signal edge case
         return {"acf": [1.0], "decorrelation_lag": 0, "vif": 1.0, "effective_n": float(n)}
 
     acf = [1.0]
@@ -175,11 +179,11 @@ def compute_autocorrelation(signal, max_lag=8):
     # Decorrelation lag: first lag where |ACF| < 1/e
     decor = max_lag
     for k in range(1, len(acf)):
-        if abs(acf[k]) < 1.0 / np.e:
+        if abs(acf[k]) < 1.0 / np.e:  # 1/e ≈ 0.368
             decor = k
             break
 
-    # VIF
+    # VIF = 1 + 2*sum(positive ACF lags)
     trunc = 0
     for k in range(1, len(acf)):
         if acf[k] > 0:
@@ -187,7 +191,7 @@ def compute_autocorrelation(signal, max_lag=8):
         else:
             break
     vif = max(1.0, 1.0 + 2.0 * sum(acf[1:trunc + 1]))
-    eff_n = n / vif
+    eff_n = n / vif  # effective degrees of freedom
 
     return {
         "acf": [round(v, 4) for v in acf],
@@ -235,6 +239,7 @@ def process_model(model_name, cfg):
 
     # ── Block bootstrap correlations ──────────────────────────────────────
     print("\n  Block Bootstrap Correlations (b=5, 10k resamples):")
+    # compare all three signals pairwise
     pairs = {
         "LRD_vs_LoRA":      (lrd_mean[valid], lora_delta[valid]),
         "Patch_vs_LoRA":     (recovery[valid], lora_delta[valid]),
@@ -243,7 +248,7 @@ def process_model(model_name, cfg):
 
     corr_results = {}
     for pair_name, (x, y) in pairs.items():
-        result = block_bootstrap_spearman(x, y)
+        result = block_bootstrap_spearman(x, y)  # block size=5, 10k resamples
         corr_results[pair_name] = result
         sig = "*" if result["p_two"] < 0.05 else ""
         print(f"    {pair_name}: rho={result['rho']:+.3f}  "
@@ -251,11 +256,12 @@ def process_model(model_name, cfg):
               f"p={result['p_two']:.4f}{sig}")
 
     # ── Autocorrelation ───────────────────────────────────────────────────
+    # TODO: might want to export ACF plots per model for supplemental figures
     print("\n  Autocorrelation Structure:")
     autocorr = {}
     for sig_name, arr in [("LRD", norm_lrd), ("Patching", norm_patch[valid]),
                            ("LoRA", norm_lora)]:
-        ac = compute_autocorrelation(arr)
+        ac = compute_autocorrelation(arr)  # decorrelation lag, VIF, effective N
         autocorr[sig_name] = ac
         print(f"    {sig_name}: decor_lag={ac['decorrelation_lag']}  "
               f"VIF={ac['vif']:.2f}  eff_N={ac['effective_n']:.1f}")
@@ -268,6 +274,7 @@ def process_model(model_name, cfg):
     ax.plot(layers[valid], norm_patch[valid],
             label=f"Patching recovery (norm, {cfg['patch_note']})",
             color="tab:orange", linewidth=2.0)
+    # LoRA is interpolated from window midpoints, so use dashed line
     ax.plot(layers, norm_lora, label="LoRA delta acc (norm, interpolated)",
             color="tab:blue", linewidth=2.0, linestyle="--")
 
@@ -309,6 +316,7 @@ def process_model(model_name, cfg):
 
 def check_predictions():
     """Compare C3/C4 predictions to actual sweep results for each model."""
+    # This function runs post-hoc after all sweeps are complete
     print(f"\n{'='*60}")
     print("  Checking C3/C4 Predictions vs Actual")
     print(f"{'='*60}")
@@ -325,7 +333,7 @@ def check_predictions():
             print(f"\n  {model_key}: No prediction file found.")
             continue
 
-        latest = os.path.join(pred_dir, pred_files[-1])
+        latest = os.path.join(pred_dir, pred_files[-1])  # use most recent prediction
         print(f"\n  {model_key}: Loading {pred_files[-1]}")
         record = json.load(open(latest))
 
@@ -339,7 +347,7 @@ def check_predictions():
         # Load actual sweep results
         cfg_key = model_key
         if cfg_key not in MODELS:
-            # Try mapping
+            # Try mapping for filename consistency
             mapping = {"Gemma2": "Gemma2_9B", "Qwen25": "Qwen25_7B", "TinyLlama": "TinyLlama_1B"}
             cfg_key = mapping.get(model_key)
         if cfg_key and cfg_key in MODELS:
@@ -349,6 +357,7 @@ def check_predictions():
                 ep = os.path.join(SW, sweep_name, "eval_results.json")
                 if os.path.exists(ep):
                     ev = json.load(open(ep))
+                    # average delta across all perturbation types
                     vals = [v["delta"] for k, v in ev.items()
                             if k != "clean_baseline" and "delta" in v]
                     if vals:

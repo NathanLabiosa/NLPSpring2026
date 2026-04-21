@@ -2,9 +2,8 @@
 exp_autocorr.py — Layer-wise Autocorrelation Analysis (Exp 5 / W3 diagnostic).
 
 For each of 3 signals (LRD, patching recovery, LoRA effectiveness) on each
-model (initially Phi3.5, Llama3, Mistral; extended to new models when data
-is available), computes the autocorrelation function (ACF) across layers out
-to lag 8. Reports decorrelation length and effective N.
+model, computes the autocorrelation function (ACF) across layers out to lag 8.
+Reports decorrelation length and effective N.
 
 This feeds into bootstrap_block.py — the ACF here tells us what block size
 is appropriate and what the effective degrees of freedom are.
@@ -26,7 +25,7 @@ OUT_FILE  = "exp_autocorr_results.json"
 OUT_PDF   = "exp_autocorr.pdf"
 
 MAX_LAG = 8
-ONE_OVER_E = 1.0 / np.e  # ≈ 0.368
+ONE_OVER_E = 1.0 / np.e  # ≈ 0.368, threshold for decorrelation
 
 SIGNAL_KEYS = [
     ("LRD",              "norm_lrd"),
@@ -41,7 +40,7 @@ def compute_acf(signal: np.ndarray, max_lag: int) -> np.ndarray:
     s   = signal - signal.mean()
     var = float((s ** 2).mean())
     if var < 1e-12:
-        return np.ones(max_lag + 1)
+        return np.ones(max_lag + 1)  # constant signal has ACF=1 everywhere
 
     acf = np.empty(max_lag + 1)
     acf[0] = 1.0
@@ -61,11 +60,11 @@ def decorrelation_length(acf: np.ndarray) -> int:
     for k in range(1, len(acf)):
         if abs(acf[k]) < ONE_OVER_E:
             return k
-    return len(acf) - 1
+    return len(acf) - 1  # still correlated at max_lag
 
 
 def vif_from_acf(acf: np.ndarray, trunc_lag: int) -> float:
-    """VIF = 1 + 2 * sum_{k=1}^{trunc_lag} ACF(k)."""
+    """Variance Inflation Factor: VIF = 1 + 2 * sum_{k=1}^{trunc_lag} ACF(k)."""
     if trunc_lag < 1:
         return 1.0
     return max(1.0, 1.0 + 2.0 * sum(acf[1:trunc_lag + 1]))
@@ -78,13 +77,14 @@ def main():
     n_models  = len(data)
     n_signals = len(SIGNAL_KEYS)
 
+    # create subplots: rows=models, cols=signals
     fig, axes = plt.subplots(
         n_models, n_signals,
         figsize=(4.5 * n_signals, 3.5 * n_models),
         sharey=False,
     )
     if n_models == 1:
-        axes = [axes]
+        axes = [axes]  # ensure axes is 2D
 
     lags = np.arange(MAX_LAG + 1)
 
@@ -114,7 +114,7 @@ def main():
                 f"decor_lag={decor}  VIF={vif:.2f}  eff_N≈{eff_n}"
             )
 
-            # ── Plot ─────────────────────────────────────────────────────────
+            # plot ACF bar chart
             ax = axes[row_i][col_j]
             ax.bar(lags, acf, color="steelblue", alpha=0.7, label="ACF")
             ax.axhline( ONE_OVER_E, color="tomato", linestyle="--",
@@ -126,7 +126,7 @@ def main():
                 ax.axvline(decor, color="purple", linestyle=":",
                            linewidth=1.5, label=f"decor lag={decor}")
 
-            # Bartlett confidence bands: ±1.96/√n
+            # Bartlett confidence bands: ±1.96/√n (95% CI under white noise)
             ci = 1.96 / np.sqrt(n)
             ax.fill_between(lags, -ci, ci, alpha=0.12, color="gray",
                             label="±1.96/√n CI")
@@ -143,7 +143,7 @@ def main():
             ax.legend(fontsize=7)
             ax.grid(True, alpha=0.3)
 
-        print()
+        print()  # blank line between models
 
     fig.suptitle(
         "Layer-wise Autocorrelation — LRD, Patching Recovery, LoRA Effectiveness\n"
@@ -158,7 +158,7 @@ def main():
     json.dump(results, open(OUT_FILE, "w"), indent=2)
     print(f"Results saved: {OUT_FILE}")
 
-    # ── Summary table ─────────────────────────────────────────────────────────
+    # summary table
     print("\n=== Effective N Summary ===")
     print(f"{'Model':<10} {'Signal':<24} {'n':>4} {'decor_lag':>10} {'VIF':>6} {'eff_N':>7}")
     print("-" * 65)

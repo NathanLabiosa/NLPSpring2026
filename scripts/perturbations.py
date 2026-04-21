@@ -4,7 +4,7 @@ import re
 
 class PerturbationEngine:
     def __init__(self):
-        # Semantic: Homophones map
+        # homophones map for semantic perturbations
         self.homophones_map = {
             "their": ["there", "they're"], "there": ["their", "they're"], "they're": ["their", "there"],
             "your": ["you're"], "you're": ["your"], "its": ["it's"], "it's": ["its"],
@@ -13,8 +13,8 @@ class PerturbationEngine:
             "write": ["right"], "right": ["write"], "read": ["red"], "red": ["read"],
             "for": ["four"], "four": ["for"], "sun": ["son"], "son": ["sun"]
         }
-        
-        # Surface: OCR visual lookalikes
+
+        # OCR visual lookalikes
         self.ocr_map = {
             'l': '1', '1': 'l', 'I': '1', 'O': '0', '0': 'O', 'S': '5', '5': 'S',
             'B': '8', '8': 'B', 'Z': '2', '2': 'Z', 'c': 'e', 'e': 'c',
@@ -22,7 +22,7 @@ class PerturbationEngine:
             'v': 'u', 'u': 'v', 'F': 'P', 'P': 'F'
         }
 
-        # Surface: QWERTY keyboard adjacency
+        # QWERTY keyboard adjacency for typos
         self.qwerty_map = {
             'q': 'wa', 'w': 'qase', 'e': 'wsdr', 'r': 'edft', 't': 'rfgy',
             'y': 'tghu', 'u': 'yhji', 'i': 'ujko', 'o': 'iklp', 'p': 'ol',
@@ -32,11 +32,11 @@ class PerturbationEngine:
             'b': 'vghn', 'n': 'bhjm', 'm': 'njk'
         }
 
-        # Semantic: Speech Fillers
+        # speech fillers (for ASR/transcription simulation)
         self.speech_fillers = ["um", "uh", "like", "you know", "er", "ah", "i mean"]
 
     def apply(self, text, method_name, rate=0.1):
-        """Unified interface to apply any perturbation."""
+        """Apply a perturbation method to text."""
         if rate == 0:
             return text
 
@@ -48,13 +48,13 @@ class PerturbationEngine:
         elif method_name == "qwerty":
             return self._add_qwerty(text, rate)
         elif method_name == "whitespace":
-            # CHANGED: now only token-boundary disruption, no case flipping
+            # changed: now only token-boundary disruption, no case flipping
             return self._add_whitespace_only(text, rate)
         elif method_name == "case":
-            # NEW: isolated case randomization
+            # new: isolated case randomization
             return self._add_case_only(text, rate)
         elif method_name == "whitespace_case":
-            # LEGACY: original combined behaviour, kept for reproducibility
+            # legacy: original combined behaviour (kept for reproducibility)
             return self._add_whitespace_case_combined(text, rate)
         elif method_name == "homophones":
             return self._add_homophones(text, rate)
@@ -63,13 +63,13 @@ class PerturbationEngine:
         else:
             raise ValueError(f"Unknown perturbation method: {method_name}")
 
-    # ── Surface Level ─────────────────────────────────────────────────────────
+    # Surface Level perturbations
 
     def _add_typos(self, text, error_rate):
         chars = list(text)
         for i in range(len(chars) - 1, -1, -1):
             if chars[i].isdigit() or chars[i] in string.whitespace:
-                continue
+                continue  # don't corrupt digits or whitespace
             if random.random() < error_rate:
                 r = random.random()
                 if r < 0.25 and i < len(chars) - 1 and not chars[i + 1].isdigit():
@@ -98,28 +98,24 @@ class PerturbationEngine:
                 chars[i] = neighbor.upper() if chars[i].isupper() else neighbor
         return "".join(chars)
 
-    # ── Token-Boundary Level ──────────────────────────────────────────────────
+    # Token-Boundary Level
 
     def _add_whitespace_only(self, text, error_rate):
         """
         Isolated whitespace perturbation: only injects or deletes spaces.
 
-        Effect on tokenizer: splits words into sub-word fragments
-        ("waterfall" → "water fall") or merges adjacent words
-        ("the dog" → "thedog"). This restructures the token sequence
-        without changing character identity or casing.
-
-        Use this to study token-boundary disruption in isolation.
+        This was split out from the combined whitespace_case method after
+        we realized we couldn't tell which effect was causing the failures.
         """
         chars = list(text)
         for i in range(len(chars) - 1, 0, -1):
             if random.random() < error_rate:
                 if chars[i] == ' ':
-                    # Delete an existing space (merges two tokens)
+                    # delete an existing space (merges two tokens)
                     if random.random() < 0.5:
                         del chars[i]
                 else:
-                    # Insert a space mid-word (splits a token)
+                    # insert a space mid-word (splits a token)
                     if random.random() < 0.5:
                         chars.insert(i, ' ')
         return "".join(chars)
@@ -128,11 +124,7 @@ class PerturbationEngine:
         """
         Isolated case perturbation: randomly flips character case.
 
-        Effect on tokenizer: most subword tokenizers (BPE) treat 'Dog'
-        and 'dog' as different tokens, so case flipping changes token
-        identity without altering word boundaries or meaning.
-
-        Use this to study orthographic sensitivity in isolation.
+        Most subword tokenizers (BPE) treat 'Dog' and 'dog' as different tokens.
         """
         chars = list(text)
         for i in range(len(chars)):
@@ -149,7 +141,7 @@ class PerturbationEngine:
         Retained for reproducibility of earlier experiments only.
         For new experiments use 'whitespace' and 'case' separately.
         """
-        # Whitespace pass
+        # whitespace pass
         chars = list(text)
         for i in range(len(chars) - 1, 0, -1):
             if random.random() < error_rate:
@@ -160,7 +152,7 @@ class PerturbationEngine:
                     if random.random() < 0.5:
                         chars.insert(i, ' ')
 
-        # Case pass
+        # case pass
         result = list("".join(chars))
         for i in range(len(result)):
             if random.random() < error_rate:
@@ -170,7 +162,7 @@ class PerturbationEngine:
                     result[i] = result[i].lower()
         return "".join(result)
 
-    # ── Semantic Level ────────────────────────────────────────────────────────
+    # Semantic Level
 
     def _add_homophones(self, text, error_rate):
         def replace_match(m):
@@ -179,6 +171,7 @@ class PerturbationEngine:
             if lower not in self.homophones_map or random.random() >= error_rate:
                 return word
             choice = random.choice(self.homophones_map[lower])
+            # preserve original casing
             if word.isupper():
                 return choice.upper()
             if word[0].isupper():
@@ -187,6 +180,7 @@ class PerturbationEngine:
         return re.sub(r"\b[A-Za-z']+\b", replace_match, text)
 
     def _add_speech_fillers(self, text, error_rate):
+        """Insert speech fillers (um, uh, like) to simulate ASR transcription."""
         words = text.split()
         new_words = []
         for word in words:

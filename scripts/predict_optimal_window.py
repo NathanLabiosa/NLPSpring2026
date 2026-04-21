@@ -116,12 +116,13 @@ def classify_regime(lrd_path: str) -> dict:
     mean_lrd = mean_lrd_full[:-1]
 
     n  = len(mean_lrd)
-    q  = max(1, n // 4)
+    q  = max(1, n // 4)  # first and last quartile
     early   = float(mean_lrd[:q].mean())
     late    = float(mean_lrd[-q:].mean())
     max_l   = int(mean_lrd.argmax())
     ratio   = late / early if early > 1e-8 else 1.0
 
+    # classification heuristic: threshold 0.7 chosen empirically from Phi/Llama/Mistral
     if max_l < n // 2 and ratio < 0.7:
         regime = "spike-and-suppress"
         description = (f"LRD peaks at layer {max_l} (first half, output layer excluded), "
@@ -146,13 +147,13 @@ def classify_regime(lrd_path: str) -> dict:
 
 def effective_rank(W: torch.Tensor) -> float:
     """exp(entropy(σ / Σσ)) for the weight matrix W."""
-    s = torch.linalg.svdvals(W.float())
-    s = s[s > 1e-8]
+    s = torch.linalg.svdvals(W.float())  # singular values
+    s = s[s > 1e-8]  # drop numerical noise
     if len(s) == 0:
         return 1.0
-    p   = s / s.sum()
-    ent = -(p * torch.log(p + 1e-12)).sum()
-    return float(torch.exp(ent).item())
+    p   = s / s.sum()  # probability distribution over singular values
+    ent = -(p * torch.log(p + 1e-12)).sum()  # Shannon entropy
+    return float(torch.exp(ent).item())  # effective rank = exp(H(p))
 
 
 def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
@@ -172,7 +173,7 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
         device_map={"": 0},
         torch_dtype=torch.bfloat16,
         trust_remote_code=True,
-        attn_implementation="eager",
+        attn_implementation="eager",  # sdpa caused issues with gradient checkpointing
     )
     # C4 needs a backward pass on a frozen 9B+ model on a V100 32GB — without
     # gradient checkpointing this OOMs. Checkpointing requires use_cache=False.
@@ -180,6 +181,7 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
     is_qwen = "Qwen" in model_id
     if hasattr(model, "gradient_checkpointing_enable") and not is_qwen:
         model.gradient_checkpointing_enable()
+        # print("Enabled gradient checkpointing for C4 backward pass")
     if hasattr(model, "config"):
         model.config.use_cache = False
 
@@ -201,7 +203,7 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
                 W = W[:d]
             c3_per_layer[l] = effective_rank(W)
         except KeyError:
-            # Try v_proj fallback
+            # Try v_proj fallback (some models have different key naming)
             vkey = key.replace("q_proj", "v_proj")
             try:
                 W = dict(model.named_parameters())[vkey + ".weight"]
@@ -211,6 +213,7 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
                 c3_per_layer[l] = float("nan")
 
     print(f"  C3 (effective rank) computed for {len(c3_per_layer)} layers.")
+    # print(f"  [DEBUG] C3 range: [{min(c3_per_layer.values()):.1f}, {max(c3_per_layer.values()):.1f}]")
 
     # ── C4: gradient norm on clean GSM8K ─────────────────────────────────────
     print(f"  Computing C4 (gradient norms) on {n_samples} clean examples...")
@@ -237,6 +240,7 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
         else:
             param.requires_grad = False
     print(f"  [info] {n_trainable} params with requires_grad=True (q/v_proj weights only).")
+    # print(f"  [DEBUG] Total params: {sum(p.numel() for p in model.parameters()):,}")
 
     # Gradient checkpointing needs the embedding output to require grad so the
     # graph connects from frozen embeddings to the first checkpointed layer.
@@ -260,7 +264,7 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
         out    = model(**enc, labels=enc["input_ids"])
         loss   = out.loss
 
-        # Check for NaN loss before backward
+        # Check for NaN loss before backward (happened on Gemma2 with few-shot prompting)
         if math.isnan(loss.item()):
             if item == items[0]:
                 print(f"  [WARN] First example has NaN loss, skipping")
@@ -271,22 +275,22 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
         # Build param_dict once per example
         param_dict = dict(model.named_parameters())
 
-        # Check first example only
-        if item == items[0]:
-            first_key = q_key.format(l=0) + ".weight"
-            if first_key in param_dict:
-                W0 = param_dict[first_key]
-                print(f"  [DEBUG] First example: {first_key} exists, requires_grad={W0.requires_grad}, grad is None={W0.grad is None}, loss={loss.item():.6f}")
-                if W0.grad is not None:
-                    grad_fp32 = W0.grad.detach().to(torch.float32)
-                    gnorm = grad_fp32.norm('fro').item()
-                    print(f"  [DEBUG] First example grad norm (fp32): {gnorm}, is_nan={math.isnan(gnorm)}")
-                    print(f"  [DEBUG] First example grad min/max: {W0.grad.min().item():.6e} / {W0.grad.max().item():.6e}")
-            else:
-                print(f"  [DEBUG] First example: {first_key} NOT FOUND in model parameters")
-                # Print first few q_proj keys
-                q_keys = [k for k in param_dict.keys() if 'q_proj' in k and 'weight' in k][:3]
-                print(f"  [DEBUG] Sample q_proj keys: {q_keys}")
+        # DEBUG: check first example only to verify gradients flow correctly
+        # if item == items[0]:
+        #     first_key = q_key.format(l=0) + ".weight"
+        #     if first_key in param_dict:
+        #         W0 = param_dict[first_key]
+        #         print(f"  [DEBUG] First example: {first_key} exists, requires_grad={W0.requires_grad}, grad is None={W0.grad is None}, loss={loss.item():.6f}")
+        #         if W0.grad is not None:
+        #             grad_fp32 = W0.grad.detach().to(torch.float32)
+        #             gnorm = grad_fp32.norm('fro').item()
+        #             print(f"  [DEBUG] First example grad norm (fp32): {gnorm}, is_nan={math.isnan(gnorm)}")
+        #             print(f"  [DEBUG] First example grad min/max: {W0.grad.min().item():.6e} / {W0.grad.max().item():.6e}")
+        #     else:
+        #         print(f"  [DEBUG] First example: {first_key} NOT FOUND in model parameters")
+        #         # Print first few q_proj keys
+        #         q_keys = [k for k in param_dict.keys() if 'q_proj' in k and 'weight' in k][:3]
+        #         print(f"  [DEBUG] Sample q_proj keys: {q_keys}")
         for l in range(n_layers):
             key = q_key.format(l=l)
             try:
@@ -297,11 +301,12 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
                     gnorm = float(grad_fp32.norm("fro").item())
                     if not math.isnan(gnorm):
                         grad_accum[l].append(gnorm)
-                elif l == 0:  # Debug: print why grad is None for first layer only
-                    print(f"  [DEBUG] Layer {l} ({key}.weight): grad is None, requires_grad={W.requires_grad}")
+                # elif l == 0:  # Debug: print why grad is None for first layer only
+                #     print(f"  [DEBUG] Layer {l} ({key}.weight): grad is None, requires_grad={W.requires_grad}")
             except KeyError:
-                if l == 0:  # Debug: print key error for first layer only
-                    print(f"  [DEBUG] Layer {l}: KeyError for {key}.weight")
+                pass  # already warned during C3 computation
+                # if l == 0:  # Debug: print key error for first layer only
+                #     print(f"  [DEBUG] Layer {l}: KeyError for {key}.weight")
 
         model.zero_grad()
 
@@ -339,6 +344,8 @@ def predict_optimal_window(regime: str, c3_layers: dict, c4_layers: dict,
         → score = c3_norm * (1 - c4_norm)  (higher = more favourable)
 
     Returns a ranked list of windows with their predicted scores.
+
+    TODO: might want to try other composite functions (multiplicative, rank-based)
     """
     # Map each window to its mean C3 and C4
     window_data = []

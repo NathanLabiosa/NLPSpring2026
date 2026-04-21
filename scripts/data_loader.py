@@ -1,6 +1,7 @@
 from datasets import load_dataset, concatenate_datasets
 import random
 
+# BBH has a bunch of subtasks, we're using all of them
 BBH_TASKS = [
     "boolean_expressions", "causal_judgement", "date_understanding",
     "disambiguation_qa", "dyck_languages", "formal_fallacies",
@@ -25,7 +26,7 @@ class DatasetManager:
     def load_and_format(self, dataset_name, perturbation_func=None, split="test"):
         """
         Loads a dataset and applies the correct prompt template + perturbations.
-        
+
         Args:
             dataset_name (str): One of 'humaneval', 'gsm8k', 'mmlu', 'bbh', 'arc', 'squad'
             perturbation_func (callable): Function to apply noise to the input text.
@@ -48,49 +49,50 @@ class DatasetManager:
         else:
             raise ValueError(f"Dataset '{dataset_name}' not supported.")
 
-    # --- 1. HumanEval (Code Completion) ---
+    # HumanEval (Code Completion)
     def _setup_humaneval(self, perturbation_func):
         # HumanEval only has a 'test' split
         dataset = load_dataset("openai_humaneval", split="test")
-        
+
         def format_fn(sample):
             prompt_text = sample['prompt']
             if perturbation_func:
                 prompt_text = perturbation_func(prompt_text)
-                
+
             messages = [
                 {"role": "system", "content": "You are a helpful coding assistant. Complete the Python function. Output ONLY the code within markdown code blocks."},
                 {"role": "user", "content": prompt_text}
             ]
             return {"formatted_prompt": self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)}
-            
+
         return dataset.map(format_fn)
 
-    # --- 2. GSM8K (Math Chain-of-Thought) ---
+    # GSM8K (Math Chain-of-Thought)
     def _setup_gsm8k(self, perturbation_func):
         dataset = load_dataset("openai/gsm8k", "main", split="test")
-        
+
         def format_fn(sample):
             prompt_text = sample['question']
             if perturbation_func:
                 prompt_text = perturbation_func(prompt_text)
 
+            # this system prompt is important for getting the model to output #### format
             messages = [
                 {"role": "system", "content": "You are a helpful assistant. Solve the math problem step by step. The last line must be '#### ANSWER'."},
                 {"role": "user", "content": prompt_text}
             ]
             return {"formatted_prompt": self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)}
-            
+
         return dataset.map(format_fn)
 
-    # --- 3. MMLU (Multiple Choice Knowledge) ---
+    # MMLU (Multiple Choice Knowledge)
     def _setup_mmlu(self, perturbation_func):
-        # The list of specific subsets you requested
+        # we're only using a subset of MMLU for computational reasons
         target_subsets = [
             "college_computer_science",
             "college_mathematics",
             "college_physics",
-            "electrical_engineering", 
+            "electrical_engineering",
             "abstract_algebra",
             "machine_learning",
             "philosophy",
@@ -98,37 +100,37 @@ class DatasetManager:
             "professional_law",
             "business_ethics"
         ]
-        
+
         dataset_list = []
         print(f"Loading {len(target_subsets)} MMLU subsets...")
-        
-        # 1. Load each subset individually
+
+        # load each subset individually
         for sub in target_subsets:
             try:
-                # MMLU usually has 'test' split. 
-                # We use 'cais/mmlu' (the official Hugging Face path)
+                # MMLU usually has 'test' split
+                # we use 'cais/mmlu' (the official Hugging Face path)
                 ds = load_dataset("cais/mmlu", sub, split="test")
                 dataset_list.append(ds)
             except Exception as e:
                 print(f"Warning: Could not load MMLU subset '{sub}': {e}")
 
-        # 2. Combine them into one big dataset
+        # combine them into one big dataset
         if not dataset_list:
             raise ValueError("No MMLU subsets were loaded successfully.")
-        
+
         combined_dataset = concatenate_datasets(dataset_list)
         print(f"Combined MMLU Size: {len(combined_dataset)} examples")
 
-        # 3. Define Formatting (Same as before)
+        # format the multiple choice prompts
         def format_fn(sample):
             question = sample['question']
-            choices = sample['choices'] # List of strings
-            
-            # Apply perturbation to the QUESTION only
+            choices = sample['choices']  # list of strings
+
+            # apply perturbation to the QUESTION only (not the choices)
             if perturbation_func:
                 question = perturbation_func(question)
 
-            # Format: Question + Options
+            # format: Question + Options
             formatted_input = f"{question}\n"
             options = ["A", "B", "C", "D"]
             for i, choice in enumerate(choices):
@@ -140,11 +142,11 @@ class DatasetManager:
                 {"role": "user", "content": formatted_input}
             ]
             return {"formatted_prompt": self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)}
-            
+
         return combined_dataset.map(format_fn)
 
 
-    # --- 4. BBH (Logical Reasoning) ---
+    # BBH (Logical Reasoning)
     def _setup_bbh(self, perturbation_func):
         from datasets import load_dataset, concatenate_datasets
 
@@ -152,6 +154,7 @@ class DatasetManager:
         for task in BBH_TASKS:
             try:
                 ds = load_dataset("lukaemon/bbh", task, split="test")
+                # add task name so we can track which task each example is from
                 ds = ds.map(lambda x, t=task: {**x, "bbh_task": t})
                 subtask_datasets.append(ds)
             except Exception as e:
@@ -160,10 +163,10 @@ class DatasetManager:
         if not subtask_datasets:
             raise RuntimeError("No BBH subtasks could be loaded.")
 
-        # Shuffle before pre-filtering so clean-correct examples are drawn
-        # proportionally across tasks rather than exhausting one task first.
+        # shuffle before pre-filtering so clean-correct examples are drawn
+        # proportionally across tasks rather than exhausting one task first
         combined = concatenate_datasets(subtask_datasets)
-        combined = combined.shuffle(seed=42)
+        combined = combined.shuffle(seed=42)  # fixed seed for reproducibility
 
         def format_fn(sample):
             input_text = sample['input']
@@ -188,14 +191,14 @@ class DatasetManager:
         return combined.map(format_fn)
 
 
-    # --- 5. ARC-Challenge (Science Reasoning) ---
+    # ARC-Challenge (Science Reasoning)
     def _setup_arc(self, perturbation_func):
         dataset = load_dataset("allenai/ai2_arc", "ARC-Challenge", split="test")
-        
+
         def format_fn(sample):
             question = sample['question']
-            choices = sample['choices'] # Dict with 'text' and 'label' lists
-            
+            choices = sample['choices']  # dict with 'text' and 'label' lists
+
             if perturbation_func:
                 question = perturbation_func(question)
 
@@ -212,18 +215,17 @@ class DatasetManager:
 
         return dataset.map(format_fn)
 
-    # --- 6. SQuAD v2 (Reading Comprehension) ---
+    # SQuAD v2 (Reading Comprehension)
     def _setup_squad(self, perturbation_func):
-        # SQuAD uses 'validation' for evaluation usually (test is hidden)
+        # SQuAD uses 'validation' for evaluation (test is hidden)
         dataset = load_dataset("rajpurkar/squad_v2", split="validation")
-        
+
         def format_fn(sample):
             context = sample['context']
             question = sample['question']
-            
-            # NOTE: For SQuAD, you might want to perturb the CONTEXT (to simulate bad documents) 
-            # or the QUESTION (to simulate bad user queries). 
-            # Here we perturb the QUESTION to stay consistent with other tasks.
+
+            # NOTE: we perturb the QUESTION to stay consistent with other tasks
+            # (could also perturb context to simulate noisy documents)
             if perturbation_func:
                 question = perturbation_func(question)
 

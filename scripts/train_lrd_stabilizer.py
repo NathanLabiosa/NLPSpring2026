@@ -133,7 +133,7 @@ class TokenizedBatch:
 # loss relative to its actual semantic impact on model behaviour.  Down-weighting
 # it prevents it from dominating training signal at the cost of modest coverage.
 PERTURBATION_LOSS_WEIGHTS: dict = {
-    "whitespace": 0.3,
+    "whitespace": 0.3,  # changed from 1.0 → 0.3 after noticing training was overfitting to whitespace
 }
 PERTURBATION_LOSS_DEFAULT_WEIGHT: float = 1.0
 
@@ -189,7 +189,7 @@ def build_gsm8k_pairs(
     for method, rate in perturbation_pool:
         # Sample n_per_condition items (cycle if dataset is smaller)
         for i in range(n_per_condition):
-            item = all_items[i % len(all_items)]
+            item = all_items[i % len(all_items)]  # wrap around if we exhaust the dataset
             clean_q = item["question"]
             clean_a = item["answer"]
             noisy_q = perturber.apply(clean_q, method, rate)
@@ -202,7 +202,7 @@ def build_gsm8k_pairs(
                 is_clean=False,
             ))
 
-    # Add clean→clean pairs
+    # Add clean→clean pairs (teach gate to stay closed on unperturbed input)
     n_clean = int(len(pairs) * clean_fraction)
     for i in range(n_clean):
         item = all_items[i % len(all_items)]
@@ -221,6 +221,7 @@ def build_gsm8k_pairs(
         f"  GSM8K pairs: {len(pairs)} total "
         f"({len(pairs) - n_clean} perturbed, {n_clean} clean)"
     )
+    # print(f"  [DEBUG] n_per_condition={n_per_condition}, clean_fraction={clean_fraction}")
     return pairs
 
 
@@ -476,10 +477,12 @@ def format_question_prompt(
     base model has in-context examples of the required '#### NUMBER' format.
     """
     if getattr(tokenizer, "chat_template", None) is None:
+        # base model: no chat template, use few-shot format
         if system_prompt == GSM8K_SYSTEM_PROMPT:
             return GSM8K_FEW_SHOT.format(question=question)
         return f"{system_prompt}\n\nQuestion: {question}\nAnswer:"
 
+    # instruct model: use chat template
     messages = [
         {"role": "system",  "content": system_prompt},
         {"role": "user",    "content": question},
@@ -539,7 +542,7 @@ def tokenize_pair(
     # Noisy full = [noisy_prompt_tokens] + [answer_tokens]
     noisy_full_ids = torch.cat([noisy_prompt_ids, answer_ids])
 
-    # Answer mask: True for the answer token positions
+    # Answer mask: True for the answer token positions (for teacher forcing)
     answer_mask = torch.zeros(len(noisy_full_ids), dtype=torch.bool)
     answer_mask[len(noisy_prompt_ids):] = True
 
@@ -547,6 +550,7 @@ def tokenize_pair(
     if len(noisy_full_ids) > max_seq_len:
         noisy_full_ids = noisy_full_ids[:max_seq_len]
         answer_mask    = answer_mask[:max_seq_len]
+        # print(f"[WARN] Truncated noisy_full_ids from {len(noisy_full_ids)} to {max_seq_len}")
 
     return {
         "clean_prompt_ids":  clean_prompt_ids,
@@ -566,15 +570,17 @@ def collate_batch(
     clean_prompt_ids and noisy_full_ids are left-padded.
     """
     def _pad_left(tensors: List[torch.Tensor], pad_value: int) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Left-pad tensors to same length, return padded tensor + attention mask."""
         max_len = max(t.shape[0] for t in tensors)
         padded = torch.full((len(tensors), max_len), pad_value, dtype=torch.long)
         mask   = torch.zeros(len(tensors), max_len, dtype=torch.long)
         for i, t in enumerate(tensors):
-            padded[i, max_len - t.shape[0]:] = t
+            padded[i, max_len - t.shape[0]:] = t  # pad left
             mask[i,   max_len - t.shape[0]:] = 1
         return padded, mask
 
     def _pad_bool_left(tensors: List[torch.Tensor]) -> torch.Tensor:
+        """Left-pad boolean tensors (for answer masks)."""
         max_len = max(t.shape[0] for t in tensors)
         padded = torch.zeros(len(tensors), max_len, dtype=torch.bool)
         for i, t in enumerate(tensors):

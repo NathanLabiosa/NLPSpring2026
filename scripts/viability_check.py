@@ -22,23 +22,24 @@ from evaluator import evaluate_gsm8k_entry
 def main():
     model_id = "Qwen/Qwen2.5-7B-Instruct"
     n_samples = 50
-    gate_accuracy = 70.0
+    gate_accuracy = 70.0  # threshold to proceed
 
     print(f"=== Qwen2.5-7B-Instruct Viability Check (B0) ===")
     print(f"Samples: {n_samples}, Gate: {gate_accuracy}%\n")
 
-    # Load model exactly as main.py / model_loader.py does
+    # load model exactly as main.py / model_loader.py does
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     tokenizer.padding_side = "left"
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+        # print("set pad token to eos")
 
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
         device_map={"": 0},
         torch_dtype=torch.bfloat16,
         trust_remote_code=True,
-        attn_implementation="sdpa",
+        attn_implementation="sdpa",  # tried flash_attention_2 but OOM
     )
 
     pipe = pipeline(
@@ -48,7 +49,7 @@ def main():
         pad_token_id=tokenizer.pad_token_id,
     )
 
-    # Generation settings matching main.py
+    # generation settings matching main.py
     gen_kwargs = {
         "max_new_tokens": 600,
         "do_sample": False,
@@ -65,7 +66,7 @@ def main():
     results = []
 
     for i, item in enumerate(items):
-        # Same prompt format as data_loader.py _setup_gsm8k
+        # same prompt format as data_loader.py _setup_gsm8k
         messages = [
             {"role": "system", "content": "You are a helpful assistant. Solve the math problem step by step. The last line must be '#### ANSWER'."},
             {"role": "user", "content": item["question"]},
@@ -76,11 +77,11 @@ def main():
         out = pipe(prompt, **gen_kwargs)
         generated_text = out[0]["generated_text"]
 
-        # Use the same evaluator as main.py
+        # use the same evaluator as main.py
         is_correct = evaluate_gsm8k_entry(generated_text, item)
         correct += int(is_correct)
 
-        # Extract for logging
+        # extract for logging
         pred_match = re.search(r"####\s*(-?[\d,]+(?:\.\d+)?)", generated_text)
         extracted = pred_match.group(1).replace(",", "") if pred_match else "(no ####)"
         truth_match = re.search(r"####\s*(-?[\d,]+(?:\.\d+)?)", item["answer"])
@@ -91,7 +92,7 @@ def main():
             "correct": is_correct,
         })
 
-        if i < 5 or not is_correct:
+        if i < 5 or not is_correct:  # show first few + failures
             status = "CORRECT" if is_correct else "WRONG"
             print(f"  [{i:2d}] {status}  truth={truth}  extracted={extracted}")
 

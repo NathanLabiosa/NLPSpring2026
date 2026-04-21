@@ -104,9 +104,10 @@ def build_training_pairs(perturber: PerturbationEngine,
 
     pairs: List[TrainingPair] = []
 
+    # build pairs from each perturbation type in the training pool
     for method, rate in TRAINING_POOL:
         for i in range(n_per_condition):
-            item    = items[i % len(items)]
+            item    = items[i % len(items)]  # cycle through dataset
             clean_q = item["question"]
             clean_a = item["answer"]
             noisy_q = perturber.apply(clean_q, method, rate)
@@ -119,7 +120,7 @@ def build_training_pairs(perturber: PerturbationEngine,
                 is_clean=False,
             ))
 
-    # Clean pairs
+    # Clean pairs (data augmentation baseline)
     n_clean = int(len(pairs) * clean_fraction)
     for i in range(n_clean):
         item = items[i % len(items)]
@@ -164,7 +165,7 @@ def evaluate(model, tokenizer, perturber, eval_items, device, output_dir: str) -
         n_batches = (len(prompts) + batch_size - 1) // batch_size
         for i in range(0, len(prompts), batch_size):
             batch_idx = i // batch_size + 1
-            if batch_idx % 10 == 0 or batch_idx == 1:
+            if batch_idx % 10 == 0 or batch_idx == 1:  # less verbose logging
                 print(f"  Generating batch {batch_idx}/{n_batches}...")
                 sys.stdout.flush()
             batch = prompts[i:i + batch_size]
@@ -173,9 +174,9 @@ def evaluate(model, tokenizer, perturber, eval_items, device, output_dir: str) -
             if use_adapter:
                 ids = model.generate(**enc, **gen_kw)
             else:
-                with model.disable_adapter():
+                with model.disable_adapter():  # baseline: frozen base model
                     ids = model.generate(**enc, **gen_kw)
-            new_ids = ids[:, enc["input_ids"].shape[1]:]
+            new_ids = ids[:, enc["input_ids"].shape[1]:]  # strip prompt
             out.extend(tokenizer.batch_decode(new_ids, skip_special_tokens=True))
         return out
 
@@ -268,10 +269,10 @@ def train(args):
             dtype = torch.bfloat16
         else:
             dtype = torch.float16
-        attn_impl = "eager"
+        attn_impl = "eager"  # gemma fails with sdpa
     else:
         dtype = torch.bfloat16
-        attn_impl = "sdpa"
+        attn_impl = "sdpa"  # faster on Qwen/TinyLlama
 
     base_model = AutoModelForCausalLM.from_pretrained(
         args.model,
@@ -290,7 +291,7 @@ def train(args):
         r                 = args.lora_rank,
         lora_alpha        = args.lora_alpha,
         target_modules    = args.target_modules,
-        layers_to_transform = layer_list,
+        layers_to_transform = layer_list,  # restrict to specified window
         lora_dropout      = 0.05,
         bias              = "none",
     )
@@ -302,6 +303,7 @@ def train(args):
     for name, param in model.named_parameters():
         if param.requires_grad and param.dtype != torch.float32:
             param.data = param.data.to(torch.float32)
+    # print(f"Converted {sum(1 for p in model.parameters() if p.requires_grad)} LoRA params to fp32")
 
     # ── Data ──────────────────────────────────────────────────────────────
     perturber = PerturbationEngine()
@@ -351,7 +353,7 @@ def train(args):
     optimizer.zero_grad()
 
     while step < args.n_steps:
-        random.shuffle(tokenized)
+        random.shuffle(tokenized)  # shuffle training pairs each epoch
         for batch_start in range(0, len(tokenized) - args.batch_size + 1,
                                  args.batch_size):
             if step >= args.n_steps:
@@ -375,7 +377,7 @@ def train(args):
                 logits = out.logits.float()
                 loss = accuracy_loss(logits, batch.noisy_full_ids, batch.answer_mask)
 
-            # Check for NaN and skip this step if found
+            # Check for NaN and skip this step if found (happened occasionally with Gemma2)
             if torch.isnan(loss):
                 if step % 100 == 0:
                     print(f"WARNING: NaN loss at step {step}, skipping", file=sys.stderr)
@@ -402,11 +404,12 @@ def train(args):
                     scheduler.step()
                 optimizer.zero_grad()
 
-            if step % 5 == 0:  # More frequent updates for debugging
+            if step % 5 == 0:  # more frequent updates for debugging
                 print(f"Step {step:5d}/{args.n_steps} | loss={loss.item():.4f}")
                 sys.stdout.flush()
-            if step % 25 == 0:
+            if step % 25 == 0:  # log every 25 steps
                 logs.append({"step": step, "loss": round(loss.item(), 5)})
+                # print(f"  [DEBUG] lr={scheduler.get_last_lr()[0]:.6f}")
 
     # ── Save ───────────────────────────────────────────────────────────────
     final = os.path.join(args.output_dir, "lora_final")
