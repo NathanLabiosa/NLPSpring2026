@@ -18,11 +18,11 @@ SW   = os.path.join(ROOT, "stabilizer_weights")
 
 MODEL_CFGS = {
     "TinyLlama": {
-        "model_id":    "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-        "n_layers":    22,
-        "lrd_path":    "TinyLlama/lrd_results/tinyllama_gsm8k/raw_gsm8k.json",
+        "model_id":  "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+        "n_layers": 22,
+        "lrd_path": "TinyLlama/lrd_results/tinyllama_gsm8k/raw_gsm8k.json",
         "q_weight_key": "model.layers.{l}.self_attn.q_proj",
-        "q_fused":     False,
+        "q_fused": False,
         "sweep_dirs": [
             ("tinyllama_sweep_L00_03", (0,  3)),
             ("tinyllama_sweep_L04_07", (4,  7)),
@@ -32,11 +32,11 @@ MODEL_CFGS = {
         ],
     },
     "Gemma2": {
-        "model_id":    "google/gemma-2-9b",
-        "n_layers":    42,
-        "lrd_path":    "Gemma2/lrd_results/gemma2_9b_gsm8k/raw_gsm8k.json",
+        "model_id": "google/gemma-2-9b",
+        "n_layers": 42,
+        "lrd_path":  "Gemma2/lrd_results/gemma2_9b_gsm8k/raw_gsm8k.json",
         "q_weight_key": "model.layers.{l}.self_attn.q_proj",
-        "q_fused":     False,
+        "q_fused":   False,
         "sweep_dirs": [
             ("gemma2_9b_sweep_L00_05", (0,  5)),
             ("gemma2_9b_sweep_L06_11", (6,  11)),
@@ -48,11 +48,11 @@ MODEL_CFGS = {
         ],
     },
     "Qwen25": {
-        "model_id":    "Qwen/Qwen2.5-7B-Instruct",
-        "n_layers":    28,
-        "lrd_path":    "Qwen2.5/lrd_results/qwen_gsm8k/raw_gsm8k.json",
+        "model_id":   "Qwen/Qwen2.5-7B-Instruct",
+        "n_layers":  28,
+        "lrd_path": "Qwen2.5/lrd_results/qwen_gsm8k/raw_gsm8k.json",
         "q_weight_key": "model.layers.{l}.self_attn.q_proj",
-        "q_fused":     False,
+        "q_fused":  False,
         "sweep_dirs": [
             ("qwen_sweep_L00_03", (0,  3)),
             ("qwen_sweep_L04_07", (4,  7)),
@@ -81,10 +81,10 @@ def classify_regime(lrd_path: str) -> dict:
 
     n  = len(mean_lrd)
     q  = max(1, n // 4)  # first and last quartile
-    early   = float(mean_lrd[:q].mean())
-    late    = float(mean_lrd[-q:].mean())
-    max_l   = int(mean_lrd.argmax())
-    ratio   = late / early if early > 1e-8 else 1.0
+    early = float(mean_lrd[:q].mean())
+    late  = float(mean_lrd[-q:].mean())
+    max_l  = int(mean_lrd.argmax())
+    ratio = late / early if early > 1e-8 else 1.0
 
     # classification heuristic: threshold 0.7 chosen empirically from Phi/Llama/Mistral
     if max_l < n // 2 and ratio < 0.7:
@@ -97,10 +97,10 @@ def classify_regime(lrd_path: str) -> dict:
                        f"late/early ratio={ratio:.2f} (≥ 0.70 or peak in second half)")
 
     return {
-        "regime":      regime,
+        "regime": regime,
         "description": description,
-        "mean_lrd":    mean_lrd.tolist(),
-        "max_layer":   max_l,
+        "mean_lrd" mean_lrd.tolist(),
+        "max_layer": max_l,
         "late_early_ratio": round(ratio, 3),
     }
 
@@ -120,7 +120,7 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
                   device: str = "cuda") -> dict:
     """
     C3: weight effective rank per layer (q_proj/v_proj), static.
-    C4: gradient norm ||∂L_CE / ∂W||_F for q_proj/v_proj on clean GSM8K.
+    C4: gradient norm on clean GSM8K.
     """
     print(f"\nLoading {model_id} for C3/C4 computation...")
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
@@ -220,8 +220,8 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
         enc = tokenizer(prompt, return_tensors="pt", truncation=True,
                         max_length=1024 if is_base_model else 512).to(device)
         # Shift labels for CE
-        out    = model(**enc, labels=enc["input_ids"])
-        loss   = out.loss
+        out = model(**enc, labels=enc["input_ids"])
+        loss  = out.loss
 
         # Check for NaN loss before backward (happened on Gemma2 with few-shot prompting)
         if math.isnan(loss.item()):
@@ -290,11 +290,11 @@ def predict_optimal_window(regime: str, c3_layers: dict, c4_layers: dict,
     # Map each window to its mean C3 and C4
     window_data = []
     for dir_suffix, (lo, hi) in sweep_windows:
-        layers    = list(range(lo, hi + 1))
-        c3_vals   = [c3_layers.get(l, float("nan")) for l in layers]
-        c4_vals   = [c4_layers.get(l, float("nan")) for l in layers]
-        c3_mean   = float(np.nanmean(c3_vals))
-        c4_mean   = float(np.nanmean(c4_vals))
+        layers = list(range(lo, hi + 1))
+        c3_vals = [c3_layers.get(l, float("nan")) for l in layers]
+        c4_vals = [c4_layers.get(l, float("nan")) for l in layers]
+        c3_mean = float(np.nanmean(c3_vals))
+        c4_mean = float(np.nanmean(c4_vals))
         window_data.append({
             "dir_suffix": dir_suffix,
             "lo": lo, "hi": hi,
@@ -322,7 +322,7 @@ def predict_optimal_window(regime: str, c3_layers: dict, c4_layers: dict,
             score = c3_norm[i] * (1 - c4_norm[i])
         w["c3_norm"] = round(float(c3_norm[i]), 4)
         w["c4_norm"] = round(float(c4_norm[i]), 4)
-        w["score"]   = round(float(score), 4)
+        w["score"] = round(float(score), 4)
 
     # Rank by score descending
     ranked = sorted(window_data, key=lambda w: -w["score"])
@@ -331,7 +331,7 @@ def predict_optimal_window(regime: str, c3_layers: dict, c4_layers: dict,
 
     return {
         "regime": regime,
-        "rule":   ("lowest C3, highest C4 (spike-and-suppress)"
+        "rule": ("lowest C3, highest C4 (spike-and-suppress)"
                    if regime == "spike-and-suppress"
                    else "highest C3, lowest C4 (late-accumulation)"),
         "windows_ranked": ranked,
@@ -360,22 +360,22 @@ def check_prediction(prediction: dict, sweep_windows: list) -> dict:
 
     # Rank by actual delta descending
     actual_ranked = sorted(window_deltas, key=lambda k: -window_deltas[k])
-    actual_best   = actual_ranked[0]
+    actual_best = actual_ranked[0]
 
-    pred_best     = prediction["predicted_best"]
+    pred_best = prediction["predicted_best"]
     pred_rank_of_actual = actual_ranked.index(actual_best) + 1
     actual_rank_of_pred = (actual_ranked.index(pred_best) + 1
                            if pred_best in actual_ranked else None)
 
-    print(f"  Predicted best:  {pred_best}")
-    print(f"  Actual best:     {actual_best} (Δ={window_deltas[actual_best]:+.2f}%)")
+    print(f"  Predicted best: {pred_best}")
+    print(f"  Actual best: {actual_best} (Δ={window_deltas[actual_best]:+.2f}%)")
     if actual_rank_of_pred is not None:
         print(f"  Predicted window ranked #{actual_rank_of_pred} out of {len(actual_ranked)}")
 
     hit  = (pred_best == actual_best)
     near = (actual_rank_of_pred is not None and actual_rank_of_pred <= 2)
 
-    print(f"  Outcome: {'EXACT HIT' if hit else ('NEAR-HIT (top-2)' if near else 'MISS')}")
+    print(f"Outcome: {'EXACT HIT' if hit else ('NEAR-HIT (top-2)' if near else 'MISS')}")
 
     # Spearman correlation between predicted and actual rankings
     predicted_ranks = {w["dir_suffix"]: w["predicted_rank"]
@@ -387,7 +387,7 @@ def check_prediction(prediction: dict, sweep_windows: list) -> dict:
     common = list(predicted_ranks.keys() & actual_ranks.keys())
     if len(common) >= 3:
         from scipy.stats import spearmanr
-        pred_r   = [predicted_ranks[k] for k in common]
+        pred_r = [predicted_ranks[k] for k in common]
         actual_r = [actual_ranks[k]    for k in common]
         rho, pval = spearmanr(pred_r, actual_r)
         print(f"  Rank correlation (predicted vs actual): ρ={rho:+.3f}, p={pval:.4f}")
@@ -396,34 +396,34 @@ def check_prediction(prediction: dict, sweep_windows: list) -> dict:
         print("  Too few common windows for rank correlation.")
 
     return {
-        "status":              "checked",
-        "predicted_best":      pred_best,
-        "actual_best":         actual_best,
+        "status": "checked",
+        "predicted_best":  pred_best,
+        "actual_best": actual_best,
         "actual_rank_of_pred": actual_rank_of_pred,
-        "hit":                 hit,
-        "near_hit":            near,
-        "window_deltas":       window_deltas,
-        "actual_ranking":      actual_ranked,
-        "rank_spearman_rho":   round(float(rho), 4),
-        "rank_spearman_p":     round(float(pval), 4),
+        "hit": hit,
+        "near_hit":  near,
+        "window_deltas": window_deltas,
+        "actual_ranking": actual_ranked,
+        "rank_spearman_rho": round(float(rho), 4),
+        "rank_spearman_p": round(float(pval), 4),
     }
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--model",             type=str, required=True,
+    p.add_argument("--model", type=str, required=True,
                    choices=list(MODEL_CFGS.keys()))
-    p.add_argument("--compute_c3c4",      action="store_true",
+    p.add_argument("--compute_c3c4", action="store_true",
                    help="Compute C3/C4 from frozen model (needs GPU)")
-    p.add_argument("--check_prediction",  action="store_true",
+    p.add_argument("--check_prediction", action="store_true",
                    help="Check existing prediction against sweep results")
-    p.add_argument("--n_samples",         type=int, default=50,
+    p.add_argument("--n_samples", type=int, default=50,
                    help="GSM8K examples for C4 gradient computation")
     args = p.parse_args()
 
-    cfg       = MODEL_CFGS[args.model]
-    pred_dir  = os.path.join(ROOT, "predictions")
+    cfg = MODEL_CFGS[args.model]
+    pred_dir = os.path.join(ROOT, "predictions")
     os.makedirs(pred_dir, exist_ok=True)
-    ts        = datetime.now().strftime("%Y%m%d_%H%M%S")
+    ts  = datetime.now().strftime("%Y%m%d_%H%M%S")
     pred_path = os.path.join(pred_dir, f"{args.model}_{ts}.json")
 
     # classify regime + compute C3/C4 + write prediction
@@ -433,8 +433,8 @@ def main():
         # 1. Classify regime
         print("\n[1] Classifying regime from LRD diagnostic...")
         regime_info = classify_regime(os.path.join(ROOT, cfg["lrd_path"]))
-        print(f"  → regime: {regime_info['regime']}")
-        print(f"  → {regime_info['description']}")
+        print(f"   regime: {regime_info['regime']}")
+        print(f"   {regime_info['description']}")
 
         # 2. Compute C3/C4
         print("\n[2] Computing C3 (weight rank) and C4 (gradient norm)...")
@@ -451,25 +451,25 @@ def main():
             cfg["sweep_dirs"],
         )
 
-        print(f"\n  Predicted optimal window: {prediction['predicted_best']}")
-        print(f"  Rule applied: {prediction['rule']}")
-        print("\n  Window rankings:")
+        print(f"\n Predicted optimal window: {prediction['predicted_best']}")
+        print(f" Rule applied: {prediction['rule']}")
+        print("\n Window rankings:")
         for w in prediction["windows_ranked"]:
-            print(f"    #{w['predicted_rank']}  {w['dir_suffix']:<30} "
+            print(f"#{w['predicted_rank']}  {w['dir_suffix']:<30} "
                   f"score={w['score']:.3f}  C3_norm={w['c3_norm']:.3f}  "
                   f"C4_norm={w['c4_norm']:.3f}")
 
         # 4. Save prediction
         record = {
-            "model":          args.model,
-            "model_id":       cfg["model_id"],
-            "timestamp":      ts,
-            "regime_info":    regime_info,
-            "c3_per_layer":   metrics["c3"],
-            "c4_per_layer":   metrics["c4"],
-            "prediction":     prediction,
-            "sweep_checked":  False,
-            "check_results":  None,
+            "model": args.model,
+            "model_id": cfg["model_id"],
+            "timestamp": ts,
+            "regime_info": regime_info,
+            "c3_per_layer": metrics["c3"],
+            "c4_per_layer": metrics["c4"],
+            "prediction": prediction,
+            "sweep_checked": False,
+            "check_results": None,
         }
         json.dump(record, open(pred_path, "w"), indent=2)
         print(f"\nPrediction saved: {pred_path}")
