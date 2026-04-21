@@ -1,52 +1,3 @@
-"""
-train_lrd_stabilizer.py
-
-Generalizable Training Script for the Multi-Layer LRD Stabilizer
-=================================================================
-Trains a MultiLayerStabilizerSystem on clean/noisy prompt pairs while keeping
-the base LLM fully frozen. Designed to be dataset- and model-agnostic.
-
-Loss
------
-    loss = λ * L_stabilization + (1-λ) * L_accuracy + λ_gate * L_gate
-
-    L_stabilization : MSE between corrected noisy hidden states and clean
-                      reference hidden states, summed across injection layers 1–8.
-    L_accuracy      : Teacher-forcing cross-entropy on the clean answer tokens,
-                      predicted from the corrected noisy-input hidden states.
-    L_gate          : L1 sparsity on gate outputs (gate stays closed on clean).
-
-Training data
--------------
-    Currently supported datasets: gsm8k
-    Extensible via the DatasetBuilder protocol (see build_dataset_pairs() below).
-
-    For each (perturbation_type, rate) condition, n_per_condition pairs are
-    drawn from the training split. An additional fraction of clean→clean pairs
-    teaches the gate to stay closed on unperturbed input.
-
-Two-pass training loop
------------------------
-    Pass 1 (no grad): model(clean_question_ids)  → capture h_clean at layers 1–8
-    Pass 2 (grad):    model(noisy_full_ids)       → apply stabilizer hooks,
-                        capture h_corrected, compute logits for L_accuracy
-
-Usage
-------
-    python train_lrd_stabilizer.py \\
-        --model    microsoft/Phi-3.5-mini-instruct \\
-        --dataset  gsm8k \\
-        --output_dir ./stabilizer_weights \\
-        --inject_layers 1 2 3 4 5 6 7 8 \\
-        --lambda_stab 0.5 \\
-        --epochs 5
-
-    # On HPC clusters without internet access, pass a local model dir:
-    python train_lrd_stabilizer.py \\
-        --model /scratch/$USER/Phi-3.5-mini-instruct \\
-        --dataset gsm8k \\
-        --output_dir ./stabilizer_weights
-"""
 
 from __future__ import annotations
 
@@ -67,10 +18,10 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# ── Import stabilizer system ──────────────────────────────────────────────────
+# Import stabilizer system  
 from stabilizer_system import MultiLayerStabilizerSystem, StabilizerConfig
 
-# ── Import PerturbationEngine (search common locations) ───────────────────────
+# Import PerturbationEngine (search common locations)
 def _import_perturbation_engine():
     """Try to import PerturbationEngine from common project locations."""
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -95,9 +46,8 @@ def _import_perturbation_engine():
 PerturbationEngine = _import_perturbation_engine()
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 # Data Types
-# ─────────────────────────────────────────────────────────────────────────────
 
 @dataclass
 class TrainingPair:
@@ -124,16 +74,16 @@ class TokenizedBatch:
     perturbations:      List[str]      # perturbation type per item (e.g. "typos", "none")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 # Perturbation Pool
-# ─────────────────────────────────────────────────────────────────────────────
+
 
 # Per-condition L_stab / L_dir loss weight.
 # Whitespace perturbation causes large token-count changes that inflate cosine
 # loss relative to its actual semantic impact on model behaviour.  Down-weighting
 # it prevents it from dominating training signal at the cost of modest coverage.
 PERTURBATION_LOSS_WEIGHTS: dict = {
-    "whitespace": 0.3,  # changed from 1.0 → 0.3 after noticing training was overfitting to whitespace
+    "whitespace": 0.3,  # changed from 1.0 to 0.3 after noticing training was overfitting to whitespace
 }
 PERTURBATION_LOSS_DEFAULT_WEIGHT: float = 1.0
 
@@ -144,15 +94,13 @@ DEFAULT_PERTURBATION_POOL: List[Tuple[str, float]] = [
     ("ocr",        0.05),   # low-rate OCR (historical baseline)
     ("ocr",        0.15),   # high-rate OCR (v11: OCR at 5% was underrepresented and hardest failure)
     ("speech",     0.10),
-    ("homophones", 0.30),   # v11: collapsed from 3 conditions (20/40/50%) → single representative
+    ("homophones", 0.30),   # v11: collapsed from 3 conditions (20/40/50%) single representative
     ("whitespace", 0.10),
     ("case",       0.10),
 ]
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Dataset Builders
-# ─────────────────────────────────────────────────────────────────────────────
 
 def build_gsm8k_pairs(
     perturber: PerturbationEngine,
@@ -161,20 +109,7 @@ def build_gsm8k_pairs(
     clean_fraction: float = 0.25,
     split: str = "train",
 ) -> List[TrainingPair]:
-    """
-    Build training pairs from GSM8K.
-
-    For each (perturbation_type, rate) in perturbation_pool, creates
-    n_per_condition perturbed pairs. Also adds clean→clean pairs at
-    clean_fraction * total_perturbed to teach the gate to stay closed.
-
-    Args:
-        perturber:          PerturbationEngine instance.
-        perturbation_pool:  List of (method, rate) conditions.
-        n_per_condition:    Pairs per perturbation condition.
-        clean_fraction:     Fraction of total data that is clean→clean.
-        split:              Dataset split ("train" or "test").
-    """
+    
     from datasets import load_dataset
 
     print(f"Loading GSM8K ({split} split)...")
@@ -232,11 +167,7 @@ def build_mmlu_pairs(
     clean_fraction: float = 0.25,
     split: str = "auxiliary_train",
 ) -> List[TrainingPair]:
-    """
-    Build training pairs from MMLU (auxiliary_train split).
-    Questions are formatted as multiple-choice with answer choices A–D.
-    The clean answer is just the letter of the correct choice.
-    """
+    
     from datasets import load_dataset
 
     print(f"Loading MMLU ({split} split)...")
@@ -302,11 +233,7 @@ def build_c4_pairs(
     min_words: int = 40,
     context_words: int = 30,
 ) -> List[TrainingPair]:
-    """
-    Build training pairs from C4 (general web corpus), with wikitext-103 fallback.
-    Each item is word-split into a context (first ~context_words words) and a
-    continuation (remaining words). The model is trained to continue the context.
-    """
+    
     from datasets import load_dataset
 
     all_texts: List[str] = []
@@ -386,11 +313,7 @@ def build_mixed_pairs(
     n_per_condition: int = 500,
     clean_fraction: float = 0.25,
 ) -> List[TrainingPair]:
-    """
-    40% GSM8K / 30% MMLU / 30% C4, all with the same perturbation augmentation.
-    n_per_condition is the total budget per perturbation condition; individual
-    builders receive proportional sub-budgets.
-    """
+    
     n_gsm   = int(n_per_condition * 0.40)   # 200 / 500
     n_mmlu  = int(n_per_condition * 0.30)   # 150 / 500
     n_c4    = n_per_condition - n_gsm - n_mmlu  # remainder (150 / 500)
@@ -420,9 +343,7 @@ DATASET_BUILDERS: dict = {
 }
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Tokenization Helpers
-# ─────────────────────────────────────────────────────────────────────────────
 
 GSM8K_SYSTEM_PROMPT = (
     "You are a helpful assistant. Solve the math problem step by step. "
@@ -498,18 +419,7 @@ def tokenize_pair(
     max_seq_len: int,
     system_prompt: str = GSM8K_SYSTEM_PROMPT,
 ) -> dict:
-    """
-    Tokenize one TrainingPair into tensors.
-
-    The system prompt is resolved from pair.system_prompt if set, otherwise
-    from the system_prompt argument (defaults to GSM8K_SYSTEM_PROMPT).
-    This allows each domain's pairs to carry their own prompt format.
-
-    Returns:
-        clean_prompt_ids:  1-D LongTensor  — clean question prompt (for h_clean)
-        noisy_full_ids:    1-D LongTensor  — noisy prompt + clean answer
-        answer_mask:       1-D BoolTensor  — True at answer positions in noisy_full_ids
-    """
+    
     sp = pair.system_prompt if pair.system_prompt else system_prompt
     # Format question prompts (both clean and noisy, no answer appended)
     clean_prompt_str = format_question_prompt(tokenizer, pair.clean_question, sp)
@@ -565,10 +475,7 @@ def collate_batch(
     pad_id: int,
     device: torch.device,
 ) -> TokenizedBatch:
-    """
-    Pad a list of tokenize_pair() dicts into a TokenizedBatch.
-    clean_prompt_ids and noisy_full_ids are left-padded.
-    """
+    
     def _pad_left(tensors: List[torch.Tensor], pad_value: int) -> Tuple[torch.Tensor, torch.Tensor]:
         """Left-pad tensors to same length, return padded tensor + attention mask."""
         max_len = max(t.shape[0] for t in tensors)
@@ -615,10 +522,7 @@ def collate_batch(
         perturbations    = perturbations,
     )
 
-
-# ─────────────────────────────────────────────────────────────────────────────
 # Evaluation
-# ─────────────────────────────────────────────────────────────────────────────
 
 # Perturbation conditions used for eval (mirrors main.py experiments)
 EVAL_CONDITIONS: List[Tuple[str, float]] = [
@@ -677,16 +581,7 @@ def evaluate_stabilizer(
     device: torch.device,
     output_dir: str,
 ) -> dict:
-    """
-    Evaluate the trained stabilizer on GSM8K test split.
-
-    For each perturbation condition, measures:
-      - Accuracy WITH stabilizer (inference hooks active)
-      - Accuracy WITHOUT stabilizer (baseline)
-      - Mean gate alpha per layer (verifies gate opens on perturbed inputs)
-
-    Returns a dict of results also written to output_dir/eval_results.json.
-    """
+    
     import re
     from datasets import load_dataset
 
@@ -746,14 +641,14 @@ def evaluate_stabilizer(
                 outputs.extend(tokenizer.batch_decode(new_ids, skip_special_tokens=True))
             return outputs
 
-        # ── Accuracy WITHOUT stabilizer (perturbed input, no correction) ──
+        #  Accuracy WITHOUT stabilizer (perturbed input, no correction) 
         preds_no_stab = run_generation(prompts_perturbed)
         acc_no_stab = sum(
             _gsm8k_correct(_extract_gsm8k_answer(p), t)
             for p, t in zip(preds_no_stab, truths)
         ) / len(truths) * 100
 
-        # ── Accuracy WITH stabilizer (perturbed input + correction hooks) ──
+        #  Accuracy WITH stabilizer (perturbed input + correction hooks) 
         inf_hooks = system.register_inference_hooks()
         try:
             # Also capture gate stats during eval generation
@@ -779,7 +674,7 @@ def evaluate_stabilizer(
             for p, t in zip(preds_with_stab, truths)
         ) / len(truths) * 100
 
-        # ── Clean baseline (clean input, no stabilizer) ──
+        #  Clean baseline (clean input, no stabilizer) 
         if method == "none":
             acc_clean_baseline = acc_no_stab   # clean pass is the same
         else:
@@ -831,9 +726,7 @@ def evaluate_stabilizer(
     return results
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Accuracy Loss Helper
-# ─────────────────────────────────────────────────────────────────────────────
 
 def accuracy_loss(
     logits: torch.Tensor,           # [B, T, vocab]
@@ -863,16 +756,14 @@ def accuracy_loss(
     return F.cross_entropy(active_logits, active_labels)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Training Loop
-# ─────────────────────────────────────────────────────────────────────────────
 
 def train(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Device: {device}")
     os.makedirs(args.output_dir, exist_ok=True)
 
-    # ── 1. Load frozen backbone ──────────────────────────────────────────────
+    #  Load frozen backbone 
     print(f"\nLoading frozen backbone: {args.model}")
     tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
     if tokenizer.pad_token is None:
@@ -893,7 +784,7 @@ def train(args):
     n_backbone = sum(p.numel() for p in model.parameters())
     print(f"Backbone frozen. Total params: {n_backbone:,}")
 
-    # ── 2. Build stabilizer system ───────────────────────────────────────────
+    #  Build stabilizer system 
     hidden_dim = model.config.hidden_size
     # Compute lambda_acc: explicit override, or auto with floor to prevent
     # accuracy signal from being crowded out as other weights increase.
@@ -950,7 +841,7 @@ def train(args):
     if args.probe_layers:
         print(f"Probe layers: {args.probe_layers}  weights: {config.probe_weights or 'geometric-decay'}")
 
-    # ── 3. Build training data ───────────────────────────────────────────────
+    #  Build training data 
     if args.dataset not in DATASET_BUILDERS:
         raise ValueError(
             f"Unknown dataset '{args.dataset}'. "
@@ -975,12 +866,12 @@ def train(args):
     )
     print(f"Training pairs: {len(pairs)}")
 
-    # ── 4. Optimizer & scheduler ─────────────────────────────────────────────
+    #  Optimizer & scheduler 
     optimizer = AdamW(system.stabilizers.parameters(), lr=args.lr, weight_decay=1e-2)
     total_steps = min(args.max_steps, args.epochs * (len(pairs) // args.batch_size + 1))
     scheduler = CosineAnnealingLR(optimizer, T_max=total_steps, eta_min=args.lr * 0.1)
 
-    # ── 5. Training loop ─────────────────────────────────────────────────────
+    #  Training loop  
     print(f"\nStarting training — epochs={args.epochs}, max_steps={args.max_steps}, batch_size={args.batch_size}")
 
     global_step = 0
@@ -1007,23 +898,7 @@ def train(args):
             if global_step >= args.max_steps:
                 break
 
-            # ── Curriculum weights ──────────────────────────────────────────
-            #
-            # Stage 1 gate warmup (v12):
-            #   Steps 0–gate_warmup_steps:
-            #     α hard-fixed at 1.0 (gate_net bypassed, no gradient through it).
-            #     fc2 gets full embed_mse gradient from step 0 and learns
-            #     delta ≈ h_clean − h_noisy quickly.
-            #     L_suppress / L_gate / L_adapter all zeroed (no point penalizing
-            #     a fixed gate, and we don't want to push delta toward 0 yet).
-            #   Steps gate_warmup_steps onward:
-            #     Gate unfreezes. delta is already coherent so embed_mse gradient
-            #     to α is immediately negative on noisy examples (gate opens).
-            #     suppress/gate/adapter ramp from 0 to full over reg_ramp_end_steps
-            #     to teach the gate selectivity without collapsing it.
-            #
-            # L_stab ramps from 0 to full over the first stab_warmup_frac of training.
-            # L_acc and L_embed_mse are fixed throughout (always want task/MSE signal).
+            #  Curriculum weights 
             step_frac = min(1.0, global_step / max(1, args.max_steps))
             stab_mult = min(1.0, step_frac / max(1e-6, args.stab_warmup_frac))
 
@@ -1035,7 +910,7 @@ def train(args):
                 lam_sup_cur  = 0.0
                 lam_adp_cur  = 0.0
             else:
-                # Ramp suppress/gate/adapter from 0 → full over reg_ramp_end_steps
+                # Ramp suppress/gate/adapter from 0 to full over reg_ramp_end_steps
                 # measured from when the gate unfroze.
                 steps_since_unfreeze = global_step - args.gate_warmup_steps
                 if steps_since_unfreeze < args.reg_ramp_end_steps:
@@ -1054,7 +929,7 @@ def train(args):
             if not batch_pairs:
                 continue
 
-            # ── Tokenize batch ───────────────────────────────────────────────
+            #  Tokenize batch 
             try:
                 samples = [
                     tokenize_pair(tokenizer, p, args.max_seq_len)
@@ -1067,7 +942,7 @@ def train(args):
 
             batch = collate_batch(samples, tokenizer.pad_token_id, device)
 
-            # ── Pass 1: clean reference (no grad) ────────────────────────────
+            #  Pass 1: clean reference (no grad) 
             with torch.no_grad(), system.capture_clean():
                 model(
                     input_ids      = batch.clean_input_ids,
@@ -1077,7 +952,7 @@ def train(args):
             # Stage 1 gate aug is always active from step 0 — no warmup needed.
             system.update_clean_ema(args.ema_decay)
 
-            # ── Pass 2: corrected pass (grad through stabilizers) ────────────
+            #  Pass 2: corrected pass (grad through stabilizers) 
             system.stabilizers.train()
             with system.run_correction(prompt_lengths=batch.noisy_prompt_lens):
                 output = model(
@@ -1085,7 +960,7 @@ def train(args):
                     attention_mask = batch.noisy_attn_mask,
                 )
 
-            # ── Losses ───────────────────────────────────────────────────────
+            #  Losses  
             # Per-example masks — split the batch so that noisy examples always
             # contribute to the opening signal (L_embed_mse) and clean examples
             # always contribute to the closing signal (L_suppress, L_adapter),
@@ -1151,7 +1026,7 @@ def train(args):
                 + lam_adp_cur           * L_adapter
             )
 
-            # ── Backward + gradient accumulation ─────────────────────────────
+            #  Backward + gradient accumulation 
             # No loss clamp here — cosine stab loss is in [0,2] and CE acc is
             # bounded, so the combined loss is well-scaled. Gradient clipping
             # below handles any remaining instability without zeroing gradients.
@@ -1169,14 +1044,7 @@ def train(args):
             else:
                 grad_norm_total = 0.0
 
-            # ── Gate ratio tracking (every step, not just log_every) ─────────
-            # v8: use gate_s1_MAX rather than gate_s1_mean for the ratio.
-            # gate_mean averages over all sequence positions; for sparse
-            # perturbations (5% typo rate, ~3/50 tokens affected) unperturbed
-            # positions dominate the mean and the ratio stays near 1.0 even
-            # when the gate IS opening at the perturbed positions.  gate_max
-            # captures whether ANY position is opening discriminatively.
-            # New target at step 3000: gate_max_ratio_s1 > 2.0 (not > 1.3).
+            
             _d = _GATE_EMA_D
             if clean_mask.any():
                 gs_clean = system.gate_stats(sample_mask=clean_mask)
@@ -1190,7 +1058,7 @@ def train(args):
             gate_ratio_s1 = _gate_s1_noisy_ema / max(_gate_s1_clean_ema, 1e-8)
             gate_ratio_s2 = _gate_s2_noisy_ema / max(_gate_s2_clean_ema, 1e-8)
 
-            # ── Logging ──────────────────────────────────────────────────────
+            #  Logging  
             if global_step % args.log_every == 0:
                 # Per-condition gate stats split by stage 1 and stage 2.
                 cond_gate_s1: dict = {}
@@ -1239,11 +1107,7 @@ def train(args):
                     "n_clean":         int(clean_mask.sum().item()),
                     "n_noisy":         int(noisy_mask.sum().item()),
                     "gate_frozen":     gate_frozen,
-                    # Gate ratio (max-based, v8) + absolute EMA values.
-                    # gate_max_ratio_s1: ratio of max gate activation on noisy vs clean steps.
-                    # Target at step 3000: > 2.0. With per-token gating the max on perturbed
-                    # inputs should be substantially higher than on clean ones if the gate
-                    # is discriminating at the perturbed positions.
+                    
                     "gate_max_ratio_s1":       round(gate_ratio_s1, 4),
                     "gate_max_ratio_s2":       round(gate_ratio_s2, 4),
                     "gate_s1_max_clean_ema":   round(_gate_s1_clean_ema, 6),
@@ -1275,7 +1139,7 @@ def train(args):
                     f"gnorm={grad_norm_total:.3f}"
                 )
 
-            # ── Checkpoint ───────────────────────────────────────────────────
+            #  Checkpoint  
             if global_step > 0 and global_step % args.save_every == 0:
                 ckpt_path = os.path.join(
                     args.output_dir, f"stabilizer_step{global_step:06d}.pt"
@@ -1283,7 +1147,7 @@ def train(args):
                 system.save(ckpt_path, extra={"step": global_step, "epoch": epoch})
                 print(f"  Checkpoint: {ckpt_path}")
 
-            # ── Milestone eval ───────────────────────────────────────────────
+            #  Milestone eval 
             # Quick accuracy snapshot at key steps so we can abort early if
             # gate_ratio_s1 is still ~1.0 at step 3000 (architecture check).
             if global_step in EVAL_MILESTONE_STEPS and args.eval_after_training:
@@ -1303,7 +1167,7 @@ def train(args):
         if global_step >= args.max_steps:
             break
 
-    # ── 6. Save final weights + logs ─────────────────────────────────────────
+    #  Save final weights + logs 
     final_path = os.path.join(args.output_dir, "stabilizer_final.pt")
     system.save(
         final_path,
@@ -1320,7 +1184,7 @@ def train(args):
         json.dump(all_logs, f, indent=2)
     print(f"Logs: {log_path}")
 
-    # ── 7. Post-training evaluation ──────────────────────────────────────────
+    #  Post-training evaluation 
     if args.eval_after_training:
         evaluate_stabilizer(
             model      = model,
@@ -1335,23 +1199,23 @@ def train(args):
     return system
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+#  
 # CLI
-# ─────────────────────────────────────────────────────────────────────────────
+#  
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Train multi-layer LRD stabilizer on clean/noisy prompt pairs."
     )
 
-    # ── Model ────────────────────────────────────────────────────────────────
+    #  Model  
     parser.add_argument("--model",   type=str, default="microsoft/Phi-3.5-mini-instruct",
                         help="HuggingFace model ID or local path.")
     parser.add_argument("--dataset", type=str, default="gsm8k",
                         choices=list(DATASET_BUILDERS.keys()),
                         help="Training dataset.")
 
-    # ── Architecture ─────────────────────────────────────────────────────────
+    #  Architecture  
     parser.add_argument("--inject_layers",  type=int, nargs="+",
                         default=[2, 4],
                         help="Stage 2 transformer layer indices (0-indexed). Default [2, 4].")
@@ -1372,7 +1236,7 @@ def parse_args():
                         help="Gate controller hidden dimension (unused when --no_gate).")
     parser.add_argument("--dropout",        type=float, default=0.1)
 
-    # ── Loss weights ─────────────────────────────────────────────────────────
+    #  Loss weights  
     parser.add_argument("--lambda_embed_mse", type=float, default=0.35,
                         help="Weight for stage 1 MSE reconstruction loss (v9, replaces contrastive).")
     parser.add_argument("--lambda_stab",    type=float, default=0.15,
@@ -1400,7 +1264,7 @@ def parse_args():
     parser.add_argument("--ema_decay",      type=float, default=0.99,
                         help="EMA decay for stage 1 embedding clean-state reference.")
 
-    # ── Curriculum ───────────────────────────────────────────────────────────
+    #  Curriculum  
     parser.add_argument("--gate_warmup_steps",   type=int, default=0,
                         help="Steps to hard-fix stage 1 α=1.0 so fc2 learns correction direction "
                              "before gate is trained. 0 disables (gate always learned).")
@@ -1414,7 +1278,7 @@ def parse_args():
     parser.add_argument("--stab_warmup_frac",    type=float, default=0.25,
                         help="Fraction of training over which L_stab ramps from 0 to full.")
 
-    # ── Training ─────────────────────────────────────────────────────────────
+    #  Training  
     parser.add_argument("--epochs",          type=int,   default=5)
     parser.add_argument("--max_steps",       type=int,   default=5000)
     parser.add_argument("--batch_size",      type=int,   default=4)
@@ -1424,7 +1288,7 @@ def parse_args():
     parser.add_argument("--max_seq_len",     type=int,   default=512,
                         help="Max sequence length (question + answer).")
 
-    # ── Data ─────────────────────────────────────────────────────────────────
+    #  Data  
     parser.add_argument("--n_per_condition", type=int,   default=200,
                         help="Training pairs per perturbation condition.")
     parser.add_argument("--perturbation_types", type=str, nargs="+", default=None,
@@ -1434,12 +1298,12 @@ def parse_args():
                         help="Fraction of training data that is clean→clean "
                              "(teaches gate to stay closed on unperturbed input).")
 
-    # ── Output ───────────────────────────────────────────────────────────────
+    #  Output  
     parser.add_argument("--output_dir", type=str, default="./stabilizer_weights")
     parser.add_argument("--log_every",  type=int, default=25)
     parser.add_argument("--save_every", type=int, default=500)
 
-    # ── Post-training evaluation ──────────────────────────────────────────────
+    #  Post-training evaluation 
     parser.add_argument("--eval_after_training", action="store_true", default=True,
                         help="Run accuracy eval on GSM8K test split after training completes.")
     parser.add_argument("--no_eval_after_training", dest="eval_after_training",
