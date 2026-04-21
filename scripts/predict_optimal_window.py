@@ -1,25 +1,3 @@
-"""
-predict_optimal_window.py — C3/C4 Predictive Validation (Experiment 4).
-
-For each new model:
-  1. Load LRD diagnostic data → classify regime (spike-and-suppress vs late-accumulation)
-  2. Compute C3 (weight effective rank) and C4 (gradient norm) per layer from frozen model
-  3. Based on regime + C3/C4 values, PREDICT which 5-layer window should be optimal:
-       spike-and-suppress: lowest C3 + highest C4 → most "plastic" layer under stress
-       late-accumulation:  highest C3 + lowest C4 → most capacity with least saturation
-  4. Save timestamped prediction to predictions/{model}_{timestamp}.json
-  5. If sweep results already exist, check prediction vs. actual and report hit/miss
-
-Usage:
-    # Step A (before sweep): generates prediction
-    python predict_optimal_window.py --model TinyLlama --compute_c3c4
-
-    # Step B (after sweep): checks prediction against sweep results
-    python predict_optimal_window.py --model TinyLlama --check_prediction
-
-    # Both steps at once (if sweep data already available)
-    python predict_optimal_window.py --model TinyLlama --compute_c3c4 --check_prediction
-"""
 
 import argparse
 import json
@@ -37,10 +15,6 @@ from datasets import load_dataset
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SW   = os.path.join(ROOT, "stabilizer_weights")
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Model configurations for new models
-# ─────────────────────────────────────────────────────────────────────────────
 
 MODEL_CFGS = {
     "TinyLlama": {
@@ -91,18 +65,8 @@ MODEL_CFGS = {
     },
 }
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Regime classification from LRD data
-# ─────────────────────────────────────────────────────────────────────────────
-
 def classify_regime(lrd_path: str) -> dict:
-    """
-    Classify LRD profile as spike-and-suppress or late-accumulation.
 
-    spike-and-suppress: LRD peaks in first half, recovers in second half.
-    late-accumulation:  LRD grows monotonically (or peaks in second half).
-    """
     if not os.path.exists(lrd_path):
         raise FileNotFoundError(f"LRD data not found: {lrd_path}")
 
@@ -141,10 +105,6 @@ def classify_regime(lrd_path: str) -> dict:
     }
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# C3 (weight effective rank) and C4 (gradient norm) computation
-# ─────────────────────────────────────────────────────────────────────────────
-
 def effective_rank(W: torch.Tensor) -> float:
     """exp(entropy(σ / Σσ)) for the weight matrix W."""
     s = torch.linalg.svdvals(W.float())  # singular values
@@ -177,7 +137,6 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
     )
     # C4 needs a backward pass on a frozen 9B+ model on a V100 32GB — without
     # gradient checkpointing this OOMs. Checkpointing requires use_cache=False.
-    # Qwen2.5-7B is smaller (7B), try without gradient checkpointing first
     is_qwen = "Qwen" in model_id
     if hasattr(model, "gradient_checkpointing_enable") and not is_qwen:
         model.gradient_checkpointing_enable()
@@ -191,7 +150,7 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
     n_layers = cfg["n_layers"]
     q_key    = cfg["q_weight_key"]
 
-    # ── C3: weight effective rank (static, no forward pass needed) ────────────
+    # C3: weight effective rank (static, no forward pass needed)
     c3_per_layer = {}
     for l in range(n_layers):
         key = q_key.format(l=l)
@@ -215,7 +174,6 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
     print(f"  C3 (effective rank) computed for {len(c3_per_layer)} layers.")
     # print(f"  [DEBUG] C3 range: [{min(c3_per_layer.values()):.1f}, {max(c3_per_layer.values()):.1f}]")
 
-    # ── C4: gradient norm on clean GSM8K ─────────────────────────────────────
     print(f"  Computing C4 (gradient norms) on {n_samples} clean examples...")
     ds    = load_dataset("openai/gsm8k", "main", split="train")
     items = list(ds)[:n_samples]
@@ -325,28 +283,8 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
         "c4": {int(k): round(v, 6) for k, v in c4_per_layer.items()},
     }
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Prediction logic
-# ─────────────────────────────────────────────────────────────────────────────
-
 def predict_optimal_window(regime: str, c3_layers: dict, c4_layers: dict,
                            sweep_windows: list) -> dict:
-    """
-    For each sweep window, compute a composite score from C3 and C4.
-
-    spike-and-suppress: best window = lowest C3 × highest C4
-        → most plastic layers under perturbation stress
-        → score = (1 - c3_norm) * c4_norm  (higher = more favourable)
-
-    late-accumulation: best window = highest C3 × lowest C4
-        → most capacity with least saturation
-        → score = c3_norm * (1 - c4_norm)  (higher = more favourable)
-
-    Returns a ranked list of windows with their predicted scores.
-
-    TODO: might want to try other composite functions (multiplicative, rank-based)
-    """
     # Map each window to its mean C3 and C4
     window_data = []
     for dir_suffix, (lo, hi) in sweep_windows:
@@ -398,14 +336,9 @@ def predict_optimal_window(regime: str, c3_layers: dict, c4_layers: dict,
         "predicted_best": ranked[0]["dir_suffix"],
     }
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Check prediction against sweep results
-# ─────────────────────────────────────────────────────────────────────────────
-
 def check_prediction(prediction: dict, sweep_windows: list) -> dict:
     """Load sweep eval_results.json for each window, compare to prediction."""
-    print("\n=== Checking Prediction vs Sweep Results ===")
+    print("\nChecking Prediction vs Sweep Results")
 
     window_deltas = {}
     for dir_suffix, (lo, hi) in sweep_windows:
@@ -473,11 +406,6 @@ def check_prediction(prediction: dict, sweep_windows: list) -> dict:
         "rank_spearman_p":     round(float(pval), 4),
     }
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Main
-# ─────────────────────────────────────────────────────────────────────────────
-
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--model",             type=str, required=True,
@@ -496,7 +424,7 @@ def main():
     ts        = datetime.now().strftime("%Y%m%d_%H%M%S")
     pred_path = os.path.join(pred_dir, f"{args.model}_{ts}.json")
 
-    # ── Step A: classify regime + compute C3/C4 + write prediction ────────────
+    # classify regime + compute C3/C4 + write prediction
     if args.compute_c3c4:
         print(f"\n=== Step A: Regime Classification + C3/C4 for {args.model} ===")
 
@@ -545,7 +473,7 @@ def main():
         print(f"\nPrediction saved: {pred_path}")
         print("IMPORTANT: submit the sweep job AFTER this file is written.")
 
-    # ── Step B: check prediction against sweep results ─────────────────────────
+    # check prediction against sweep results
     if args.check_prediction:
         print(f"\n=== Step B: Checking Prediction for {args.model} ===")
 
