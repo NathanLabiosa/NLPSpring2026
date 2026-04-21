@@ -64,9 +64,9 @@ def load_model_and_tokenizer(model_id: str, device: str = "cuda"):
 
 class RepresentationExtractor:
     def __init__(self, model, tokenizer, device="cuda", max_length=512):
-        self.model      = model
-        self.tokenizer  = tokenizer
-        self.device     = device
+        self.model = model
+        self.tokenizer = tokenizer
+        self.device = device
         self.max_length = max_length
 
     @torch.no_grad()
@@ -97,7 +97,6 @@ class RepresentationExtractor:
 
         return pooled, per_tok, tokens
 
-================================================================
 
 def cosine_distance(a: np.ndarray, b: np.ndarray) -> float:
     dot  = np.dot(a, b)
@@ -113,8 +112,8 @@ def compute_lrd_profile(clean: np.ndarray, noisy: np.ndarray) -> np.ndarray:
 def compute_perturbed_token_lrd(
     clean_per_tok: list,
     noisy_per_tok: list,
-    clean_tokens:  list,
-    noisy_tokens:  list,
+    clean_tokens: list,
+    noisy_tokens: list,
 ) -> Optional[np.ndarray]:
     """Compute LRD over only the token positions that changed due to perturbation."""
     min_len   = min(len(clean_tokens), len(noisy_tokens))
@@ -188,24 +187,24 @@ def evaluate(dataset_name: str, generated_text: str, sample: dict) -> bool:
 
 
 BASE_EXPERIMENTS = [
-    {"name": "Typos_5%",       "type": "typos",      "rate": 0.05},
-    {"name": "OCR_5%",         "type": "ocr",        "rate": 0.05},
+    {"name": "Typos_5%", "type": "typos", "rate": 0.05},
+    {"name": "OCR_5%", "type": "ocr", "rate": 0.05},
     {"name": "Whitespace_10%", "type": "whitespace", "rate": 0.10},
-    {"name": "Case_10%",       "type": "case",       "rate": 0.10},
+    {"name": "Case_10%", "type": "case","rate": 0.10},
     {"name": "Homophones_20%", "type": "homophones", "rate": 0.20},
-    {"name": "Speech_10%",     "type": "speech",     "rate": 0.10},
+    {"name": "Speech_10%","type": "speech", "rate": 0.10},
 ]
 
 def run_diagnostics(
-    dataset_name:           str,
-    model_id:               str,
-    n_samples:              int  = 200,
-    output_dir:             str  = "lrd_results",
-    device:                 str  = "cuda",
-    max_new_tokens:         int  = 256,
+    dataset_name: str,
+    model_id: str,
+    n_samples: int  = 200,
+    output_dir: str  = "lrd_results",
+    device: str  = "cuda",
+    max_new_tokens: int  = 256,
     run_exclusion_analysis: bool = False,
-    run_taxonomy_variance:  bool = False,
-    homophones_rates:       list = None,
+    run_taxonomy_variance: bool = False,
+    homophones_rates: list = None,
 ):
     os.makedirs(output_dir, exist_ok=True)
 
@@ -219,7 +218,7 @@ def run_diagnostics(
     model, tokenizer = load_model_and_tokenizer(model_id, device)
     extractor = RepresentationExtractor(model, tokenizer, device=device)
     perturber = PerturbationEngine()
-    dm        = DatasetManager(tokenizer)
+    dm  = DatasetManager(tokenizer)
 
     print(f"\nPre-filtering {dataset_name} to clean-correct examples ...")
     clean_ds = dm.load_and_format(dataset_name, perturbation_func=None)
@@ -261,46 +260,46 @@ def run_diagnostics(
         exp_name = exp["name"]
         print(f"\n{'─'*55}\n{exp_name}\n{'─'*55}")
 
-        p_func   = lambda text, e=exp: perturber.apply(text, e["type"], e["rate"])
+        p_func = lambda text, e=exp: perturber.apply(text, e["type"], e["rate"])
         noisy_ds = dm.load_and_format(dataset_name, perturbation_func=p_func)
         records  = []
 
         for idx in tqdm(clean_correct, desc=exp_name):
-            cp  = clean_ds[idx]["formatted_prompt"]
+            cp = clean_ds[idx]["formatted_prompt"]
             np_ = noisy_ds[idx]["formatted_prompt"]
 
             try:
                 c_pool, c_tok, c_tkns = extractor.extract(cp)
                 n_pool, n_tok, n_tkns = extractor.extract(np_)
 
-                lrd         = compute_lrd_profile(c_pool, n_pool)
+                lrd = compute_lrd_profile(c_pool, n_pool)
                 per_tok_lrd = compute_perturbed_token_lrd(c_tok, n_tok, c_tkns, n_tkns)
 
-                noisy_gen  = greedy_generate(model, tokenizer, np_,
+                noisy_gen = greedy_generate(model, tokenizer, np_,
                                              max_new_tokens=max_new_tokens, device=device)
                 is_correct = evaluate(dataset_name, noisy_gen, noisy_ds[idx])
 
-                slope   = cascade_slope(lrd)
+                slope = cascade_slope(lrd)
                 recover = recovery_test(lrd)
 
                 records.append({
-                    "index":               idx,
-                    "lrd_profile":         lrd.tolist(),
-                    "final_lrd":           float(lrd[-1]),
-                    "mean_lrd":            float(lrd.mean()),
-                    "max_lrd":             float(lrd.max()),
-                    "cascade_slope":       slope,
-                    "recovered":           recover["recovered"],
-                    "early_lrd":           recover["early_lrd"],
-                    "late_lrd":            recover["late_lrd"],
-                    "is_correct":          is_correct,
+                    "index": idx,
+                    "lrd_profile": lrd.tolist(),
+                    "final_lrd": float(lrd[-1]),
+                    "mean_lrd": float(lrd.mean()),
+                    "max_lrd": float(lrd.max()),
+                    "cascade_slope": slope,
+                    "recovered": recover["recovered"],
+                    "early_lrd": recover["early_lrd"],
+                    "late_lrd": recover["late_lrd"],
+                    "is_correct": is_correct,
                     "per_tok_lrd_profile": per_tok_lrd.tolist() if per_tok_lrd is not None else None,
-                    "per_tok_final_lrd":   float(per_tok_lrd[-1]) if per_tok_lrd is not None else None,
-                    "n_differing_tokens":  sum(1 for a, b in zip(c_tkns, n_tkns) if a != b),
+                    "per_tok_final_lrd": float(per_tok_lrd[-1]) if per_tok_lrd is not None else None,
+                    "n_differing_tokens": sum(1 for a, b in zip(c_tkns, n_tkns) if a != b),
                 })
 
             except Exception as ex:
-                print(f"  [warn] idx {idx}: {ex}")
+                print(f" [warn] idx {idx}: {ex}")
                 continue
 
         all_results[exp_name] = records
@@ -350,9 +349,9 @@ def compute_statistics(all_results: dict) -> dict:
             continue
 
         lrd_finals = np.array([r["final_lrd"]      for r in records])
-        slopes     = np.array([r["cascade_slope"]   for r in records])
+        slopes = np.array([r["cascade_slope"]   for r in records])
         is_correct = np.array([int(r["is_correct"]) for r in records])
-        recovered  = np.array([int(r["recovered"])  for r in records])
+        recovered = np.array([int(r["recovered"])  for r in records])
 
         r_val, p_val = pointbiserialr(lrd_finals, is_correct)
 
@@ -367,18 +366,18 @@ def compute_statistics(all_results: dict) -> dict:
                      if r.get("per_tok_final_lrd") is not None]
 
         stats[exp_name] = {
-            "n":                       len(records),
-            "n_correct":               int(is_correct.sum()),
-            "n_wrong":                 int((1 - is_correct).sum()),
-            "accuracy":                float(is_correct.mean()),
-            "mean_final_lrd":          float(lrd_finals.mean()),
-            "std_final_lrd":           float(lrd_finals.std()),
-            "mean_cascade_slope":      float(slopes.mean()),
-            "pct_recovered":           float(recovered.mean() * 100),
+            "n": len(records),
+            "n_correct": int(is_correct.sum()),
+            "n_wrong": int((1 - is_correct).sum()),
+            "accuracy": float(is_correct.mean()),
+            "mean_final_lrd": float(lrd_finals.mean()),
+            "std_final_lrd": float(lrd_finals.std()),
+            "mean_cascade_slope":  float(slopes.mean()),
+            "pct_recovered": float(recovered.mean() * 100),
             "lrd_failure_correlation": {"r": float(r_val), "p": float(p_val)},
-            "mannwhitney":             {"U": float(U),     "p": float(U_p)},
-            "mean_per_tok_final_lrd":  float(np.mean(pt_finals)) if pt_finals else None,
-            "per_tok_n":               len(pt_finals),
+            "mannwhitney":   {"U": float(U),  "p": float(U_p)},
+            "mean_per_tok_final_lrd": float(np.mean(pt_finals)) if pt_finals else None,
+            "per_tok_n": len(pt_finals),
         }
     return stats
 
@@ -389,9 +388,9 @@ def plot_lrd_curves(all_results, dataset_name, output_dir):
         if not records:
             continue
         profiles = np.array([r["lrd_profile"] for r in records])
-        mean     = profiles.mean(0)
-        std      = profiles.std(0)
-        layers   = np.arange(len(mean))
+        mean = profiles.mean(0)
+        std  = profiles.std(0)
+        layers = np.arange(len(mean))
         ax.plot(layers, mean, label=name, color=color, linewidth=2)
         ax.fill_between(layers, mean - std, mean + std, alpha=0.12, color=color)
     ax.set_xlabel("Layer Depth", fontsize=13)
@@ -405,15 +404,15 @@ def plot_lrd_curves(all_results, dataset_name, output_dir):
 
 
 def plot_lrd_vs_accuracy(all_results, dataset_name, output_dir):
-    n    = len(all_results)
+    n  = len(all_results)
     fig, axes = plt.subplots(1, n, figsize=(4 * n, 5), sharey=True)
     if n == 1: axes = [axes]
     for ax, (name, records) in zip(axes, all_results.items()):
         if not records: ax.set_visible(False); continue
-        lrd_c = [r["final_lrd"] for r in records if     r["is_correct"]]
+        lrd_c = [r["final_lrd"] for r in records if r["is_correct"]]
         lrd_w = [r["final_lrd"] for r in records if not r["is_correct"]]
-        data  = [x for x in [lrd_c, lrd_w] if x]
-        labs  = ([f"Correct\n(n={len(lrd_c)})"] if lrd_c else []) + \
+        data = [x for x in [lrd_c, lrd_w] if x]
+        labs = ([f"Correct\n(n={len(lrd_c)})"] if lrd_c else []) + \
                 ([f"Wrong\n(n={len(lrd_w)})"]   if lrd_w else [])
         bp = ax.boxplot(data, labels=labs, patch_artist=True, notch=True)
         for box, c in zip(bp["boxes"], ["#4CAF50", "#F44336"]):
@@ -429,7 +428,7 @@ def plot_lrd_vs_accuracy(all_results, dataset_name, output_dir):
 
 def plot_cascade_heatmap(all_results, dataset_name, output_dir):
     exp_names = list(all_results.keys())
-    n_layers  = next((len(r["lrd_profile"]) for recs in all_results.values()
+    n_layers = next((len(r["lrd_profile"]) for recs in all_results.values()
                       for r in recs if r.get("lrd_profile")), None)
     if not n_layers: return
     matrix = np.zeros((len(exp_names), n_layers))
@@ -460,7 +459,7 @@ def plot_per_token_vs_mean_lrd(all_results, dataset_name, output_dir):
 
     for ax, (name, records) in zip(axes, all_results.items()):
         mean_prof = np.array([r["lrd_profile"] for r in records if r.get("lrd_profile")])
-        tok_prof  = np.array([r["per_tok_lrd_profile"] for r in records
+        tok_prof = np.array([r["per_tok_lrd_profile"] for r in records
                               if r.get("per_tok_lrd_profile") is not None])
 
         if mean_prof.size > 0:
@@ -501,14 +500,14 @@ def run_exclusion_bias_analysis(
 ):
     print("\n[HOLE 4] Exclusion bias analysis ...")
 
-    p_func   = lambda text: perturber.apply(text, "typos", 0.05)
+    p_func = lambda text: perturber.apply(text, "typos", 0.05)
     noisy_ds = dm.load_and_format(dataset_name, perturbation_func=p_func)
 
     def get_lrds(indices):
         lrds = []
         for idx in tqdm(indices[:n_sample]):
             try:
-                cp, _, _  = extractor.extract(clean_ds[idx]["formatted_prompt"])
+                cp, _, _ = extractor.extract(clean_ds[idx]["formatted_prompt"])
                 np_, _, _ = extractor.extract(noisy_ds[idx]["formatted_prompt"])
                 lrd = compute_lrd_profile(cp, np_)
                 lrds.append(float(lrd[-1]))
@@ -516,7 +515,7 @@ def run_exclusion_bias_analysis(
                 pass
         return lrds
 
-    fail_lrds    = get_lrds(fail_indices)
+    fail_lrds = get_lrds(fail_indices)
     success_lrds = get_lrds(correct_indices)
 
     if not fail_lrds or not success_lrds:
@@ -525,12 +524,12 @@ def run_exclusion_bias_analysis(
     U, p = mannwhitneyu(fail_lrds, success_lrds, alternative="two-sided")
     mf, ms = np.mean(fail_lrds), np.mean(success_lrds)
 
-    print(f"  Excluded  mean LRD: {mf:.5f}  (n={len(fail_lrds)})")
-    print(f"  Included  mean LRD: {ms:.5f}  (n={len(success_lrds)})")
-    print(f"  Mann-Whitney: U={U:.1f}, p={p:.4f}")
+    print(f" Excluded  mean LRD: {mf:.5f}  (n={len(fail_lrds)})")
+    print(f" Included  mean LRD: {ms:.5f}  (n={len(success_lrds)})")
+    print(f" Mann-Whitney: U={U:.1f}, p={p:.4f}")
     verdict = "UNBIASED — no significant LRD difference." if p > 0.05 \
               else f"BIAS DETECTED (p={p:.4f}) — acknowledge as limitation."
-    print(f"  → {verdict}")
+    print(f" : {verdict}")
 
     result = {"excluded_mean": mf, "included_mean": ms,
               "U": U, "p": p, "verdict": verdict}
@@ -558,11 +557,11 @@ def run_taxonomy_variance_test(all_results: dict, dataset_name: str, output_dir:
     
 
     directional_names = {"Typos_5%", "OCR_5%", "Speech_10%", "Homophones_20%"}
-    uniform_names     = {"Case_10%", "Whitespace_10%"}
+    uniform_names = {"Case_10%", "Whitespace_10%"}
 
     per_pert_results = {}
     n_directional_supported = 0
-    n_directional_tested    = 0
+    n_directional_tested = 0
 
     #Per-perturbation Levene: wrong-group std vs correct-group std
     for name, records in all_results.items():
@@ -570,35 +569,35 @@ def run_taxonomy_variance_test(all_results: dict, dataset_name: str, output_dir:
             continue
 
         lrd_correct = [r["final_lrd"] for r in records if     r["is_correct"]]
-        lrd_wrong   = [r["final_lrd"] for r in records if not r["is_correct"]]
+        lrd_wrong = [r["final_lrd"] for r in records if not r["is_correct"]]
 
         if len(lrd_correct) < 5 or len(lrd_wrong) < 5:
             print(f"  {name}: skipped (n_correct={len(lrd_correct)}, n_wrong={len(lrd_wrong)} — too few)")
             continue
 
         stat, p = levene(lrd_wrong, lrd_correct)
-        std_wrong   = float(np.std(lrd_wrong))
+        std_wrong = float(np.std(lrd_wrong))
         std_correct = float(np.std(lrd_correct))
         # Directional prediction: wrong-group has higher variance
         directional_confirmed = (std_wrong > std_correct) and (p < 0.05)
         class_label = "directional" if name in directional_names else "uniform"
 
         per_pert_results[name] = {
-            "class":                class_label,
-            "n_correct":            len(lrd_correct),
-            "n_wrong":              len(lrd_wrong),
-            "std_correct":          std_correct,
-            "std_wrong":            std_wrong,
-            "levene_stat":          float(stat),
-            "levene_p":             float(p),
+            "class": class_label,
+            "n_correct": len(lrd_correct),
+            "n_wrong": len(lrd_wrong),
+            "std_correct": std_correct,
+            "std_wrong": std_wrong,
+            "levene_stat": float(stat),
+            "levene_p":  float(p),
             "wrong_std_gt_correct": bool(std_wrong > std_correct),
-            "significant":          bool(p < 0.05),
+            "significant":   bool(p < 0.05),
             "directional_confirmed": bool(directional_confirmed),
         }
 
-        dir_marker = "✓" if directional_confirmed else "✗"
+        dir_marker = "+" if directional_confirmed else "-"
         print(
-            f"  {name:<22} [{class_label:>11}]  "
+            f" {name:<22} [{class_label:>11}]  "
             f"std_wrong={std_wrong:.4f}  std_correct={std_correct:.4f}  "
             f"Levene p={p:.4f}  {dir_marker}"
         )
@@ -611,22 +610,22 @@ def run_taxonomy_variance_test(all_results: dict, dataset_name: str, output_dir:
     taxonomy_supported = (n_directional_tested > 0 and
                           n_directional_supported >= n_directional_tested // 2 + 1)
 
-    print(f"\n  Directional types with wrong_std > correct_std (p<0.05): "
+    print(f"\n Directional types with wrong_std > correct_std (p<0.05): "
           f"{n_directional_supported}/{n_directional_tested}")
     if taxonomy_supported:
-        print("  → Majority of directional perturbations show higher wrong-group variance.")
-        print("    TAXONOMY VARIANCE CLAIM SUPPORTED.")
+        print("  Majority of directional perturbations show higher wrong-group variance.")
+        print(" TAXONOMY VARIANCE CLAIM SUPPORTED.")
     else:
-        print("  → Fewer than half of directional types show significant wrong-group variance.")
-        print("    Frame taxonomy as descriptive only.")
+        print(" Fewer than half of directional types show significant wrong-group variance.")
+        print(" Frame taxonomy as descriptive only.")
 
     # Figure: per-perturbation std bars (wrong vs correct)
-    exp_names   = list(per_pert_results.keys())
-    stds_corr   = [per_pert_results[n]["std_correct"] for n in exp_names]
-    stds_wrong  = [per_pert_results[n]["std_wrong"]   for n in exp_names]
-    is_dir      = [per_pert_results[n]["class"] == "directional" for n in exp_names]
+    exp_names = list(per_pert_results.keys())
+    stds_corr = [per_pert_results[n]["std_correct"] for n in exp_names]
+    stds_wrong = [per_pert_results[n]["std_wrong"]   for n in exp_names]
+    is_dir = [per_pert_results[n]["class"] == "directional" for n in exp_names]
 
-    x   = np.arange(len(exp_names))
+    x = np.arange(len(exp_names))
     fig, ax = plt.subplots(figsize=(max(10, len(exp_names) * 1.6), 5))
     bars_corr  = ax.bar(x - 0.2, stds_corr,  0.35,
                         label="Std LRD (correct)", color="#4CAF50", alpha=0.85)
@@ -663,10 +662,10 @@ def run_taxonomy_variance_test(all_results: dict, dataset_name: str, output_dir:
 
     with open(os.path.join(output_dir, f"taxonomy_variance_{dataset_name}.json"), "w") as f:
         json.dump({
-            "per_perturbation":          per_pert_results,
-            "n_directional_tested":      n_directional_tested,
-            "n_directional_supported":   n_directional_supported,
-            "taxonomy_supported":        taxonomy_supported,
+            "per_perturbation": per_pert_results,
+            "n_directional_tested": n_directional_tested,
+            "n_directional_supported":  n_directional_supported,
+            "taxonomy_supported":  taxonomy_supported,
         }, f, indent=2)
 
 
@@ -674,17 +673,17 @@ class ActivationPatcher:
     
 
     def __init__(self, model, tokenizer, device="cuda", max_new_tokens=128):
-        self.model          = model
-        self.tokenizer      = tokenizer
-        self.device         = device
+        self.model = model
+        self.tokenizer  = tokenizer
+        self.device  = device
         self.max_new_tokens = max_new_tokens
-        self._clean_states  = {}
-        self._hooks         = []
-        self._layers        = get_layer_list(model)
+        self._clean_states = {}
+        self._hooks = []
+        self._layers = get_layer_list(model)
 
     def _register_save_hooks(self):
         self._clean_states = {}
-        self._hooks        = []
+        self._hooks = []
 
         def make_save(i):
             def hook(module, inp, out):
@@ -698,7 +697,7 @@ class ActivationPatcher:
 
     def _register_patch_hook(self, layer_idx: int, mode: str):
         def patch_hook(module, inp, out):
-            h     = out[0] if isinstance(out, tuple) else out
+            h = out[0] if isinstance(out, tuple) else out
             clean = self._clean_states.get(layer_idx)
 
             # With use_cache=True, decode steps process only the single new token
@@ -734,10 +733,6 @@ class ActivationPatcher:
     @torch.no_grad()
     def run_identity_all_layers(self, clean_prompt: str, noisy_prompt: str,
                                 dataset_name: str, sample: dict) -> bool:
-        """Positive control: patch ALL layers simultaneously with clean states.
-        A working hook must recover the answer (~100% across pairs).
-        This is the correct sanity check — per-layer averaging is misleading
-        because early-layer-only patches still leave noisy processing downstream."""
         self._register_save_hooks()
         inp = self.tokenizer(clean_prompt, return_tensors="pt",
                              truncation=True, max_length=1024).to(self.device)
@@ -782,27 +777,27 @@ class ActivationPatcher:
         return recovery
 
 def run_activation_patching(
-    dataset_name:      str,
-    model_id:          str,
-    n_pairs:           int   = 100,
-    output_dir:        str   = "lrd_results",
-    perturbation_type: str   = "typos",
+    dataset_name: str,
+    model_id: str,
+    n_pairs: int = 100,
+    output_dir: str = "lrd_results",
+    perturbation_type: str = "typos",
     perturbation_rate: float = 0.05,
-    device:            str   = "cuda",
-    max_new_tokens:    int   = 128,
-    run_sanity_checks: bool  = True,
+    device: str = "cuda",
+    max_new_tokens: int = 128,
+    run_sanity_checks: bool = True,
 ):
     os.makedirs(output_dir, exist_ok=True)
     model, tokenizer = load_model_and_tokenizer(model_id, device)
     model.eval()
 
-    dm        = DatasetManager(tokenizer)
+    dm = DatasetManager(tokenizer)
     perturber = PerturbationEngine()
-    patcher   = ActivationPatcher(model, tokenizer, device=device,
+    patcher = ActivationPatcher(model, tokenizer, device=device,
                                   max_new_tokens=max_new_tokens)
 
-    clean_ds  = dm.load_and_format(dataset_name, perturbation_func=None)
-    n_search  = len(clean_ds)  # search full dataset to maximise valid pairs
+    clean_ds = dm.load_and_format(dataset_name, perturbation_func=None)
+    n_search = len(clean_ds)  # search full dataset to maximise valid pairs
 
     # Materialize noisy prompts once — fixes the stochastic re-sampling bug
     # where noisy_ds[i] returns a different perturbation on each access.
@@ -816,10 +811,10 @@ def run_activation_patching(
     pairs = []
     print("Finding clean-success / noisy-failure pairs ...")
     for i in tqdm(range(n_search)):
-        cp  = clean_ds[i]["formatted_prompt"]
+        cp = clean_ds[i]["formatted_prompt"]
         np_ = noisy_prompts[i]                  # fixed perturbation
-        cg  = greedy_generate(model, tokenizer, cp,  max_new_tokens=max_new_tokens, device=device)
-        ng  = greedy_generate(model, tokenizer, np_, max_new_tokens=max_new_tokens, device=device)
+        cg = greedy_generate(model, tokenizer, cp,  max_new_tokens=max_new_tokens, device=device)
+        ng = greedy_generate(model, tokenizer, np_, max_new_tokens=max_new_tokens, device=device)
         if evaluate(dataset_name, cg, clean_ds[i]) and not evaluate(dataset_name, ng, clean_ds[i]):
             pairs.append((i, cp, np_, clean_ds[i]))
         if len(pairs) >= n_pairs:
@@ -832,7 +827,7 @@ def run_activation_patching(
     sanity_out = {}
 
     if run_sanity_checks and pairs:
-        n_sc     = min(20, len(pairs))
+        n_sc = min(20, len(pairs))
         sc_pairs = pairs[:n_sc]
         print(f"\n[HOLE 2] Sanity checks on {n_sc} pairs ...")
 
@@ -844,7 +839,7 @@ def run_activation_patching(
                     rec[l].append(int(v))
             return {l: np.mean(v) for l, v in rec.items()}
 
-        id_rates   = run_mode("identity")   # per-layer, used for plot only
+        id_rates = run_mode("identity")   # per-layer, used for plot only
         rand_rates = run_mode("random")
 
         # Correct positive control: patch ALL layers at once → must be ~100%.
@@ -900,7 +895,7 @@ def run_activation_patching(
         for l, v in rm.items():
             layer_rec[l].append(int(v))
 
-    layers    = sorted(layer_rec.keys())
+    layers = sorted(layer_rec.keys())
     rec_rates = [np.mean(layer_rec[l]) for l in layers]
 
     fig, ax = plt.subplots(figsize=(11, 4))
@@ -930,18 +925,18 @@ def run_activation_patching(
 if __name__ == "__main__":
     pa = argparse.ArgumentParser(description="LRD Diagnostic Suite (hardened)")
 
-    pa.add_argument("--dataset",        type=str, required=True)
-    pa.add_argument("--model",          type=str,
+    pa.add_argument("--dataset", type=str, required=True)
+    pa.add_argument("--model", type=str,
                     default="mistralai/Mistral-7B-Instruct-v0.3")
-    pa.add_argument("--n_samples",      type=int, default=200,
+    pa.add_argument("--n_samples", type=int, default=200,
                     help="Use 400 for BBH.")
-    pa.add_argument("--output_dir",     type=str, default="lrd_results")
-    pa.add_argument("--max_new_tokens", type=int, default=256)
+    pa.add_argument("--output_dir", type=str, default="lrd_results")
+    pa.add_argument("--max_new_tokens",type=int, default=256)
 
-    pa.add_argument("--patching",       action="store_true")
-    pa.add_argument("--patch_perturb",  type=str,  default="typos")
-    pa.add_argument("--n_pairs",        type=int,  default=100)
-    pa.add_argument("--skip_sanity",    action="store_true")
+    pa.add_argument("--patching", action="store_true")
+    pa.add_argument("--patch_perturb", type=str, default="typos")
+    pa.add_argument("--n_pairs",  type=int, default=100)
+    pa.add_argument("--skip_sanity", action="store_true")
 
     pa.add_argument("--run_exclusion_analysis", action="store_true",
                     help="HOLE 4: pre-filter bias check")
@@ -953,23 +948,23 @@ if __name__ == "__main__":
     args = pa.parse_args()
 
     all_results, stats = run_diagnostics(
-        dataset_name           = args.dataset,
-        model_id               = args.model,
-        n_samples              = args.n_samples,
-        output_dir             = args.output_dir,
-        max_new_tokens         = args.max_new_tokens,
+        dataset_name = args.dataset,
+        model_id = args.model,
+        n_samples = args.n_samples,
+        output_dir = args.output_dir,
+        max_new_tokens = args.max_new_tokens,
         run_exclusion_analysis = args.run_exclusion_analysis,
-        run_taxonomy_variance  = args.run_taxonomy_variance,
-        homophones_rates       = args.homophones_rates,
+        run_taxonomy_variance = args.run_taxonomy_variance,
+        homophones_rates = args.homophones_rates,
     )
 
     if args.patching:
         run_activation_patching(
-            dataset_name      = args.dataset,
-            model_id          = args.model,
-            n_pairs           = args.n_pairs,
-            output_dir        = args.output_dir,
+            dataset_name = args.dataset,
+            model_id = args.model,
+            n_pairs = args.n_pairs,
+            output_dir = args.output_dir,
             perturbation_type = args.patch_perturb,
-            max_new_tokens    = args.max_new_tokens,
+            max_new_tokens  = args.max_new_tokens,
             run_sanity_checks = not args.skip_sanity,
         )
