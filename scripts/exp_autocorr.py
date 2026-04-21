@@ -1,17 +1,3 @@
-"""
-exp_autocorr.py — Layer-wise Autocorrelation Analysis (Exp 5 / W3 diagnostic).
-
-For each of 3 signals (LRD, patching recovery, LoRA effectiveness) on each
-model, computes the autocorrelation function (ACF) across layers out to lag 8.
-Reports decorrelation length and effective N.
-
-This feeds into bootstrap_block.py — the ACF here tells us what block size
-is appropriate and what the effective degrees of freedom are.
-
-Input:  expB_three_map_overlay.json
-Output: exp_autocorr_results.json
-        exp_autocorr.pdf
-"""
 
 import json
 import numpy as np
@@ -28,7 +14,7 @@ MAX_LAG = 8
 ONE_OVER_E = 1.0 / np.e  # ≈ 0.368, threshold for decorrelation
 
 SIGNAL_KEYS = [
-    ("LRD",              "norm_lrd"),
+    ("LRD", "norm_lrd"),
     ("Patching recovery","norm_patch"),
     ("LoRA effectiveness","norm_lora"),
 ]
@@ -54,10 +40,7 @@ def compute_acf(signal: np.ndarray, max_lag: int) -> np.ndarray:
 
 
 def decorrelation_length(acf: np.ndarray) -> int:
-    """
-    Returns the smallest lag τ where |ACF(τ)| drops below 1/e.
-    If ACF never drops below 1/e within the measured lags, returns max_lag.
-    """
+
     for k in range(1, len(acf)):
         if abs(acf[k]) < ONE_OVER_E:
             return k
@@ -65,7 +48,6 @@ def decorrelation_length(acf: np.ndarray) -> int:
 
 
 def vif_from_acf(acf: np.ndarray, trunc_lag: int) -> float:
-    """Variance Inflation Factor: VIF = 1 + 2 * sum_{k=1}^{trunc_lag} ACF(k)."""
     if trunc_lag < 1:
         return 1.0
     return max(1.0, 1.0 + 2.0 * sum(acf[1:trunc_lag + 1]))
@@ -130,7 +112,7 @@ def main():
                 ax.axvline(decor, color="purple", linestyle=":",
                            linewidth=1.5, label=f"decor lag={decor}")
 
-            # Bartlett confidence bands: ±1.96/√n (95% CI under white noise)
+            # Bartlett confidence bands
             ci = 1.96 / np.sqrt(n)
             ax.fill_between(lags, -ci, ci, alpha=0.12, color="gray",
                             label="±1.96/√n CI")
