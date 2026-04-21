@@ -13,13 +13,13 @@ from scipy.stats import spearmanr
 from scipy.interpolate import interp1d
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-SW   = os.path.join(ROOT, "stabilizer_weights")
+SW = os.path.join(ROOT, "stabilizer_weights")
 
 #Model configurations
 
 MODELS = {
     "Gemma2_9B": {
-        "lrd_path":   "Gemma2/lrd_results/gemma2_9b_gsm8k/raw_gsm8k.json",
+        "lrd_path": "Gemma2/lrd_results/gemma2_9b_gsm8k/raw_gsm8k.json",
         "patch_path": "Gemma2/lrd_results/gemma2_9b_patching/patching_gsm8k_typos.json",
         "patch_note": "typos",
         "sweep_dirs": [
@@ -33,7 +33,7 @@ MODELS = {
         ],
     },
     "Qwen25_7B": {
-        "lrd_path":   "Qwen2.5/lrd_results/qwen_gsm8k/raw_gsm8k.json",
+        "lrd_path": "Qwen2.5/lrd_results/qwen_gsm8k/raw_gsm8k.json",
         "patch_path": "Qwen2.5/lrd_results/qwen_patching/patching_gsm8k_typos.json",
         "patch_note": "typos",
         "sweep_dirs": [
@@ -47,7 +47,7 @@ MODELS = {
         ],
     },
     "TinyLlama_1B": {
-        "lrd_path":   "TinyLlama/lrd_results/tinyllama_gsm8k/raw_gsm8k.json",
+        "lrd_path": "TinyLlama/lrd_results/tinyllama_gsm8k/raw_gsm8k.json",
         "patch_path": "TinyLlama/lrd_results/tinyllama_patching/patching_gsm8k_typos.json",
         "patch_note": "typos",
         "sweep_dirs": [
@@ -225,9 +225,9 @@ def process_model(model_name, cfg):
     print("\n  Block Bootstrap Correlations (b=5, 10k resamples):")
     # compare all three signals pairwise
     pairs = {
-        "LRD_vs_LoRA":      (lrd_mean[valid], lora_delta[valid]),
-        "Patch_vs_LoRA":     (recovery[valid], lora_delta[valid]),
-        "LRD_vs_Patching":   (lrd_mean[valid], recovery[valid]),
+        "LRD_vs_LoRA": (lrd_mean[valid], lora_delta[valid]),
+        "Patch_vs_LoRA": (recovery[valid], lora_delta[valid]),
+        "LRD_vs_Patching": (lrd_mean[valid], recovery[valid]),
     }
 
     corr_results = {}
@@ -236,7 +236,7 @@ def process_model(model_name, cfg):
         corr_results[pair_name] = result
         sig = "*" if result["p_two"] < 0.05 else ""
         # print(f"bootstrap done for {pair_name}")
-        print(f"    {pair_name}: rho={result['rho']:+.3f}  "
+        print(f" {pair_name}: rho={result['rho']:+.3f}  "
               f"CI=[{result['ci_low']:+.3f}, {result['ci_high']:+.3f}]  "
               f"p={result['p_two']:.4f}{sig}")
 
@@ -248,7 +248,7 @@ def process_model(model_name, cfg):
                            ("LoRA", norm_lora)]:
         ac = compute_autocorrelation(arr)  # decorrelation lag, VIF, effective N
         autocorr[sig_name] = ac
-        print(f"    {sig_name}: decor_lag={ac['decorrelation_lag']}  "
+        print(f" {sig_name}: decor_lag={ac['decorrelation_lag']}  "
               f"VIF={ac['vif']:.2f}  eff_N={ac['effective_n']:.1f}")
 
     # Three-map figure 
@@ -353,11 +353,11 @@ def check_predictions():
                 actual_best = actual_ranked[0]
                 hit = (pred["predicted_best"] == actual_best)
                 rank = actual_ranked.index(pred["predicted_best"]) + 1 if pred["predicted_best"] in actual_ranked else None
-                print(f"    Actual best: {actual_best} (delta={actual_deltas[actual_best]:+.1f}%)")
-                print(f"    Predicted window ranked: #{rank}")
-                print(f"    Result: {'EXACT HIT' if hit else ('NEAR-HIT' if rank and rank <= 2 else 'MISS')}")
+                print(f" aActual best: {actual_best} (delta={actual_deltas[actual_best]:+.1f}%)")
+                print(f" Predicted window ranked: #{rank}")
+                print(f" Result: {'EXACT HIT' if hit else ('NEAR-HIT' if rank and rank <= 2 else 'MISS')}")
             else:
-                print(f"    No sweep results available yet.")
+                print(f" No sweep results available yet.")
 
 
 def main():
