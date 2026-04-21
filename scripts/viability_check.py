@@ -1,8 +1,3 @@
-"""
-viability_check.py — Qwen2.5-7B-Instruct viability validation (Step B0).
-
-Runs 50 clean GSM8K examples using the same pipeline as main.py to confirm accuracy >= 70%.
-"""
 
 import sys
 import os
