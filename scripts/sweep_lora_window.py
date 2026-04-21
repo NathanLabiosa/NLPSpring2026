@@ -38,23 +38,23 @@ except ImportError:
 # Evaluation conditions (same as existing sweeps for comparability)
 
 EVAL_CONDITIONS = [
-    ("none",       0.00),
-    ("typos",      0.05),
-    ("ocr",        0.05),
-    ("speech",     0.10),
+    ("none", 0.00),
+    ("typos", 0.05),
+    ("ocr", 0.05),
+    ("speech", 0.10),
     ("homophones", 0.20),
     ("whitespace", 0.10),
-    ("case",       0.10),
+    ("case", 0.10),
 ]
 
 TRAINING_POOL = [
-    ("typos",      0.05),
-    ("ocr",        0.05),
-    ("ocr",        0.15),
-    ("speech",     0.10),
+    ("typos", 0.05),
+    ("ocr", 0.05),
+    ("ocr", 0.15),
+    ("speech", 0.10),
     ("homophones", 0.30),
     ("whitespace", 0.10),
-    ("case",       0.10),
+    ("case", 0.10),
 ]
 
 
@@ -74,7 +74,7 @@ def build_training_pairs(perturber: PerturbationEngine,
     # build pairs from each perturbation type in the training pool
     for method, rate in TRAINING_POOL:
         for i in range(n_per_condition):
-            item    = items[i % len(items)]  # cycle through dataset
+            item = items[i % len(items)]  # cycle through dataset
             clean_q = item["question"]
             clean_a = item["answer"]
             noisy_q = perturber.apply(clean_q, method, rate)
@@ -114,7 +114,7 @@ def evaluate(model, tokenizer, perturber, eval_items, device, output_dir: str) -
     Args:
         eval_items: Pre-loaded and shuffled GSM8K test items (already limited to n_samples)
     """
-    print("\n" + "=" * 55 + "\nPOST-TRAINING EVALUATION\n" + "=" * 55)
+    print("\nPOST-TRAINING EVALUATION\n")
     model.eval()
 
     items = eval_items
@@ -146,7 +146,7 @@ def evaluate(model, tokenizer, perturber, eval_items, device, output_dir: str) -
         return out
 
     results  = {}
-    truths   = [_extract_gsm8k_truth(it["answer"]) for it in items]
+    truths = [_extract_gsm8k_truth(it["answer"]) for it in items]
     n_samples = len(items)
 
     for method, rate in EVAL_CONDITIONS:
@@ -172,25 +172,25 @@ def evaluate(model, tokenizer, perturber, eval_items, device, output_dir: str) -
         else:
             preds_cln = preds_no
 
-        acc_no  = sum(_gsm8k_correct(_extract_gsm8k_answer(p), t)
+        acc_no = sum(_gsm8k_correct(_extract_gsm8k_answer(p), t)
                       for p, t in zip(preds_no, truths)) / len(truths) * 100
         acc_yes = sum(_gsm8k_correct(_extract_gsm8k_answer(p), t)
                       for p, t in zip(preds_yes, truths)) / len(truths) * 100
         acc_cln = sum(_gsm8k_correct(_extract_gsm8k_answer(p), t)
                       for p, t in zip(preds_cln, truths)) / len(truths) * 100
-        delta   = acc_yes - acc_no
+        delta = acc_yes - acc_no
 
-        print(f"  No adapter:   {acc_no:.1f}%")
+        print(f"  No adapter: {acc_no:.1f}%")
         print(f"  With adapter: {acc_yes:.1f}%  (Δ={delta:+.1f}%)")
 
         results[cond] = {
-            "method":             method,
-            "rate":               rate,
-            "n_samples":          n_samples,
-            "acc_no_adapter":     round(acc_no, 2),
-            "acc_with_adapter":   round(acc_yes, 2),
+            "method": method,
+            "rate": rate,
+            "n_samples": n_samples,
+            "acc_no_adapter": round(acc_no, 2),
+            "acc_with_adapter": round(acc_yes, 2),
             "acc_clean_baseline": round(acc_cln, 2),
-            "delta":              round(delta, 2),
+            "delta": round(delta, 2),
         }
 
     print("\n" + "=" * 55)
@@ -270,19 +270,19 @@ def train(args):
 
     # Data
     perturber = PerturbationEngine()
-    pairs     = build_training_pairs(perturber,
+    pairs = build_training_pairs(perturber,
                                      n_per_condition=args.n_per_condition,
                                      clean_fraction=args.clean_fraction)
 
     # Load evaluation data (once, to avoid re-downloading)
     print("Loading GSM8K test set for evaluation...")
-    eval_ds    = load_dataset("openai/gsm8k", "main", split="test")
+    eval_ds = load_dataset("openai/gsm8k", "main", split="test")
     eval_items = list(eval_ds)
     random.shuffle(eval_items)
     eval_items = eval_items[:args.n_eval]
     print(f"  {len(eval_items)} evaluation samples ready.")
 
-    pad_id   = tokenizer.pad_token_id
+    pad_id = tokenizer.pad_token_id
     print("Tokenizing pairs...")
     tokenized = []
     for p in tqdm(pairs, desc="Tokenize"):
@@ -295,10 +295,10 @@ def train(args):
     trainable = list(filter(lambda p: p.requires_grad, model.parameters()))
     optimizer = AdamW(trainable, lr=args.lr, weight_decay=0.01)
 
-    warmup    = max(1, int(args.n_steps * 0.05))
-    sched_w   = LinearLR(optimizer, start_factor=0.1, end_factor=1.0,
+    warmup = max(1, int(args.n_steps * 0.05))
+    sched_w = LinearLR(optimizer, start_factor=0.1, end_factor=1.0,
                          total_iters=warmup)
-    sched_c   = CosineAnnealingLR(optimizer, T_max=args.n_steps - warmup,
+    sched_c = CosineAnnealingLR(optimizer, T_max=args.n_steps - warmup,
                                   eta_min=args.lr * 0.1)
     scheduler = SequentialLR(optimizer, [sched_w, sched_c], milestones=[warmup])
 
@@ -386,34 +386,34 @@ def train(args):
 
 def parse_args():
     p = argparse.ArgumentParser(description="Generic LoRA window sweep")
-    p.add_argument("--model",          type=str,   required=True)
-    p.add_argument("--layer_start",    type=int,   required=True)
-    p.add_argument("--layer_end",      type=int,   required=True)
-    p.add_argument("--n_steps",        type=int,   default=300)
-    p.add_argument("--lora_rank",      type=int,   default=4)
-    p.add_argument("--lora_alpha",     type=int,   default=8)
-    p.add_argument("--target_modules", type=str,   nargs="+",
+    p.add_argument("--model", type=str, required=True)
+    p.add_argument("--layer_start", type=int, required=True)
+    p.add_argument("--layer_end", type=int, required=True)
+    p.add_argument("--n_steps", type=int, default=300)
+    p.add_argument("--lora_rank", type=int, default=4)
+    p.add_argument("--lora_alpha", type=int, default=8)
+    p.add_argument("--target_modules", type=str, nargs="+",
                    default=["q_proj", "v_proj"])
-    p.add_argument("--output_dir",     type=str,   required=True)
-    p.add_argument("--n_eval",         type=int,   default=500)
-    p.add_argument("--n_per_condition",type=int,   default=150)
+    p.add_argument("--output_dir", type=str, required=True)
+    p.add_argument("--n_eval", type=int, default=500)
+    p.add_argument("--n_per_condition",type=int, default=150)
     p.add_argument("--clean_fraction", type=float, default=0.20)
-    p.add_argument("--batch_size",     type=int,   default=4)
-    p.add_argument("--eval_batch_size",type=int,   default=8)
+    p.add_argument("--batch_size", type=int, default=4)
+    p.add_argument("--eval_batch_size",type=int, default=8)
     p.add_argument("--grad_accum_steps",type=int,  default=4)
-    p.add_argument("--lr",             type=float, default=2e-4)
-    p.add_argument("--max_seq_len",    type=int,   default=512)
-    p.add_argument("--seed",           type=int,   default=42)
+    p.add_argument("--lr", type=float, default=2e-4)
+    p.add_argument("--max_seq_len", type=int, default=512)
+    p.add_argument("--seed", type=int, default=42)
     return p.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
     print("=" * 55)
-    print(f"Model:   {args.model}")
-    print(f"Layers:  {args.layer_start}–{args.layer_end}")
-    print(f"Steps:   {args.n_steps}")
-    print(f"LoRA:    r={args.lora_rank}, α={args.lora_alpha}, {args.target_modules}")
-    print(f"Output:  {args.output_dir}")
+    print(f"Model: {args.model}")
+    print(f"Layers: {args.layer_start}–{args.layer_end}")
+    print(f"Steps: {args.n_steps}")
+    print(f"LoRA: r={args.lora_rank}, alpoha={args.lora_alpha}, {args.target_modules}")
+    print(f"Output: {args.output_dir}")
     print("=" * 55)
     train(args)
