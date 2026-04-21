@@ -1,41 +1,3 @@
-"""
-lrd_diagnostics.py — Layer-wise Representation Divergence (LRD) Diagnostic Suite
-Hardened version — closes the following reviewer holes:
-
-  HOLE 2: Patching sanity checks added (identity patch → ~100% recovery,
-           random noise patch → ~0% recovery). n_pairs default raised 50→100.
-  HOLE 3: Per-token LRD computed over changed token positions only,
-           alongside mean-pooled LRD. Produces Fig 5 comparing the two.
-  HOLE 4: Exclusion bias analysis — compares final-layer LRD of excluded
-           (clean-fail) vs included (clean-success) examples. Produces Fig 6.
-  HOLE 5: Homophones high-rate experiment — pass --homophones_rates 0.40 0.50
-           to generate more failure cases and test if the paradox holds.
-  HOLE 6: Taxonomy variance test — Levene's test comparing LRD variance of
-           directional vs uniform perturbation classes. Produces Fig 7.
-  HOLE 7: BBH sample-size guard with explicit warnings.
-
-Architecture: works with Phi-3.5, Mistral-7B, Llama-3, Qwen out of the box.
-For other architectures, get_layer_list() will raise a helpful error.
-
-Usage:
-    # Standard run on Mistral
-    python lrd_diagnostics.py --dataset gsm8k \
-        --model mistralai/Mistral-7B-Instruct-v0.3
-
-    # Full hardened run with all fixes enabled
-    python lrd_diagnostics.py --dataset gsm8k \
-        --model mistralai/Mistral-7B-Instruct-v0.3 \
-        --patching --n_pairs 100 \
-        --run_exclusion_analysis \
-        --run_taxonomy_variance \
-        --homophones_rates 0.40 0.50
-
-    # BBH with recommended sample size
-    python lrd_diagnostics.py --dataset bbh \
-        --model mistralai/Mistral-7B-Instruct-v0.3 \
-        --n_samples 400
-"""
-
 import os
 import json
 import torch
@@ -58,10 +20,6 @@ from evaluator import (
     evaluate_multiple_choice_entry, evaluate_squad_entry, evaluate_bbh_entry,
 )
 
-
-# =============================================================================
-# 1. Architecture-agnostic layer accessor
-# =============================================================================
 
 def get_layer_list(model):
     candidates = [
@@ -103,10 +61,6 @@ def load_model_and_tokenizer(model_id: str, device: str = "cuda"):
     return model, tokenizer
 
 
-# =============================================================================
-# 2. Representation Extractor  (mean-pooled + per-token)
-# =============================================================================
-
 class RepresentationExtractor:
     def __init__(self, model, tokenizer, device="cuda", max_length=512):
         self.model      = model
@@ -142,10 +96,7 @@ class RepresentationExtractor:
 
         return pooled, per_tok, tokens
 
-
-# =============================================================================
-# 3. LRD metrics
-# =============================================================================
+================================================================
 
 def cosine_distance(a: np.ndarray, b: np.ndarray) -> float:
     dot  = np.dot(a, b)
@@ -184,11 +135,6 @@ def compute_perturbed_token_lrd(
 
     return np.array(lrd_layers)
 
-
-# =============================================================================
-# 4. Cascade / recovery helpers
-# =============================================================================
-
 def cascade_slope(lrd_profile: np.ndarray) -> float:
     layers = np.arange(len(lrd_profile))
     return float(np.polyfit(layers, lrd_profile, deg=1)[0])
@@ -202,10 +148,6 @@ def recovery_test(lrd_profile: np.ndarray) -> dict:
     late  = float(lrd_profile[-q:].mean())
     return {"early_lrd": early, "late_lrd": late, "recovered": late < early * 0.8}
 
-
-# =============================================================================
-# 5. Generation & evaluation helpers
-# =============================================================================
 
 @torch.no_grad()
 def greedy_generate(model, tokenizer, prompt: str,
@@ -244,10 +186,6 @@ def evaluate(dataset_name: str, generated_text: str, sample: dict) -> bool:
     return False
 
 
-# =============================================================================
-# 6. Perturbation definitions
-# =============================================================================
-
 BASE_EXPERIMENTS = [
     {"name": "Typos_5%",       "type": "typos",      "rate": 0.05},
     {"name": "OCR_5%",         "type": "ocr",        "rate": 0.05},
@@ -256,11 +194,6 @@ BASE_EXPERIMENTS = [
     {"name": "Homophones_20%", "type": "homophones", "rate": 0.20},
     {"name": "Speech_10%",     "type": "speech",     "rate": 0.10},
 ]
-
-
-# =============================================================================
-# 7. Main diagnostic loop
-# =============================================================================
 
 def run_diagnostics(
     dataset_name:           str,
@@ -408,10 +341,6 @@ def run_diagnostics(
     return all_results, stats
 
 
-# =============================================================================
-# 8. Statistics
-# =============================================================================
-
 def compute_statistics(all_results: dict) -> dict:
     stats = {}
     for exp_name, records in all_results.items():
@@ -450,11 +379,6 @@ def compute_statistics(all_results: dict) -> dict:
             "per_tok_n":               len(pt_finals),
         }
     return stats
-
-
-# =============================================================================
-# 9. Figures
-# =============================================================================
 
 def plot_lrd_curves(all_results, dataset_name, output_dir):
     fig, ax = plt.subplots(figsize=(11, 5))
@@ -566,10 +490,6 @@ def plot_per_token_vs_mean_lrd(all_results, dataset_name, output_dir):
     plt.savefig(p, dpi=300, bbox_inches="tight"); plt.close(); print(f"Fig5 → {p}")
 
 
-# =============================================================================
-# 10. HOLE 4 — Exclusion Bias Analysis
-# =============================================================================
-
 def run_exclusion_bias_analysis(
     model, tokenizer, extractor, perturber, dm,
     dataset_name, clean_ds,
@@ -632,30 +552,8 @@ def run_exclusion_bias_analysis(
     fp = os.path.join(output_dir, f"fig6_exclusion_bias_{dataset_name}.pdf")
     plt.savefig(fp, dpi=300); plt.close(); print(f"Fig6 → {fp}")
 
-
-# =============================================================================
-# 11. HOLE 6 — Taxonomy Variance Test  [FIXED]
-# =============================================================================
-
 def run_taxonomy_variance_test(all_results: dict, dataset_name: str, output_dir: str):
-    """
-    HOLE 6 FIX — Per-perturbation wrong-vs-correct Levene test.
-
-    Previous bug: pooled ALL directional LRD values together and compared to ALL
-    uniform values. Case has high LRD variance in BOTH outcome groups, which
-    swamps the signal when pooled. The pooled Levene test reliably returns
-    "not supported" even when the per-perturbation directional signal is clear.
-
-    Fix: for each directional perturbation individually, run Levene's test
-    comparing the wrong-group LRD distribution to the correct-group LRD
-    distribution. The taxonomy prediction is specifically that wrong-group std
-    > correct-group std for directional types (failure correlates with the
-    degree of divergence). This is tested directly, per perturbation.
-
-    Uniform types (case, whitespace) serve as the negative control — we expect
-    wrong-group std ≈ correct-group std there.
-    """
-    print("\n[HOLE 6] Taxonomy variance test (per-perturbation) ...")
+    
 
     directional_names = {"Typos_5%", "OCR_5%", "Speech_10%", "Homophones_20%"}
     uniform_names     = {"Case_10%", "Whitespace_10%"}
@@ -664,7 +562,7 @@ def run_taxonomy_variance_test(all_results: dict, dataset_name: str, output_dir:
     n_directional_supported = 0
     n_directional_tested    = 0
 
-    # ── Per-perturbation Levene: wrong-group std vs correct-group std ─────────
+    #Per-perturbation Levene: wrong-group std vs correct-group std
     for name, records in all_results.items():
         if name not in directional_names and name not in uniform_names:
             continue
@@ -708,7 +606,6 @@ def run_taxonomy_variance_test(all_results: dict, dataset_name: str, output_dir:
             if directional_confirmed:
                 n_directional_supported += 1
 
-    # ── Summary verdict ───────────────────────────────────────────────────────
     taxonomy_supported = (n_directional_tested > 0 and
                           n_directional_supported >= n_directional_tested // 2 + 1)
 
@@ -721,7 +618,7 @@ def run_taxonomy_variance_test(all_results: dict, dataset_name: str, output_dir:
         print("  → Fewer than half of directional types show significant wrong-group variance.")
         print("    Frame taxonomy as descriptive only.")
 
-    # ── Figure: per-perturbation std bars (wrong vs correct) ─────────────────
+    # Figure: per-perturbation std bars (wrong vs correct)
     exp_names   = list(per_pert_results.keys())
     stds_corr   = [per_pert_results[n]["std_correct"] for n in exp_names]
     stds_wrong  = [per_pert_results[n]["std_wrong"]   for n in exp_names]
@@ -771,31 +668,8 @@ def run_taxonomy_variance_test(all_results: dict, dataset_name: str, output_dir:
         }, f, indent=2)
 
 
-# =============================================================================
-# 12. Activation Patching — HOLE 2 sanity checks + n_pairs=100  [FIXED]
-# =============================================================================
-
 class ActivationPatcher:
-    """
-    Three patch modes:
-      "clean"    — replace noisy hidden state with clean state  (real experiment)
-      "identity" — substitute cached clean states into the NOISY forward pass
-                   (positive control → ~100% recovery, confirms hook fires)
-      "random"   — inject random noise into noisy state         (negative control → ~0%)
-
-    HOLE 2 FIX — identity mode bug:
-      Previously: target = clean_prompt for identity mode.
-      This made the identity hook a no-op: it cached activations from clean_prompt,
-      then ran generation on clean_prompt, so the hook replaced activations with
-      themselves — indistinguishable from a normal clean forward pass. Recovery
-      reflected actual model accuracy on clean inputs (~50% on hard failure pairs),
-      not hook efficacy. This produced the suspicious flat-at-0.50 GSM8K result.
-
-      Fix: identity mode now runs generation on noisy_prompt (same as clean mode),
-      but substitutes the cached clean states. A working hook MUST recover the
-      failure → ~100% recovery. This is the correct positive control: it tests
-      that the hook actually intercepts and replaces the activations.
-    """
+    
 
     def __init__(self, model, tokenizer, device="cuda", max_new_tokens=128):
         self.model          = model
@@ -881,16 +755,14 @@ class ActivationPatcher:
     @torch.no_grad()
     def run(self, clean_prompt: str, noisy_prompt: str,
             dataset_name: str, sample: dict, mode: str = "clean") -> dict:
-        # Step 1: cache clean hidden states (always from clean_prompt).
-        # A single forward pass fires the hook exactly once per layer with the
-        # full prompt sequence — no multi-fire problem, no heuristic guards needed.
+        # cache clean hidden states (always from clean_prompt).
         self._register_save_hooks()
         inp = self.tokenizer(clean_prompt, return_tensors="pt",
                              truncation=True, max_length=1024).to(self.device)
         _ = self.model(**inp, output_hidden_states=False)
         self._clear_hooks()
 
-        # Step 2: run generation on the noisy prompt for all three modes.
+        # run generation on the noisy prompt for all three modes.
         target   = noisy_prompt  # all modes run on the noisy input
         recovery = {}
 
@@ -1053,10 +925,6 @@ def run_activation_patching(
         }, f, indent=2)
 
     return layer_rec
-    
-# 13. CLI
-# =============================================================================
-
 if __name__ == "__main__":
     pa = argparse.ArgumentParser(description="LRD Diagnostic Suite (hardened)")
 
