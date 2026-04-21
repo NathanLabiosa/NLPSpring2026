@@ -1,33 +1,4 @@
-"""
-sweep_lora_window.py — Generic LoRA Window Sweep for regime-taxonomy validation.
 
-Trains a LoRA adapter restricted to a contiguous window of layers, evaluates
-on n_eval GSM8K test examples with all perturbation conditions, and saves
-eval_results.json in the same format consumed by expB_three_map.py.
-
-Loss: cross-entropy only on perturbed examples (data augmentation baseline).
-No stability loss. This is the "standard data augmentation with LoRA" setup.
-
-Usage:
-    python sweep_lora_window.py \\
-        --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 \\
-        --layer_start 0 --layer_end 3 \\
-        --n_steps 300 \\
-        --output_dir ./stabilizer_weights/tinyllama_sweep_L00_03 \\
-        --target_modules q_proj v_proj
-
-    python sweep_lora_window.py \\
-        --model Qwen/Qwen2.5-7B-Instruct \\
-        --layer_start 15 --layer_end 19 \\
-        --n_steps 1000 \\
-        --output_dir ./stabilizer_weights/qwen_sweep_L15_19 \\
-        --target_modules q_proj v_proj
-
-Output:
-    {output_dir}/eval_results.json   — per-condition acc_no_adapter, acc_with_adapter, delta
-    {output_dir}/lora_final/         — saved LoRA adapter
-    {output_dir}/training_logs.json  — per-step loss
-"""
 
 import os
 import sys
@@ -45,7 +16,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import LoraConfig, get_peft_model, TaskType
 from datasets import load_dataset
 
-# ── Shared infrastructure from existing pipeline ──────────────────────────────
+Shared infrastructure from existing pipeline
 ROOT = os.path.dirname(os.path.abspath(__file__))
 for p in [ROOT, os.path.join(ROOT, "Phi3.5")]:
     if p not in sys.path:
@@ -64,9 +35,7 @@ except ImportError:
     sys.path.insert(0, os.path.join(ROOT, "Phi3.5"))
     from perturbations import PerturbationEngine
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Evaluation conditions (same as existing sweeps for comparability)
-# ─────────────────────────────────────────────────────────────────────────────
 
 EVAL_CONDITIONS = [
     ("none",       0.00),
@@ -89,9 +58,7 @@ TRAINING_POOL = [
 ]
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Dataset builder
-# ─────────────────────────────────────────────────────────────────────────────
 
 def build_training_pairs(perturber: PerturbationEngine,
                          n_per_condition: int = 150,
@@ -138,9 +105,7 @@ def build_training_pairs(perturber: PerturbationEngine,
     return pairs
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Evaluation
-# ─────────────────────────────────────────────────────────────────────────────
 
 @torch.no_grad()
 def evaluate(model, tokenizer, perturber, eval_items, device, output_dir: str) -> dict:
@@ -240,9 +205,7 @@ def evaluate(model, tokenizer, perturber, eval_items, device, output_dir: str) -
     return results
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Training
-# ─────────────────────────────────────────────────────────────────────────────
 
 def train(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -254,7 +217,7 @@ def train(args):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(args.seed)
 
-    # ── Load model ─────────────────────────────────────────────────────────
+    # Load model
     print(f"\nLoading: {args.model}")
     tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
     if tokenizer.pad_token is None:
@@ -282,7 +245,7 @@ def train(args):
         attn_implementation=attn_impl,
     )
 
-    # ── LoRA config ──────────────────────────────────────────────────────
+    # LoRA config
     layer_list = list(range(args.layer_start, args.layer_end + 1))
     print(f"LoRA layers: {layer_list}  modules: {args.target_modules}")
 
@@ -305,13 +268,13 @@ def train(args):
             param.data = param.data.to(torch.float32)
     # print(f"Converted {sum(1 for p in model.parameters() if p.requires_grad)} LoRA params to fp32")
 
-    # ── Data ──────────────────────────────────────────────────────────────
+    # Data
     perturber = PerturbationEngine()
     pairs     = build_training_pairs(perturber,
                                      n_per_condition=args.n_per_condition,
                                      clean_fraction=args.clean_fraction)
 
-    # ── Load evaluation data (once, to avoid re-downloading) ──────────────
+    # Load evaluation data (once, to avoid re-downloading)
     print("Loading GSM8K test set for evaluation...")
     eval_ds    = load_dataset("openai/gsm8k", "main", split="test")
     eval_items = list(eval_ds)
@@ -328,7 +291,7 @@ def train(args):
         td["perturbation"] = p.perturbation
         tokenized.append(td)
 
-    # ── Optimizer ─────────────────────────────────────────────────────────
+    # Optimizer 
     trainable = list(filter(lambda p: p.requires_grad, model.parameters()))
     optimizer = AdamW(trainable, lr=args.lr, weight_decay=0.01)
 
@@ -339,7 +302,7 @@ def train(args):
                                   eta_min=args.lr * 0.1)
     scheduler = SequentialLR(optimizer, [sched_w, sched_c], milestones=[warmup])
 
-    # ── Training loop ──────────────────────────────────────────────────────
+    # Training loop 
     print(f"\nTraining — {args.n_steps} steps, batch={args.batch_size}, "
           f"grad_accum={args.grad_accum_steps}")
 
@@ -411,19 +374,14 @@ def train(args):
                 logs.append({"step": step, "loss": round(loss.item(), 5)})
                 # print(f"  [DEBUG] lr={scheduler.get_last_lr()[0]:.6f}")
 
-    # ── Save ───────────────────────────────────────────────────────────────
+    # Save
     final = os.path.join(args.output_dir, "lora_final")
     model.save_pretrained(final)
     print(f"\nAdapter saved: {final}")
     json.dump(logs, open(os.path.join(args.output_dir, "training_logs.json"), "w"), indent=2)
 
-    # ── Evaluate ──────────────────────────────────────────────────────────
+    # Evaluate
     evaluate(model, tokenizer, perturber, eval_items, device, args.output_dir)
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Argument parsing
-# ─────────────────────────────────────────────────────────────────────────────
 
 def parse_args():
     p = argparse.ArgumentParser(description="Generic LoRA window sweep")
