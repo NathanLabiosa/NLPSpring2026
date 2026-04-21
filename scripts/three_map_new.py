@@ -104,6 +104,7 @@ def lora_delta_per_layer(sweep_dirs, n_layers):
     centres = np.array(centres)
     deltas = np.array(deltas)
     # linear interpolation between window midpoints to get per-layer estimates
+    # print(f"interpolating from {len(centres)} windows to {n_layers} layers")
     interp = interp1d(centres, deltas, kind="linear",
                       bounds_error=False, fill_value=(deltas[0], deltas[-1]))
     return interp(np.arange(n_layers, dtype=float))
@@ -234,6 +235,7 @@ def process_model(model_name, cfg):
         result = block_bootstrap_spearman(x, y)  # block size=5, 10k resamples
         corr_results[pair_name] = result
         sig = "*" if result["p_two"] < 0.05 else ""
+        # print(f"bootstrap done for {pair_name}")
         print(f"    {pair_name}: rho={result['rho']:+.3f}  "
               f"CI=[{result['ci_low']:+.3f}, {result['ci_high']:+.3f}]  "
               f"p={result['p_two']:.4f}{sig}")

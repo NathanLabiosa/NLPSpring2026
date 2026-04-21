@@ -58,6 +58,7 @@ def load_model_and_tokenizer(model_id: str, device: str = "cuda"):
         attn_implementation="sdpa",  # faster than eager for inference
     )
     model.eval()
+    # print(f"loaded {model_id}, {sum(p.numel() for p in model.parameters())/1e9:.2f}B params")
     return model, tokenizer
 
 
@@ -233,6 +234,7 @@ def run_diagnostics(
                 model, tokenizer, clean_ds[i]["formatted_prompt"],
                 max_new_tokens=max_new_tokens, device=device
             )
+            # print(f"prefilter {i}: {gen[:50]}")
             if evaluate(dataset_name, gen, clean_ds[i]):
                 clean_correct.append(i)
             else:

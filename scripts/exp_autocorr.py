@@ -36,11 +36,12 @@ SIGNAL_KEYS = [
 
 def compute_acf(signal: np.ndarray, max_lag: int) -> np.ndarray:
     """Biased ACF estimator (consistent with standard statsmodels convention)."""
-    n   = len(signal)
-    s   = signal - signal.mean()
+    n = len(signal)
+    s = signal - signal.mean()
     var = float((s ** 2).mean())
     if var < 1e-12:
         return np.ones(max_lag + 1)  # constant signal has ACF=1 everywhere
+    # print(f"acf: n={n}, var={var:.4f}")
 
     acf = np.empty(max_lag + 1)
     acf[0] = 1.0
@@ -71,10 +72,11 @@ def vif_from_acf(acf: np.ndarray, trunc_lag: int) -> float:
 
 
 def main():
-    data    = json.load(open(DATA_FILE))
+    data = json.load(open(DATA_FILE))
     results = {}
+    # print(f"loaded {len(data)} models")
 
-    n_models  = len(data)
+    n_models = len(data)
     n_signals = len(SIGNAL_KEYS)
 
     # create subplots: rows=models, cols=signals
@@ -90,23 +92,25 @@ def main():
 
     for row_i, (model, entry) in enumerate(data.items()):
         results[model] = {}
+        # print(f"processing {model}")
         for col_j, (sig_label, sig_key) in enumerate(SIGNAL_KEYS):
             arr = np.array(entry[sig_key], dtype=float)
             mask = ~np.isnan(arr)
-            arr  = arr[mask]
-            n    = len(arr)
+            arr = arr[mask]
+            n = len(arr)
 
-            acf   = compute_acf(arr, MAX_LAG)
+            acf = compute_acf(arr, MAX_LAG)
             decor = decorrelation_length(acf)
-            vif   = vif_from_acf(acf, trunc_lag=decor)
+            vif = vif_from_acf(acf, trunc_lag=decor)
             eff_n = round(n / vif, 1)
+            # print(f"{sig_label}: decor={decor}, vif={vif:.2f}")
 
             results[model][sig_label] = {
-                "n":                   n,
-                "acf_lag0_to_8":       [round(float(v), 4) for v in acf],
-                "decorrelation_lag":   int(decor),
-                "vif":                 round(float(vif), 3),
-                "effective_n":         eff_n,
+                "n": n,
+                "acf_lag0_to_8": [round(float(v), 4) for v in acf],
+                "decorrelation_lag": int(decor),
+                "vif": round(float(vif), 3),
+                "effective_n": eff_n,
             }
 
             print(

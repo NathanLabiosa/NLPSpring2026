@@ -36,6 +36,7 @@ def main():
         trust_remote_code=True,
         attn_implementation="sdpa",  # tried flash_attention_2 but OOM
     )
+    # print("model loaded")
 
     pipe = pipeline(
         "text-generation",
@@ -53,6 +54,7 @@ def main():
         "top_k": None,
         "return_full_text": False,
     }
+    # print(f"gen_kwargs: {gen_kwargs}")
 
     ds = load_dataset("openai/gsm8k", "main", split="test")
     items = list(ds)[:n_samples]
@@ -71,6 +73,7 @@ def main():
 
         out = pipe(prompt, **gen_kwargs)
         generated_text = out[0]["generated_text"]
+        # print(f"gen {i}: {generated_text[:50]}")
 
         # use the same evaluator as main.py
         is_correct = evaluate_gsm8k_entry(generated_text, item)
@@ -114,6 +117,7 @@ def main():
         "timestamp": datetime.now().isoformat(),
         "details": results,
     }
+    # print("writing results")
     out_path = "lrd_results/qwen_viability.json"
     json.dump(out, open(out_path, "w"), indent=2)
     print(f"Saved: {out_path}")

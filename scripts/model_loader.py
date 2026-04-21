@@ -24,6 +24,7 @@ class ModelWrapper:
             trust_remote_code=True,
             attn_implementation="sdpa"  # tried "flash_attention_2" but got OOM
         )
+        # print("model loaded to gpu")
 
         # create pipeline for easier generation
         self.pipe = pipeline(
@@ -32,6 +33,7 @@ class ModelWrapper:
             tokenizer=self.tokenizer,
             pad_token_id=self.tokenizer.pad_token_id
         )
+        # print("pipeline created")
         return self.pipe, self.tokenizer
 
     def register_embedding_noise(self, noise_alpha=0.0):
@@ -48,6 +50,7 @@ class ModelWrapper:
 
         if noise_alpha <= 0:
             return  # no noise
+        # print(f"registering noise hook alpha={noise_alpha}")
 
         # define the hook function
         def noise_hook(module, args, output):

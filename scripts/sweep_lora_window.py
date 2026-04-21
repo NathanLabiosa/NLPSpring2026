@@ -119,10 +119,10 @@ def evaluate(model, tokenizer, perturber, eval_items, device, output_dir: str) -
 
     items = eval_items
 
-    gen_kw = dict(max_new_tokens=100, do_sample=False,
-                  temperature=None, top_p=None, top_k=None,
-                  pad_token_id=tokenizer.pad_token_id,
+    gen_kw = dict(max_new_tokens=100, do_sample=False, temperature=None,
+                  top_p=None, top_k=None, pad_token_id=tokenizer.pad_token_id,
                   use_cache=True)
+    # print(f"eval gen_kw: {gen_kw}")
 
     def gen_batch(prompts: List[str], use_adapter: bool, batch_size: int = 8) -> List[str]:
         """Batched generation for faster evaluation (use batch_size=8 for speed)."""
@@ -250,13 +250,13 @@ def train(args):
     print(f"LoRA layers: {layer_list}  modules: {args.target_modules}")
 
     lora_cfg = LoraConfig(
-        task_type         = TaskType.CAUSAL_LM,
-        r                 = args.lora_rank,
-        lora_alpha        = args.lora_alpha,
-        target_modules    = args.target_modules,
-        layers_to_transform = layer_list,  # restrict to specified window
-        lora_dropout      = 0.05,
-        bias              = "none",
+        task_type=TaskType.CAUSAL_LM,
+        r=args.lora_rank,
+        lora_alpha=args.lora_alpha,
+        target_modules=args.target_modules,
+        layers_to_transform=layer_list,  # restrict to specified window
+        lora_dropout=0.05,
+        bias="none",
     )
     model = get_peft_model(base_model, lora_cfg)
     model.print_trainable_parameters()
@@ -342,6 +342,7 @@ def train(args):
 
             # Check for NaN and skip this step if found (happened occasionally with Gemma2)
             if torch.isnan(loss):
+                # print(f"NaN at step {step}")
                 if step % 100 == 0:
                     print(f"WARNING: NaN loss at step {step}, skipping", file=sys.stderr)
                 step += 1

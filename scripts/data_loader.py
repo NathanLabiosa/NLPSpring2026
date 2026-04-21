@@ -53,6 +53,7 @@ class DatasetManager:
     def _setup_humaneval(self, perturbation_func):
         # HumanEval only has a 'test' split
         dataset = load_dataset("openai_humaneval", split="test")
+        # print(f"loaded humaneval: {len(dataset)} examples")
 
         def format_fn(sample):
             prompt_text = sample['prompt']
@@ -70,6 +71,7 @@ class DatasetManager:
     # GSM8K (Math Chain-of-Thought)
     def _setup_gsm8k(self, perturbation_func):
         dataset = load_dataset("openai/gsm8k", "main", split="test")
+        # print(f"gsm8k: {len(dataset)} examples")
 
         def format_fn(sample):
             prompt_text = sample['question']
@@ -167,6 +169,7 @@ class DatasetManager:
         # proportionally across tasks rather than exhausting one task first
         combined = concatenate_datasets(subtask_datasets)
         combined = combined.shuffle(seed=42)  # fixed seed for reproducibility
+        # print(f"bbh combined: {len(combined)} examples")
 
         def format_fn(sample):
             input_text = sample['input']
@@ -194,6 +197,7 @@ class DatasetManager:
     # ARC-Challenge (Science Reasoning)
     def _setup_arc(self, perturbation_func):
         dataset = load_dataset("allenai/ai2_arc", "ARC-Challenge", split="test")
+        # print(f"arc: {len(dataset)} examples")
 
         def format_fn(sample):
             question = sample['question']
@@ -219,6 +223,7 @@ class DatasetManager:
     def _setup_squad(self, perturbation_func):
         # SQuAD uses 'validation' for evaluation (test is hidden)
         dataset = load_dataset("rajpurkar/squad_v2", split="validation")
+        # print(f"squad: {len(dataset)} examples")
 
         def format_fn(sample):
             context = sample['context']

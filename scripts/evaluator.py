@@ -38,6 +38,7 @@ def evaluate_humaneval_entry(generated_text, sample):
     pattern = r"```(?:python)?\n(.*?)```"
     match = re.search(pattern, generated_text, re.DOTALL)
     code_body = match.group(1) if match else generated_text
+    # print(f"extracted code len={len(code_body)}")
 
     if "def " not in code_body:
         full_code = sample['prompt'] + code_body
@@ -54,9 +55,11 @@ def evaluate_humaneval_entry(generated_text, sample):
     # start and wait with a 5-second timeout
     p.start()
     p.join(timeout=5.0)
+    # print("here")
 
     # check if it hung
     if p.is_alive():
+        # print(f"timeout on {sample['entry_point']}")
         p.terminate()  # kill the infinite loop
         p.join()
         return False  # timeout counts as a failure
@@ -74,6 +77,7 @@ def evaluate_gsm8k_entry(generated_text, sample):
     # parse the GROUND TRUTH (dataset stores it as ".... #### 42")
     truth_match = re.search(r"####\s*(-?[\d,]+(?:\.\d+)?)", sample['answer'])
     truth = truth_match.group(1).replace(',', '') if truth_match else None
+    # print(f"gsm8k truth={truth}")
 
     # parse the PREDICTION
     # model might output "#### 42" or just "The answer is 42"
@@ -89,6 +93,7 @@ def evaluate_gsm8k_entry(generated_text, sample):
     # compare (float comparison to handle 42 vs 42.0)
     if pred and truth:
         try:
+            # print(f"comparing {pred} vs {truth}")
             return float(pred) == float(truth)
         except ValueError:
             return False
@@ -103,7 +108,8 @@ def evaluate_multiple_choice_entry(generated_text, sample):
     if 'answerKey' in sample:
         truth = sample['answerKey']  # ARC format
     else:
-        truth = sample['answer']     # MMLU format
+        truth = sample['answer']  # MMLU format
+    # print(f"mc truth={truth}")
 
     # convert MMLU integer index (0, 1, 2, 3) to letter (A, B, C, D)
     if isinstance(truth, int):

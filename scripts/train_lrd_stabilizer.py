@@ -85,18 +85,18 @@ class TokenizedBatch:
 PERTURBATION_LOSS_WEIGHTS: dict = {
     "whitespace": 0.3,  # changed from 1.0 to 0.3 after noticing training was overfitting to whitespace
 }
-PERTURBATION_LOSS_DEFAULT_WEIGHT: float = 1.0
+PERTURBATION_LOSS_DEFAULT_WEIGHT = 1.0
 
 # (method_name, rate) pairs drawn at training time.
 # Directional types (primary signal) weighted more than uniform types.
 DEFAULT_PERTURBATION_POOL: List[Tuple[str, float]] = [
-    ("typos",      0.05),
-    ("ocr",        0.05),   # low-rate OCR (historical baseline)
-    ("ocr",        0.15),   # high-rate OCR (v11: OCR at 5% was underrepresented and hardest failure)
-    ("speech",     0.10),
+    ("typos", 0.05),
+    ("ocr", 0.05),   # low-rate OCR (historical baseline)
+    ("ocr", 0.15),   # high-rate OCR (v11: OCR at 5% was underrepresented and hardest failure)
+    ("speech", 0.10),
     ("homophones", 0.30),   # v11: collapsed from 3 conditions (20/40/50%) single representative
     ("whitespace", 0.10),
-    ("case",       0.10),
+    ("case", 0.10),
 ]
 
 
@@ -128,6 +128,7 @@ def build_gsm8k_pairs(
             clean_q = item["question"]
             clean_a = item["answer"]
             noisy_q = perturber.apply(clean_q, method, rate)
+            # print(f"debug: {method} @ {rate} -> len change {len(clean_q)} -> {len(noisy_q)}")
             pairs.append(TrainingPair(
                 clean_question=clean_q,
                 noisy_question=noisy_q,
@@ -512,14 +513,14 @@ def collate_batch(
     )
 
     return TokenizedBatch(
-        clean_input_ids  = clean_ids.to(device),
-        clean_attn_mask  = clean_mask.to(device),
-        noisy_full_ids   = noisy_ids.to(device),
-        noisy_attn_mask  = noisy_mask.to(device),
-        answer_mask      = ans_mask.to(device),
-        noisy_prompt_lens = padded_prompt_ends.to(device),
-        is_clean         = is_clean,
-        perturbations    = perturbations,
+        clean_input_ids=clean_ids.to(device),
+        clean_attn_mask=clean_mask.to(device),
+        noisy_full_ids=noisy_ids.to(device),
+        noisy_attn_mask=noisy_mask.to(device),
+        answer_mask=ans_mask.to(device),
+        noisy_prompt_lens=padded_prompt_ends.to(device),
+        is_clean=is_clean,
+        perturbations=perturbations,
     )
 
 # Evaluation

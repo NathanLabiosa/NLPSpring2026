@@ -41,6 +41,7 @@ class PerturbationEngine:
             return text
 
         method_name = method_name.lower()
+        # print(f"applying {method_name} at rate {rate}")
         if method_name == "typos":
             return self._add_typos(text, rate)
         elif method_name == "ocr":

@@ -161,6 +161,7 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
                 d = W.shape[0] // 3
                 W = W[:d]
             c3_per_layer[l] = effective_rank(W)
+            # print(f"layer {l}: C3={c3_per_layer[l]:.2f}")
         except KeyError:
             # Try v_proj fallback (some models have different key naming)
             vkey = key.replace("q_proj", "v_proj")
@@ -232,6 +233,7 @@ def compute_c3_c4(model_id: str, cfg: dict, n_samples: int = 50,
 
         # Build param_dict once per example
         param_dict = dict(model.named_parameters())
+        # print(f"backward pass {len([p for p in param_dict.values() if p.grad is not None])} params w/ grad")
 
         # DEBUG: check first example only to verify gradients flow correctly
         # if item == items[0]:
