@@ -1,21 +1,4 @@
-"""
-three_map_new.py — Three-Map Overlay + Block Bootstrap + Autocorrelation
-                   for new models: Gemma-2-9B, Qwen2.5-7B, TinyLlama-1.1B.
 
-Steps A6/B5/C6 from experiment_plan.md.
-
-For each model:
-  1. Load LRD, patching, and LoRA sweep data
-  2. Compute pairwise Spearman correlations: LRD x LoRA, Patch x LoRA, LRD x Patch
-  3. Block bootstrap (block size 5, 10k resamples) for CIs and p-values
-  4. Autocorrelation structure (decorrelation lag, VIF, effective N)
-  5. Compare C3/C4 prediction to actual optimal window
-
-Output per model:
-  {model}_three_map.json     — pairwise Spearman rho with block-bootstrap CIs
-  {model}_autocorrelation.json — decorrelation lag, VIF, effective N
-  {model}_three_map.pdf      — three-signal overlay figure
-"""
 
 import json
 import math
@@ -32,7 +15,7 @@ from scipy.interpolate import interp1d
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SW   = os.path.join(ROOT, "stabilizer_weights")
 
-# ── Model configurations ─────────────────────────────────────────────────────
+#Model configurations
 
 MODELS = {
     "Gemma2_9B": {
@@ -78,7 +61,7 @@ MODELS = {
 }
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# Helpers
 
 def normalize_01(arr):
     lo, hi = np.nanmin(arr), np.nanmax(arr)
@@ -126,7 +109,7 @@ def lora_delta_per_layer(sweep_dirs, n_layers):
     return interp(np.arange(n_layers, dtype=float))
 
 
-# ── Block Bootstrap ───────────────────────────────────────────────────────────
+# Block Bootstrap
 
 def block_bootstrap_spearman(x, y, block_size=5, n_boot=10000, seed=42):
     """Block bootstrap to account for layer-wise autocorrelation."""
@@ -162,7 +145,7 @@ def block_bootstrap_spearman(x, y, block_size=5, n_boot=10000, seed=42):
     }
 
 
-# ── Autocorrelation ──────────────────────────────────────────────────────────
+# Autocorrelation
 
 def compute_autocorrelation(signal, max_lag=8):
     """Compute ACF, decorrelation lag (1/e threshold), VIF, and effective N."""
@@ -201,7 +184,7 @@ def compute_autocorrelation(signal, max_lag=8):
     }
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# Main
 
 def process_model(model_name, cfg):
     print(f"\n{'='*60}")
@@ -237,7 +220,7 @@ def process_model(model_name, cfg):
 
     valid = ~np.isnan(recovery)
 
-    # ── Block bootstrap correlations ──────────────────────────────────────
+    #Block bootstrap correlations
     print("\n  Block Bootstrap Correlations (b=5, 10k resamples):")
     # compare all three signals pairwise
     pairs = {
@@ -255,7 +238,7 @@ def process_model(model_name, cfg):
               f"CI=[{result['ci_low']:+.3f}, {result['ci_high']:+.3f}]  "
               f"p={result['p_two']:.4f}{sig}")
 
-    # ── Autocorrelation ───────────────────────────────────────────────────
+    # Autocorrelation
     # TODO: might want to export ACF plots per model for supplemental figures
     print("\n  Autocorrelation Structure:")
     autocorr = {}
@@ -266,7 +249,7 @@ def process_model(model_name, cfg):
         print(f"    {sig_name}: decor_lag={ac['decorrelation_lag']}  "
               f"VIF={ac['vif']:.2f}  eff_N={ac['effective_n']:.1f}")
 
-    # ── Three-map figure ──────────────────────────────────────────────────
+    # Three-map figure 
     layers = np.arange(n_layers)
     fig, ax = plt.subplots(figsize=(11, 5))
 
@@ -295,7 +278,7 @@ def process_model(model_name, cfg):
     plt.close()
     print(f"\n  Figure: {fig_path}")
 
-    # ── Save results ──────────────────────────────────────────────────────
+    # Save results
     three_map = {
         "n_layers": n_layers,
         "correlations": corr_results,
