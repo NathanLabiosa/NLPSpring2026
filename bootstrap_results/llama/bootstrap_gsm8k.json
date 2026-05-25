@@ -1,0 +1,228 @@
+{
+  "Typos_5%": {
+    "n": 200,
+    "point_biserial_r": {
+      "mean": -0.05289242180407568,
+      "ci_lo": -0.17874673878894667,
+      "ci_hi": 0.06520699708568173,
+      "n_valid": 10000
+    },
+    "recovery_rate": {
+      "mean": 0.005061500000000001,
+      "ci_lo": 0.0,
+      "ci_hi": 0.015,
+      "n_valid": 10000
+    },
+    "cascade_slope": {
+      "mean": 0.0010083174880665827,
+      "ci_lo": 0.0008978014676383428,
+      "ci_hi": 0.0011250884927993504,
+      "n_valid": 10000
+    },
+    "accuracy": {
+      "mean": 0.7950075000000001,
+      "ci_lo": 0.735,
+      "ci_hi": 0.85,
+      "n_valid": 10000
+    },
+    "power_analysis": {
+      "n": 200,
+      "alpha": 0.05,
+      "power": 0.8,
+      "min_detectable_d": 0.19810199057996727,
+      "min_detectable_acc_delta": 0.12838476327872048,
+      "interpretation": "With n=200, can detect Cohen's d >= 0.198 at 80% power",
+      "limitations_text": "Given our diagnostic sample size of n=200 examples per condition, a post-hoc power analysis indicates we can detect effect sizes of Cohen's d >= 0.20 (approximately 12.8 percentage points in accuracy difference at a 70% baseline) with 80% power at alpha=0.05. Effects below this threshold may exist but would require larger samples to detect reliably."
+    }
+  },
+  "OCR_5%": {
+    "n": 200,
+    "point_biserial_r": {
+      "mean": -0.18105984490813856,
+      "ci_lo": -0.3229053946052738,
+      "ci_hi": -0.04472986369868681,
+      "n_valid": 10000
+    },
+    "recovery_rate": {
+      "mean": 0.034964,
+      "ci_lo": 0.01,
+      "ci_hi": 0.065,
+      "n_valid": 10000
+    },
+    "cascade_slope": {
+      "mean": 0.000512795212503851,
+      "ci_lo": 0.0004419186219851918,
+      "ci_hi": 0.0005887210084533785,
+      "n_valid": 10000
+    },
+    "accuracy": {
+      "mean": 0.8550235,
+      "ci_lo": 0.805,
+      "ci_hi": 0.9,
+      "n_valid": 10000
+    },
+    "power_analysis": {
+      "n": 200,
+      "alpha": 0.05,
+      "power": 0.8,
+      "min_detectable_d": 0.19810199057996727,
+      "min_detectable_acc_delta": 0.12838476327872048,
+      "interpretation": "With n=200, can detect Cohen's d >= 0.198 at 80% power",
+      "limitations_text": "Given our diagnostic sample size of n=200 examples per condition, a post-hoc power analysis indicates we can detect effect sizes of Cohen's d >= 0.20 (approximately 12.8 percentage points in accuracy difference at a 70% baseline) with 80% power at alpha=0.05. Effects below this threshold may exist but would require larger samples to detect reliably."
+    }
+  },
+  "Whitespace_10%": {
+    "n": 200,
+    "point_biserial_r": {
+      "mean": -0.15958522570027492,
+      "ci_lo": -0.2947883021554634,
+      "ci_hi": -0.023815379810261838,
+      "n_valid": 10000
+    },
+    "recovery_rate": {
+      "mean": 0.0,
+      "ci_lo": 0.0,
+      "ci_hi": 0.0,
+      "n_valid": 10000
+    },
+    "cascade_slope": {
+      "mean": 0.002633091752748467,
+      "ci_lo": 0.0024762411759020795,
+      "ci_hi": 0.002793818496107894,
+      "n_valid": 10000
+    },
+    "accuracy": {
+      "mean": 0.8352994999999999,
+      "ci_lo": 0.785,
+      "ci_hi": 0.885,
+      "n_valid": 10000
+    },
+    "power_analysis": {
+      "n": 200,
+      "alpha": 0.05,
+      "power": 0.8,
+      "min_detectable_d": 0.19810199057996727,
+      "min_detectable_acc_delta": 0.12838476327872048,
+      "interpretation": "With n=200, can detect Cohen's d >= 0.198 at 80% power",
+      "limitations_text": "Given our diagnostic sample size of n=200 examples per condition, a post-hoc power analysis indicates we can detect effect sizes of Cohen's d >= 0.20 (approximately 12.8 percentage points in accuracy difference at a 70% baseline) with 80% power at alpha=0.05. Effects below this threshold may exist but would require larger samples to detect reliably."
+    }
+  },
+  "Case_10%": {
+    "n": 200,
+    "point_biserial_r": {
+      "mean": -0.06170492866153018,
+      "ci_lo": -0.19528608818747747,
+      "ci_hi": 0.07445371408962072,
+      "n_valid": 10000
+    },
+    "recovery_rate": {
+      "mean": 0.0,
+      "ci_lo": 0.0,
+      "ci_hi": 0.0,
+      "n_valid": 10000
+    },
+    "cascade_slope": {
+      "mean": 0.002021209239318358,
+      "ci_lo": 0.0018843426679081728,
+      "ci_hi": 0.0021598762812785155,
+      "n_valid": 10000
+    },
+    "accuracy": {
+      "mean": 0.8500279999999999,
+      "ci_lo": 0.8,
+      "ci_hi": 0.895,
+      "n_valid": 10000
+    },
+    "power_analysis": {
+      "n": 200,
+      "alpha": 0.05,
+      "power": 0.8,
+      "min_detectable_d": 0.19810199057996727,
+      "min_detectable_acc_delta": 0.12838476327872048,
+      "interpretation": "With n=200, can detect Cohen's d >= 0.198 at 80% power",
+      "limitations_text": "Given our diagnostic sample size of n=200 examples per condition, a post-hoc power analysis indicates we can detect effect sizes of Cohen's d >= 0.20 (approximately 12.8 percentage points in accuracy difference at a 70% baseline) with 80% power at alpha=0.05. Effects below this threshold may exist but would require larger samples to detect reliably."
+    }
+  },
+  "Homophones_20%": {
+    "n": 200,
+    "point_biserial_r": {
+      "mean": -0.3074198539488001,
+      "ci_lo": -0.5102886389096436,
+      "ci_hi": -0.11044258717245563,
+      "n_valid": 9997
+    },
+    "recovery_rate": {
+      "mean": 0.34488850000000004,
+      "ci_lo": 0.28,
+      "ci_hi": 0.41,
+      "n_valid": 10000
+    },
+    "cascade_slope": {
+      "mean": 1.115927233513105e-05,
+      "ci_lo": 7.749448981096234e-06,
+      "ci_hi": 1.4990212809155001e-05,
+      "n_valid": 10000
+    },
+    "accuracy": {
+      "mean": 0.9600479999999999,
+      "ci_lo": 0.93,
+      "ci_hi": 0.985,
+      "n_valid": 10000
+    },
+    "power_analysis": {
+      "n": 200,
+      "alpha": 0.05,
+      "power": 0.8,
+      "min_detectable_d": 0.19810199057996727,
+      "min_detectable_acc_delta": 0.12838476327872048,
+      "interpretation": "With n=200, can detect Cohen's d >= 0.198 at 80% power",
+      "limitations_text": "Given our diagnostic sample size of n=200 examples per condition, a post-hoc power analysis indicates we can detect effect sizes of Cohen's d >= 0.20 (approximately 12.8 percentage points in accuracy difference at a 70% baseline) with 80% power at alpha=0.05. Effects below this threshold may exist but would require larger samples to detect reliably."
+    }
+  },
+  "Speech_10%": {
+    "n": 200,
+    "point_biserial_r": {
+      "mean": -0.10811960178707716,
+      "ci_lo": -0.23777957260113805,
+      "ci_hi": 0.01777351418893841,
+      "n_valid": 10000
+    },
+    "recovery_rate": {
+      "mean": 0.009925,
+      "ci_lo": 0.0,
+      "ci_hi": 0.025,
+      "n_valid": 10000
+    },
+    "cascade_slope": {
+      "mean": 0.0003847819500066796,
+      "ci_lo": 0.00033591656156511777,
+      "ci_hi": 0.00043555662838024956,
+      "n_valid": 10000
+    },
+    "accuracy": {
+      "mean": 0.8851025000000001,
+      "ci_lo": 0.84,
+      "ci_hi": 0.925,
+      "n_valid": 10000
+    },
+    "power_analysis": {
+      "n": 200,
+      "alpha": 0.05,
+      "power": 0.8,
+      "min_detectable_d": 0.19810199057996727,
+      "min_detectable_acc_delta": 0.12838476327872048,
+      "interpretation": "With n=200, can detect Cohen's d >= 0.198 at 80% power",
+      "limitations_text": "Given our diagnostic sample size of n=200 examples per condition, a post-hoc power analysis indicates we can detect effect sizes of Cohen's d >= 0.20 (approximately 12.8 percentage points in accuracy difference at a 70% baseline) with 80% power at alpha=0.05. Effects below this threshold may exist but would require larger samples to detect reliably."
+    }
+  },
+  "_power_analysis_summary": {
+    "min_sample_size": 200,
+    "limitations_text": "Given our diagnostic sample size of n=200 examples per condition, a post-hoc power analysis indicates we can detect effect sizes of Cohen's d >= 0.20 (approximately 12.8 percentage points in accuracy difference at a 70% baseline) with 80% power at alpha=0.05. Effects below this threshold may exist but would require larger samples to detect reliably.",
+    "n": 200,
+    "alpha": 0.05,
+    "power": 0.8,
+    "min_detectable_d": 0.19810199057996727,
+    "min_detectable_acc_delta": 0.12838476327872048,
+    "interpretation": "With n=200, can detect Cohen's d >= 0.198 at 80% power"
+  }
+}

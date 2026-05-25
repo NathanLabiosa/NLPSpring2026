@@ -1,0 +1,27 @@
+\begin{table}[t]
+\centering\small
+\begin{tabular}{c c | c c | c c}
+\toprule
+Layer & Recovery & Layer & Recovery & Layer & Recovery \\
+\midrule
+L00 & 73.8\% & L16 & 70.2\% & L32 & 60.7\% \\
+L01 & 75.0\% & L17 & 77.4\% & L33 & 56.0\% \\
+L02 & 76.2\% & L18 & 73.8\% & L34 & 56.0\% \\
+L03 & 67.9\% & L19 & 64.3\% & L35 & 53.6\% \\
+L04 & 76.2\% & L20 & 73.8\% & L36 & 44.0\% \\
+L05 & 77.4\% & L21 & 81.0\% & L37 & 38.1\% \\
+L06 & 66.7\% & L22 & 78.6\% & L38 & 42.9\% \\
+L07 & 73.8\% & L23 & 82.1\% & L39 & 40.5\% \\
+L08 & 73.8\% & L24 & 73.8\% & L40 & 44.0\% \\
+L09 & 75.0\% & L25 & 71.4\% & L41 & 44.0\% \\
+L10 & 71.4\% & L26 & 64.3\% & L42 & 36.9\% \\
+L11 & 71.4\% & L27 & 64.3\% & L43 & 36.9\% \\
+L12 & 79.8\% & L28 & 66.7\% & L44 & 34.5\% \\
+L13 & 66.7\% & L29 & 70.2\% & L45 & 28.6\% \\
+L14 & 70.2\% & L30 & 64.3\% & L46 & 33.3\% \\
+L15 & 73.8\% & L31 & 60.7\% & L47 & 26.2\% \\
+\bottomrule
+\end{tabular}
+\caption{Qwen2.5-14B per-layer activation-patching recovery on GSM8K (typos 5\%, $n=84$ clean-correct pairs). Identity-patch sanity 85.0\% clears the 80\% ceiling Qwen-7B did not.}
+\label{tab:qwen14b_patching_per_layer}
+\end{table}

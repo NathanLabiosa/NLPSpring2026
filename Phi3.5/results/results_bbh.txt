@@ -1,0 +1,18 @@
+
+--- Run for bbh ---
+[bbh] Baseline: 250/250 (100.00%)
+[bbh] OCR_5%: 250/250 (100.00%)
+[bbh] Typos_5%: 250/250 (100.00%)
+[bbh] Whitespace_10%: 249/250 (99.60%)
+[bbh] Homophones_20%: 250/250 (100.00%)
+[bbh] Speech_10%: 250/250 (100.00%)
+[bbh] Gaussian_0.05: 203/250 (81.20%)
+
+--- Run for bbh ---
+[bbh] Baseline: 158/250 (63.20%)
+[bbh] OCR_5%: 127/250 (50.80%)
+[bbh] Typos_5%: 114/250 (45.60%)
+[bbh] Whitespace_10%: 96/250 (38.40%)
+[bbh] Homophones_20%: 149/250 (59.60%)
+[bbh] Speech_10%: 138/250 (55.20%)
+[bbh] Gaussian_0.05: 32/250 (12.80%)

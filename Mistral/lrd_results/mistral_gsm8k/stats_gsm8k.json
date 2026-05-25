@@ -1,0 +1,162 @@
+{
+  "Typos_5%": {
+    "n": 200,
+    "n_correct": 125,
+    "n_wrong": 75,
+    "accuracy": 0.625,
+    "mean_final_lrd": 0.08553195297718048,
+    "std_final_lrd": 0.0623313730237663,
+    "mean_cascade_slope": 0.0009716195070289347,
+    "pct_recovered": 1.5,
+    "lrd_failure_correlation": {
+      "r": -0.18450247476364134,
+      "p": 0.00891239558685014
+    },
+    "mannwhitney": {
+      "U": 5436.0,
+      "p": 0.0295402480914295
+    },
+    "mean_per_tok_final_lrd": 0.737214204926513,
+    "per_tok_n": 199
+  },
+  "OCR_5%": {
+    "n": 200,
+    "n_correct": 125,
+    "n_wrong": 75,
+    "accuracy": 0.625,
+    "mean_final_lrd": 0.03980988889932632,
+    "std_final_lrd": 0.040500554571750405,
+    "mean_cascade_slope": 0.00044029265114250635,
+    "pct_recovered": 4.5,
+    "lrd_failure_correlation": {
+      "r": -0.19515544123881337,
+      "p": 0.00561780473519681
+    },
+    "mannwhitney": {
+      "U": 5704.0,
+      "p": 0.005175147503246867
+    },
+    "mean_per_tok_final_lrd": 0.6931811776130483,
+    "per_tok_n": 197
+  },
+  "Whitespace_10%": {
+    "n": 200,
+    "n_correct": 139,
+    "n_wrong": 61,
+    "accuracy": 0.695,
+    "mean_final_lrd": 0.08704828292131424,
+    "std_final_lrd": 0.04958292220749964,
+    "mean_cascade_slope": 0.001091626437809218,
+    "pct_recovered": 0.0,
+    "lrd_failure_correlation": {
+      "r": -0.12206875969762379,
+      "p": 0.08508080608470538
+    },
+    "mannwhitney": {
+      "U": 4960.0,
+      "p": 0.02803281171039055
+    },
+    "mean_per_tok_final_lrd": 0.732697399673433,
+    "per_tok_n": 200
+  },
+  "Case_10%": {
+    "n": 200,
+    "n_correct": 149,
+    "n_wrong": 51,
+    "accuracy": 0.745,
+    "mean_final_lrd": 0.14434360831975937,
+    "std_final_lrd": 0.0661766552695163,
+    "mean_cascade_slope": 0.002192863650361005,
+    "pct_recovered": 0.0,
+    "lrd_failure_correlation": {
+      "r": -0.07282563931367364,
+      "p": 0.3054500122793237
+    },
+    "mannwhitney": {
+      "U": 4204.0,
+      "p": 0.12873541156141383
+    },
+    "mean_per_tok_final_lrd": 0.7831530099698418,
+    "per_tok_n": 200
+  },
+  "Homophones_20%": {
+    "n": 200,
+    "n_correct": 182,
+    "n_wrong": 18,
+    "accuracy": 0.91,
+    "mean_final_lrd": 0.0010579529404640198,
+    "std_final_lrd": 0.002106876950568761,
+    "mean_cascade_slope": 1.2232838646772696e-05,
+    "pct_recovered": 38.0,
+    "lrd_failure_correlation": {
+      "r": -0.3930625722112895,
+      "p": 8.546085426802975e-09
+    },
+    "mannwhitney": {
+      "U": 2869.0,
+      "p": 4.701189614825041e-08
+    },
+    "mean_per_tok_final_lrd": 0.48968813811682876,
+    "per_tok_n": 73
+  },
+  "Speech_10%": {
+    "n": 200,
+    "n_correct": 146,
+    "n_wrong": 54,
+    "accuracy": 0.73,
+    "mean_final_lrd": 0.02949236422777176,
+    "std_final_lrd": 0.03154468434608173,
+    "mean_cascade_slope": 0.00034487234378721606,
+    "pct_recovered": 0.5,
+    "lrd_failure_correlation": {
+      "r": -0.13346731883669938,
+      "p": 0.059548724720920626
+    },
+    "mannwhitney": {
+      "U": 4664.0,
+      "p": 0.02354801931195234
+    },
+    "mean_per_tok_final_lrd": 0.6720756746508056,
+    "per_tok_n": 197
+  },
+  "Homophones_40%": {
+    "n": 200,
+    "n_correct": 163,
+    "n_wrong": 37,
+    "accuracy": 0.815,
+    "mean_final_lrd": 0.00243709534406662,
+    "std_final_lrd": 0.004947685763811118,
+    "mean_cascade_slope": 2.8817629252366168e-05,
+    "pct_recovered": 33.5,
+    "lrd_failure_correlation": {
+      "r": -0.25570833793047626,
+      "p": 0.0002576421598533752
+    },
+    "mannwhitney": {
+      "U": 4843.0,
+      "p": 3.838429765406055e-09
+    },
+    "mean_per_tok_final_lrd": 0.4453124096616429,
+    "per_tok_n": 114
+  },
+  "Homophones_50%": {
+    "n": 200,
+    "n_correct": 167,
+    "n_wrong": 33,
+    "accuracy": 0.835,
+    "mean_final_lrd": 0.0024430334568023683,
+    "std_final_lrd": 0.0038751675774585446,
+    "mean_cascade_slope": 2.599646073372603e-05,
+    "pct_recovered": 21.5,
+    "lrd_failure_correlation": {
+      "r": -0.19931896575087457,
+      "p": 0.004660979003686561
+    },
+    "mannwhitney": {
+      "U": 4270.0,
+      "p": 2.8507669357272353e-07
+    },
+    "mean_per_tok_final_lrd": 0.4360934632561614,
+    "per_tok_n": 124
+  }
+}

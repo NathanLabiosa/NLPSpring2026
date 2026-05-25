@@ -1,0 +1,9 @@
+
+--- Run for humaneval ---
+[humaneval] Baseline: 127/164 (77.44%)
+[humaneval] OCR_5%: 109/164 (66.46%)
+[humaneval] Typos_5%: 108/164 (65.85%)
+[humaneval] Whitespace_10%: 94/164 (57.32%)
+[humaneval] Homophones_20%: 126/164 (76.83%)
+[humaneval] Speech_10%: 131/164 (79.88%)
+[humaneval] Gaussian_0.05: 0/164 (0.00%)

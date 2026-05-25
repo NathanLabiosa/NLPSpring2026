@@ -1,0 +1,9 @@
+
+--- Run for arc ---
+[arc] Baseline: 485/1172 (41.38%)
+[arc] OCR_5%: 470/1172 (40.10%)
+[arc] Typos_5%: 444/1172 (37.88%)
+[arc] Whitespace_10%: 395/1172 (33.70%)
+[arc] Homophones_20%: 477/1172 (40.70%)
+[arc] Speech_10%: 442/1172 (37.71%)
+[arc] Gaussian_0.05: 406/1172 (34.64%)

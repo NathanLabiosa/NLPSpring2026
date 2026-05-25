@@ -1,0 +1,5 @@
+
+--- Run for mmlu ---
+[mmlu] Homophones_20%: 865/2769 (31.24%)
+[mmlu] Speech_10%: 854/2769 (30.84%)
+[mmlu] Gaussian_0.05: 702/2769 (25.35%)

@@ -1,0 +1,80 @@
+{
+  "checkpoint": "/home1/labiosa/NLPSpring2026/stabilizer_weights/qwen_sweep_L24_27/lora_final",
+  "mode": "severity",
+  "seed": 42,
+  "n_samples": 500,
+  "results": {
+    "typos_10pct": {
+      "method": "typos",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 77.8,
+      "acc_with_adapter": 71.8,
+      "acc_clean_baseline": 88.8,
+      "delta": -6.0
+    },
+    "typos_15pct": {
+      "method": "typos",
+      "rate": 0.15,
+      "n_samples": 500,
+      "acc_no_adapter": 68.6,
+      "acc_with_adapter": 63.2,
+      "acc_clean_baseline": 88.8,
+      "delta": -5.4
+    },
+    "ocr_10pct": {
+      "method": "ocr",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 78.0,
+      "acc_with_adapter": 71.6,
+      "acc_clean_baseline": 88.8,
+      "delta": -6.4
+    },
+    "typos_5pct": {
+      "method": "typos",
+      "rate": 0.05,
+      "n_samples": 500,
+      "acc_no_adapter": 83.0,
+      "acc_with_adapter": 77.4,
+      "acc_clean_baseline": 88.8,
+      "delta": -5.6
+    },
+    "ocr_5pct": {
+      "method": "ocr",
+      "rate": 0.05,
+      "n_samples": 500,
+      "acc_no_adapter": 83.4,
+      "acc_with_adapter": 76.4,
+      "acc_clean_baseline": 88.8,
+      "delta": -7.0
+    },
+    "homophones_20pct": {
+      "method": "homophones",
+      "rate": 0.2,
+      "n_samples": 500,
+      "acc_no_adapter": 87.4,
+      "acc_with_adapter": 77.8,
+      "acc_clean_baseline": 88.8,
+      "delta": -9.6
+    },
+    "whitespace_10pct": {
+      "method": "whitespace",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 87.8,
+      "acc_with_adapter": 79.8,
+      "acc_clean_baseline": 88.8,
+      "delta": -8.0
+    },
+    "case_10pct": {
+      "method": "case",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 88.6,
+      "acc_with_adapter": 83.2,
+      "acc_clean_baseline": 88.8,
+      "delta": -5.4
+    }
+  }
+}

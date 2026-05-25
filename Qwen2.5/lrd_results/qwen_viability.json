@@ -1,0 +1,312 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "step": "B0_viability",
+  "n_samples": 50,
+  "correct": 42,
+  "accuracy_pct": 84.0,
+  "gate_threshold": 70.0,
+  "passed": true,
+  "timestamp": "2026-04-09T19:45:45.218173",
+  "details": [
+    {
+      "idx": 0,
+      "truth": "18",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 1,
+      "truth": "3",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 2,
+      "truth": "70000",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 3,
+      "truth": "540",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 4,
+      "truth": "20",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 5,
+      "truth": "64",
+      "extracted": "(no ####)",
+      "correct": false
+    },
+    {
+      "idx": 6,
+      "truth": "260",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 7,
+      "truth": "160",
+      "extracted": "(no ####)",
+      "correct": false
+    },
+    {
+      "idx": 8,
+      "truth": "45",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 9,
+      "truth": "460",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 10,
+      "truth": "366",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 11,
+      "truth": "694",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 12,
+      "truth": "13",
+      "extracted": "(no ####)",
+      "correct": false
+    },
+    {
+      "idx": 13,
+      "truth": "18",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 14,
+      "truth": "60",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 15,
+      "truth": "125",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 16,
+      "truth": "230",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 17,
+      "truth": "57500",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 18,
+      "truth": "7",
+      "extracted": "(no ####)",
+      "correct": false
+    },
+    {
+      "idx": 19,
+      "truth": "6",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 20,
+      "truth": "15",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 21,
+      "truth": "14",
+      "extracted": "(no ####)",
+      "correct": false
+    },
+    {
+      "idx": 22,
+      "truth": "7",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 23,
+      "truth": "8",
+      "extracted": "(no ####)",
+      "correct": false
+    },
+    {
+      "idx": 24,
+      "truth": "26",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 25,
+      "truth": "2",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 26,
+      "truth": "243",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 27,
+      "truth": "16",
+      "extracted": "(no ####)",
+      "correct": false
+    },
+    {
+      "idx": 28,
+      "truth": "25",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 29,
+      "truth": "104",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 30,
+      "truth": "109",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 31,
+      "truth": "80",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 32,
+      "truth": "35",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 33,
+      "truth": "70",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 34,
+      "truth": "23",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 35,
+      "truth": "9",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 36,
+      "truth": "75",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 37,
+      "truth": "2",
+      "extracted": "(no ####)",
+      "correct": false
+    },
+    {
+      "idx": 38,
+      "truth": "10",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 39,
+      "truth": "18",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 40,
+      "truth": "8",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 41,
+      "truth": "200",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 42,
+      "truth": "26",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 43,
+      "truth": "48",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 44,
+      "truth": "20",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 45,
+      "truth": "104",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 46,
+      "truth": "163",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 47,
+      "truth": "800",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 48,
+      "truth": "8",
+      "extracted": "(no ####)",
+      "correct": true
+    },
+    {
+      "idx": 49,
+      "truth": "30",
+      "extracted": "(no ####)",
+      "correct": true
+    }
+  ]
+}

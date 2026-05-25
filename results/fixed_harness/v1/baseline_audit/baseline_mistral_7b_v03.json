@@ -1,0 +1,81 @@
+{
+  "harness_version": "v1",
+  "base_model": "mistralai/Mistral-7B-Instruct-v0.3",
+  "checkpoint": null,
+  "seed": 42,
+  "n_samples": 500,
+  "max_new_tokens": 512,
+  "harness": "exp3_heldout_style_fixed",
+  "clean_baseline": 59.6,
+  "mean_perturbed_delta": null,
+  "results": {
+    "clean_baseline": {
+      "method": "none",
+      "rate": 0.0,
+      "n_samples": 500,
+      "acc_no_adapter": 59.6,
+      "acc_with_adapter": null,
+      "acc_clean_baseline": 59.6,
+      "delta": null
+    },
+    "typos_5pct": {
+      "method": "typos",
+      "rate": 0.05,
+      "n_samples": 500,
+      "acc_no_adapter": 51.8,
+      "acc_with_adapter": null,
+      "acc_clean_baseline": 59.6,
+      "delta": null
+    },
+    "ocr_5pct": {
+      "method": "ocr",
+      "rate": 0.05,
+      "n_samples": 500,
+      "acc_no_adapter": 50.2,
+      "acc_with_adapter": null,
+      "acc_clean_baseline": 59.6,
+      "delta": null
+    },
+    "speech_10pct": {
+      "method": "speech",
+      "rate": 0.10,
+      "n_samples": 500,
+      "acc_no_adapter": 58.0,
+      "acc_with_adapter": null,
+      "acc_clean_baseline": 59.6,
+      "delta": null
+    },
+    "homophones_20pct": {
+      "method": "homophones",
+      "rate": 0.20,
+      "n_samples": 500,
+      "acc_no_adapter": 58.4,
+      "acc_with_adapter": null,
+      "acc_clean_baseline": 59.6,
+      "delta": null
+    },
+    "whitespace_10pct": {
+      "method": "whitespace",
+      "rate": 0.10,
+      "n_samples": 500,
+      "acc_no_adapter": 54.0,
+      "acc_with_adapter": null,
+      "acc_clean_baseline": 59.6,
+      "delta": null
+    },
+    "case_10pct": {
+      "method": "case",
+      "rate": 0.10,
+      "n_samples": 500,
+      "acc_no_adapter": 55.8,
+      "acc_with_adapter": null,
+      "acc_clean_baseline": 59.6,
+      "delta": null
+    }
+  },
+  "_provenance": {
+    "slurm_job": 8872714,
+    "reconstructed_from_log": "logs/audit_mistral_8872714.out",
+    "reason": "eval ran to completion; script crashed on JSON write due to mean-delta bug (now fixed). Numbers below are verbatim from the per-condition 'no adapter: X%' log lines."
+  }
+}

@@ -1,0 +1,18 @@
+
+--- Run for arc ---
+[arc] Baseline: 563/1172 (48.04%)
+[arc] OCR_5%: 545/1172 (46.50%)
+[arc] Typos_5%: 540/1172 (46.08%)
+[arc] Whitespace_10%: 544/1172 (46.42%)
+[arc] Homophones_20%: 556/1172 (47.44%)
+[arc] Speech_10%: 560/1172 (47.78%)
+[arc] Gaussian_0.05: 12/1172 (1.02%)
+
+--- Run for arc ---
+[arc] Baseline: 563/1172 (48.04%)
+[arc] OCR_5%: 545/1172 (46.50%)
+[arc] Typos_5%: 540/1172 (46.08%)
+[arc] Whitespace_10%: 544/1172 (46.42%)
+[arc] Homophones_20%: 556/1172 (47.44%)
+[arc] Speech_10%: 560/1172 (47.78%)
+[arc] Gaussian_0.05: 10/1172 (0.85%)

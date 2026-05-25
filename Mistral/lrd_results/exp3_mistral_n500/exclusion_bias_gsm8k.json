@@ -1,0 +1,7 @@
+{
+  "excluded_mean": 0.10190182268619537,
+  "included_mean": 0.08510033309459686,
+  "U": 5828.0,
+  "p": 0.04318623903955127,
+  "verdict": "BIAS DETECTED (p=0.0432) \u2014 acknowledge as limitation."
+}

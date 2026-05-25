@@ -1,0 +1,9 @@
+
+--- Run for mmlu ---
+[mmlu] Baseline: 1019/2769 (36.80%)
+[mmlu] OCR_5%: 1002/2769 (36.19%)
+[mmlu] Typos_5%: 976/2769 (35.25%)
+[mmlu] Whitespace_10%: 988/2769 (35.68%)
+[mmlu] Homophones_20%: 995/2769 (35.93%)
+[mmlu] Speech_10%: 993/2769 (35.86%)
+[mmlu] Gaussian_0.05: 35/2769 (1.26%)

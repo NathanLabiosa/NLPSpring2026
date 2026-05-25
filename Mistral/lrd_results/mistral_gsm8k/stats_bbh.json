@@ -1,0 +1,162 @@
+{
+  "Typos_5%": {
+    "n": 43,
+    "n_correct": 10,
+    "n_wrong": 33,
+    "accuracy": 0.23255813953488372,
+    "mean_final_lrd": 0.20924423877582993,
+    "std_final_lrd": 0.0658149851676872,
+    "mean_cascade_slope": 0.0024473708687715446,
+    "pct_recovered": 0.0,
+    "lrd_failure_correlation": {
+      "r": 0.14502962098617908,
+      "p": 0.3534502426348813
+    },
+    "mannwhitney": {
+      "U": 123.0,
+      "p": 0.8891063034535505
+    },
+    "mean_per_tok_final_lrd": 0.8092658419249069,
+    "per_tok_n": 43
+  },
+  "OCR_5%": {
+    "n": 43,
+    "n_correct": 17,
+    "n_wrong": 26,
+    "accuracy": 0.3953488372093023,
+    "mean_final_lrd": 0.09527081389759862,
+    "std_final_lrd": 0.03643475955341944,
+    "mean_cascade_slope": 0.0010729222190704762,
+    "pct_recovered": 0.0,
+    "lrd_failure_correlation": {
+      "r": -0.30552508395083167,
+      "p": 0.046332746333087774
+    },
+    "mannwhitney": {
+      "U": 303.0,
+      "p": 0.021461048396544252
+    },
+    "mean_per_tok_final_lrd": 0.774338501082322,
+    "per_tok_n": 43
+  },
+  "Whitespace_10%": {
+    "n": 43,
+    "n_correct": 14,
+    "n_wrong": 29,
+    "accuracy": 0.32558139534883723,
+    "mean_final_lrd": 0.16516184668208278,
+    "std_final_lrd": 0.039928555787839055,
+    "mean_cascade_slope": 0.0021905191210264754,
+    "pct_recovered": 0.0,
+    "lrd_failure_correlation": {
+      "r": -0.14877605019789983,
+      "p": 0.34101827932299816
+    },
+    "mannwhitney": {
+      "U": 234.0,
+      "p": 0.21461831857589558
+    },
+    "mean_per_tok_final_lrd": 0.7960509355504278,
+    "per_tok_n": 43
+  },
+  "Case_10%": {
+    "n": 43,
+    "n_correct": 19,
+    "n_wrong": 24,
+    "accuracy": 0.4418604651162791,
+    "mean_final_lrd": 0.23172552918278894,
+    "std_final_lrd": 0.039363012786560285,
+    "mean_cascade_slope": 0.0036230415783145204,
+    "pct_recovered": 0.0,
+    "lrd_failure_correlation": {
+      "r": 0.2446870782206833,
+      "p": 0.11379003571301237
+    },
+    "mannwhitney": {
+      "U": 184.0,
+      "p": 0.8617649196844529
+    },
+    "mean_per_tok_final_lrd": 0.8384472658398421,
+    "per_tok_n": 43
+  },
+  "Homophones_20%": {
+    "n": 43,
+    "n_correct": 32,
+    "n_wrong": 11,
+    "accuracy": 0.7441860465116279,
+    "mean_final_lrd": 0.0009682635928309241,
+    "std_final_lrd": 0.0012480627347041097,
+    "mean_cascade_slope": 1.6231815801036243e-05,
+    "pct_recovered": 11.627906976744185,
+    "lrd_failure_correlation": {
+      "r": -0.48637945334599364,
+      "p": 0.0009431770275183687
+    },
+    "mannwhitney": {
+      "U": 275.0,
+      "p": 0.003008582914698982
+    },
+    "mean_per_tok_final_lrd": 0.41087603867798655,
+    "per_tok_n": 30
+  },
+  "Speech_10%": {
+    "n": 43,
+    "n_correct": 8,
+    "n_wrong": 35,
+    "accuracy": 0.18604651162790697,
+    "mean_final_lrd": 0.07496225279431011,
+    "std_final_lrd": 0.03079656415746268,
+    "mean_cascade_slope": 0.0007677472295778599,
+    "pct_recovered": 0.0,
+    "lrd_failure_correlation": {
+      "r": -0.05085027546986212,
+      "p": 0.746065664433538
+    },
+    "mannwhitney": {
+      "U": 150.0,
+      "p": 0.3856066988287784
+    },
+    "mean_per_tok_final_lrd": 0.7345100277261227,
+    "per_tok_n": 43
+  },
+  "Homophones_40%": {
+    "n": 43,
+    "n_correct": 32,
+    "n_wrong": 11,
+    "accuracy": 0.7441860465116279,
+    "mean_final_lrd": 0.002329622590264609,
+    "std_final_lrd": 0.002951106642534256,
+    "mean_cascade_slope": 3.4901166737576244e-05,
+    "pct_recovered": 6.976744186046512,
+    "lrd_failure_correlation": {
+      "r": -0.4169170118095282,
+      "p": 0.005415238525875388
+    },
+    "mannwhitney": {
+      "U": 268.0,
+      "p": 0.005411595525115888
+    },
+    "mean_per_tok_final_lrd": 0.3991787157770519,
+    "per_tok_n": 34
+  },
+  "Homophones_50%": {
+    "n": 43,
+    "n_correct": 25,
+    "n_wrong": 18,
+    "accuracy": 0.5813953488372093,
+    "mean_final_lrd": 0.0033014416694641113,
+    "std_final_lrd": 0.0034792433388694307,
+    "mean_cascade_slope": 4.2257374857895496e-05,
+    "pct_recovered": 2.3255813953488373,
+    "lrd_failure_correlation": {
+      "r": -0.3656622393143244,
+      "p": 0.015895132202622803
+    },
+    "mannwhitney": {
+      "U": 337.0,
+      "p": 0.0030213200729545257
+    },
+    "mean_per_tok_final_lrd": 0.416043071903647,
+    "per_tok_n": 37
+  }
+}

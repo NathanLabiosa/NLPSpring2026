@@ -1,0 +1,31 @@
+{
+  "per_perturbation": {
+    "Typos_5%": {
+      "class": "directional",
+      "n_correct": 6,
+      "n_wrong": 12,
+      "std_correct": 0.04107640133323482,
+      "std_wrong": 0.052191629756191946,
+      "levene_stat": 0.5318856286693903,
+      "levene_p": 0.47635670708744904,
+      "wrong_std_gt_correct": true,
+      "significant": false,
+      "directional_confirmed": false
+    },
+    "Speech_10%": {
+      "class": "directional",
+      "n_correct": 5,
+      "n_wrong": 13,
+      "std_correct": 0.03574952228025888,
+      "std_wrong": 0.038453269850465994,
+      "levene_stat": 0.04581127056447019,
+      "levene_p": 0.8332230569092479,
+      "wrong_std_gt_correct": true,
+      "significant": false,
+      "directional_confirmed": false
+    }
+  },
+  "n_directional_tested": 2,
+  "n_directional_supported": 0,
+  "taxonomy_supported": false
+}

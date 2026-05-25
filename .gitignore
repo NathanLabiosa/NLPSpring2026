@@ -1,3 +1,32 @@
 .venv/
 venv/
 __pycache__/
+*.pyc
+
+# Trained LoRA / stabilizer weights (too large for GitHub; archive separately)
+stabilizer_weights/
+**/stabilizer_weights/
+*.pt
+*.safetensors
+*.bin
+*.ckpt
+
+# Cached training corpora derivable from HF datasets
+Phi3.5/stabilizer_corpus/
+
+# SLURM logs (reproducible, noisy)
+logs/
+**/logs/
+*.out
+*.err
+
+# Local HF token files (never commit credentials)
+token
+token_gemma
+*.token
+
+# OS / editor cruft
+.DS_Store
+.idea/
+.vscode/
+.claude/

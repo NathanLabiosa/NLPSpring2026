@@ -1,0 +1,9 @@
+
+--- Run for gsm8k ---
+[gsm8k] Baseline: 1151/1319 (87.26%)
+[gsm8k] OCR_5%: 1031/1319 (78.17%)
+[gsm8k] Typos_5%: 1063/1319 (80.59%)
+[gsm8k] Whitespace_10%: 1047/1319 (79.38%)
+[gsm8k] Homophones_20%: 1123/1319 (85.14%)
+[gsm8k] Speech_10%: 1120/1319 (84.91%)
+[gsm8k] Gaussian_0.05: 0/1319 (0.00%)

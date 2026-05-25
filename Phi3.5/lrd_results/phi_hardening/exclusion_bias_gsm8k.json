@@ -1,0 +1,7 @@
+{
+  "excluded_mean": 0.0204218647309712,
+  "included_mean": 0.01796228885650635,
+  "U": 4895.0,
+  "p": 0.05361781977006842,
+  "verdict": "UNBIASED \u2014 no significant LRD difference."
+}

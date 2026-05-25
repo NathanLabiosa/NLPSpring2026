@@ -1,0 +1,314 @@
+{
+  "model": "google/gemma-2-9b",
+  "step": "A1_viability",
+  "n_samples": 50,
+  "correct": 29,
+  "accuracy_pct": 58.0,
+  "gate_high": 50.0,
+  "gate_low": 40.0,
+  "decision": "PROCEED",
+  "timestamp": "2026-04-09T12:19:39.202921",
+  "prompt_type": "few-shot (4 exemplars, no chat template)",
+  "details": [
+    {
+      "idx": 0,
+      "truth": "18",
+      "extracted": "18",
+      "correct": true
+    },
+    {
+      "idx": 1,
+      "truth": "3",
+      "extracted": "3",
+      "correct": true
+    },
+    {
+      "idx": 2,
+      "truth": "70000",
+      "extracted": "65000",
+      "correct": false
+    },
+    {
+      "idx": 3,
+      "truth": "540",
+      "extracted": "540",
+      "correct": true
+    },
+    {
+      "idx": 4,
+      "truth": "20",
+      "extracted": "20",
+      "correct": true
+    },
+    {
+      "idx": 5,
+      "truth": "64",
+      "extracted": "50",
+      "correct": false
+    },
+    {
+      "idx": 6,
+      "truth": "260",
+      "extracted": "260",
+      "correct": true
+    },
+    {
+      "idx": 7,
+      "truth": "160",
+      "extracted": "200",
+      "correct": false
+    },
+    {
+      "idx": 8,
+      "truth": "45",
+      "extracted": "315",
+      "correct": false
+    },
+    {
+      "idx": 9,
+      "truth": "460",
+      "extracted": "460",
+      "correct": true
+    },
+    {
+      "idx": 10,
+      "truth": "366",
+      "extracted": "366",
+      "correct": true
+    },
+    {
+      "idx": 11,
+      "truth": "694",
+      "extracted": "794",
+      "correct": false
+    },
+    {
+      "idx": 12,
+      "truth": "13",
+      "extracted": "12",
+      "correct": false
+    },
+    {
+      "idx": 13,
+      "truth": "18",
+      "extracted": "13",
+      "correct": false
+    },
+    {
+      "idx": 14,
+      "truth": "60",
+      "extracted": "60",
+      "correct": true
+    },
+    {
+      "idx": 15,
+      "truth": "125",
+      "extracted": "8096",
+      "correct": false
+    },
+    {
+      "idx": 16,
+      "truth": "230",
+      "extracted": "230",
+      "correct": true
+    },
+    {
+      "idx": 17,
+      "truth": "57500",
+      "extracted": "57500",
+      "correct": true
+    },
+    {
+      "idx": 18,
+      "truth": "7",
+      "extracted": "7",
+      "correct": true
+    },
+    {
+      "idx": 19,
+      "truth": "6",
+      "extracted": "6",
+      "correct": true
+    },
+    {
+      "idx": 20,
+      "truth": "15",
+      "extracted": "44",
+      "correct": false
+    },
+    {
+      "idx": 21,
+      "truth": "14",
+      "extracted": "14",
+      "correct": true
+    },
+    {
+      "idx": 22,
+      "truth": "7",
+      "extracted": "7",
+      "correct": true
+    },
+    {
+      "idx": 23,
+      "truth": "8",
+      "extracted": "8",
+      "correct": true
+    },
+    {
+      "idx": 24,
+      "truth": "26",
+      "extracted": "26",
+      "correct": true
+    },
+    {
+      "idx": 25,
+      "truth": "2",
+      "extracted": "2",
+      "correct": true
+    },
+    {
+      "idx": 26,
+      "truth": "243",
+      "extracted": "243",
+      "correct": true
+    },
+    {
+      "idx": 27,
+      "truth": "16",
+      "extracted": "16.00",
+      "correct": false
+    },
+    {
+      "idx": 28,
+      "truth": "25",
+      "extracted": "35",
+      "correct": false
+    },
+    {
+      "idx": 29,
+      "truth": "104",
+      "extracted": "104",
+      "correct": true
+    },
+    {
+      "idx": 30,
+      "truth": "109",
+      "extracted": "109",
+      "correct": true
+    },
+    {
+      "idx": 31,
+      "truth": "80",
+      "extracted": "46.666666666666666666666666666667",
+      "correct": false
+    },
+    {
+      "idx": 32,
+      "truth": "35",
+      "extracted": "35",
+      "correct": true
+    },
+    {
+      "idx": 33,
+      "truth": "70",
+      "extracted": "80",
+      "correct": false
+    },
+    {
+      "idx": 34,
+      "truth": "23",
+      "extracted": "23",
+      "correct": true
+    },
+    {
+      "idx": 35,
+      "truth": "9",
+      "extracted": "9",
+      "correct": true
+    },
+    {
+      "idx": 36,
+      "truth": "75",
+      "extracted": "75.00",
+      "correct": false
+    },
+    {
+      "idx": 37,
+      "truth": "2",
+      "extracted": "11",
+      "correct": false
+    },
+    {
+      "idx": 38,
+      "truth": "10",
+      "extracted": "6.666666666666667",
+      "correct": false
+    },
+    {
+      "idx": 39,
+      "truth": "18",
+      "extracted": "27",
+      "correct": false
+    },
+    {
+      "idx": 40,
+      "truth": "8",
+      "extracted": "8",
+      "correct": true
+    },
+    {
+      "idx": 41,
+      "truth": "200",
+      "extracted": "200",
+      "correct": true
+    },
+    {
+      "idx": 42,
+      "truth": "26",
+      "extracted": "26",
+      "correct": true
+    },
+    {
+      "idx": 43,
+      "truth": "48",
+      "extracted": "240",
+      "correct": false
+    },
+    {
+      "idx": 44,
+      "truth": "20",
+      "extracted": "10.00",
+      "correct": false
+    },
+    {
+      "idx": 45,
+      "truth": "104",
+      "extracted": "44",
+      "correct": false
+    },
+    {
+      "idx": 46,
+      "truth": "163",
+      "extracted": "0.259090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090",
+      "correct": false
+    },
+    {
+      "idx": 47,
+      "truth": "800",
+      "extracted": "800",
+      "correct": true
+    },
+    {
+      "idx": 48,
+      "truth": "8",
+      "extracted": "8",
+      "correct": true
+    },
+    {
+      "idx": 49,
+      "truth": "30",
+      "extracted": "30",
+      "correct": true
+    }
+  ]
+}

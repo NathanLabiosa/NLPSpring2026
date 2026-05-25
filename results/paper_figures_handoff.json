@@ -1,0 +1,369 @@
+{
+  "tab_layer_sweep_panel": {
+    "gemma2_9b": {
+      "L00-04": {
+        "n_seeds": 1,
+        "seeds": [
+          42
+        ],
+        "mean_perturbed_delta_mean": 0.23,
+        "mean_perturbed_delta_std": 0.0,
+        "clean_baseline": 64.8,
+        "clean_delta_mean": 1.6
+      },
+      "L06-11": {
+        "n_seeds": 1,
+        "seeds": [
+          42
+        ],
+        "mean_perturbed_delta_mean": -0.2,
+        "mean_perturbed_delta_std": 0.0,
+        "clean_baseline": 64.8,
+        "clean_delta_mean": 1.0
+      },
+      "L15-20": {
+        "n_seeds": 1,
+        "seeds": [
+          42
+        ],
+        "mean_perturbed_delta_mean": 0.5,
+        "mean_perturbed_delta_std": 0.0,
+        "clean_baseline": 64.8,
+        "clean_delta_mean": 1.4
+      }
+    },
+    "llama3_8b": {
+      "L00-04": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -2.48,
+        "mean_perturbed_delta_std": 0.24,
+        "clean_baseline": 78.4,
+        "clean_delta_mean": -2.93
+      },
+      "L05-09": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -6.41,
+        "mean_perturbed_delta_std": 0.48,
+        "clean_baseline": 78.4,
+        "clean_delta_mean": -5.4
+      },
+      "L15-19": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -2.7,
+        "mean_perturbed_delta_std": 0.77,
+        "clean_baseline": 78.4,
+        "clean_delta_mean": -5.4
+      },
+      "L20-24": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": 0.42,
+        "mean_perturbed_delta_std": 0.23,
+        "clean_baseline": 78.4,
+        "clean_delta_mean": 0.0
+      },
+      "L27-31": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": 1.07,
+        "mean_perturbed_delta_std": 0.14,
+        "clean_baseline": 78.4,
+        "clean_delta_mean": 0.0
+      }
+    },
+    "mistral_7b_v03": {
+      "L00-04": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -7.77,
+        "mean_perturbed_delta_std": 2.48,
+        "clean_baseline": 59.6,
+        "clean_delta_mean": -7.67
+      },
+      "L05-09": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -17.69,
+        "mean_perturbed_delta_std": 1.05,
+        "clean_baseline": 59.6,
+        "clean_delta_mean": -17.53
+      },
+      "L15-19": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -19.4,
+        "mean_perturbed_delta_std": 0.95,
+        "clean_baseline": 59.6,
+        "clean_delta_mean": -22.07
+      },
+      "L20-24": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -8.46,
+        "mean_perturbed_delta_std": 0.42,
+        "clean_baseline": 59.6,
+        "clean_delta_mean": -8.27
+      },
+      "L27-31": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -4.29,
+        "mean_perturbed_delta_std": 0.3,
+        "clean_baseline": 59.6,
+        "clean_delta_mean": -4.73
+      }
+    },
+    "phi35": {
+      "L00-04": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -1.42,
+        "mean_perturbed_delta_std": 0.7,
+        "clean_baseline": 85.4,
+        "clean_delta_mean": -1.47
+      },
+      "L05-09": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -0.92,
+        "mean_perturbed_delta_std": 0.07,
+        "clean_baseline": 85.4,
+        "clean_delta_mean": -1.8
+      },
+      "L10-14": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -5.3,
+        "mean_perturbed_delta_std": 0.92,
+        "clean_baseline": 85.4,
+        "clean_delta_mean": -4.87
+      },
+      "L15-19": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -3.48,
+        "mean_perturbed_delta_std": 0.79,
+        "clean_baseline": 85.4,
+        "clean_delta_mean": -4.93
+      },
+      "L20-24": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -0.1,
+        "mean_perturbed_delta_std": 0.22,
+        "clean_baseline": 85.4,
+        "clean_delta_mean": -1.13
+      },
+      "L27-31": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": 0.17,
+        "mean_perturbed_delta_std": 0.28,
+        "clean_baseline": 85.4,
+        "clean_delta_mean": 0.27
+      }
+    },
+    "qwen2.5_7b": {
+      "L00-04": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -0.64,
+        "mean_perturbed_delta_std": 0.21,
+        "clean_baseline": 89.0,
+        "clean_delta_mean": -1.2
+      },
+      "L05-09": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -3.99,
+        "mean_perturbed_delta_std": 0.34,
+        "clean_baseline": 89.0,
+        "clean_delta_mean": -2.6
+      },
+      "L08-11": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -7.81,
+        "mean_perturbed_delta_std": 1.73,
+        "clean_baseline": 89.0,
+        "clean_delta_mean": -6.07
+      },
+      "L15-19": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -3.39,
+        "mean_perturbed_delta_std": 0.17,
+        "clean_baseline": 89.0,
+        "clean_delta_mean": -3.27
+      },
+      "L20-23": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": -0.34,
+        "mean_perturbed_delta_std": 0.09,
+        "clean_baseline": 89.0,
+        "clean_delta_mean": 0.67
+      },
+      "L24-27": {
+        "n_seeds": 3,
+        "seeds": [
+          42,
+          43,
+          44
+        ],
+        "mean_perturbed_delta_mean": 0.29,
+        "mean_perturbed_delta_std": 0.02,
+        "clean_baseline": 89.0,
+        "clean_delta_mean": 0.87
+      }
+    }
+  },
+  "qwen14b_patching": {
+    "n_pairs": 84,
+    "n_layers": 48,
+    "peak_layer": 23,
+    "peak_recovery_pct": 82.1,
+    "worst_layer": 47,
+    "worst_recovery_pct": 26.2,
+    "region_early_0_15": 73.1,
+    "region_mid_16_31": 71.1,
+    "region_late_32_47": 42.3,
+    "per_layer_recovery_pct": {
+      "0": 73.8,
+      "1": 75.0,
+      "2": 76.2,
+      "3": 67.9,
+      "4": 76.2,
+      "5": 77.4,
+      "6": 66.7,
+      "7": 73.8,
+      "8": 73.8,
+      "9": 75.0,
+      "10": 71.4,
+      "11": 71.4,
+      "12": 79.8,
+      "13": 66.7,
+      "14": 70.2,
+      "15": 73.8,
+      "16": 70.2,
+      "17": 77.4,
+      "18": 73.8,
+      "19": 64.3,
+      "20": 73.8,
+      "21": 81.0,
+      "22": 78.6,
+      "23": 82.1,
+      "24": 73.8,
+      "25": 71.4,
+      "26": 64.3,
+      "27": 64.3,
+      "28": 66.7,
+      "29": 70.2,
+      "30": 64.3,
+      "31": 60.7,
+      "32": 60.7,
+      "33": 56.0,
+      "34": 56.0,
+      "35": 53.6,
+      "36": 44.0,
+      "37": 38.1,
+      "38": 42.9,
+      "39": 40.5,
+      "40": 44.0,
+      "41": 44.0,
+      "42": 36.9,
+      "43": 36.9,
+      "44": 34.5,
+      "45": 28.6,
+      "46": 33.3,
+      "47": 26.2
+    }
+  }
+}

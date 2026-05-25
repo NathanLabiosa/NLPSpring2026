@@ -1,0 +1,5 @@
+
+--- Run for squad ---
+[squad] Homophones_20%: 8079/11873 (68.05%)
+[squad] Speech_10%: 7904/11873 (66.57%)
+[squad] Gaussian_0.05: 6070/11873 (51.12%)

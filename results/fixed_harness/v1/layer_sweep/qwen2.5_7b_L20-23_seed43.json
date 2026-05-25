@@ -1,0 +1,76 @@
+{
+  "harness_version": "v1",
+  "base_model": "Qwen/Qwen2.5-7B-Instruct",
+  "checkpoint": "/home1/labiosa/NLPSpring2026/stabilizer_weights/phase1_qwen2.5_7b_L20-23_seed43/lora_final",
+  "seed": 42,
+  "n_samples": 500,
+  "max_new_tokens": 512,
+  "harness": "exp3_heldout_style_fixed",
+  "clean_baseline": 89.0,
+  "mean_perturbed_delta": -0.2667,
+  "results": {
+    "clean_baseline": {
+      "method": "none",
+      "rate": 0.0,
+      "n_samples": 500,
+      "acc_no_adapter": 89.0,
+      "acc_with_adapter": 90.0,
+      "acc_clean_baseline": 89.0,
+      "delta": 1.0
+    },
+    "typos_5pct": {
+      "method": "typos",
+      "rate": 0.05,
+      "n_samples": 500,
+      "acc_no_adapter": 83.6,
+      "acc_with_adapter": 81.4,
+      "acc_clean_baseline": 89.0,
+      "delta": -2.2
+    },
+    "ocr_5pct": {
+      "method": "ocr",
+      "rate": 0.05,
+      "n_samples": 500,
+      "acc_no_adapter": 82.0,
+      "acc_with_adapter": 82.0,
+      "acc_clean_baseline": 89.0,
+      "delta": 0.0
+    },
+    "speech_10pct": {
+      "method": "speech",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 88.0,
+      "acc_with_adapter": 88.2,
+      "acc_clean_baseline": 89.0,
+      "delta": 0.2
+    },
+    "homophones_20pct": {
+      "method": "homophones",
+      "rate": 0.2,
+      "n_samples": 500,
+      "acc_no_adapter": 90.0,
+      "acc_with_adapter": 89.6,
+      "acc_clean_baseline": 89.0,
+      "delta": -0.4
+    },
+    "whitespace_10pct": {
+      "method": "whitespace",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 88.4,
+      "acc_with_adapter": 87.8,
+      "acc_clean_baseline": 89.0,
+      "delta": -0.6
+    },
+    "case_10pct": {
+      "method": "case",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 88.8,
+      "acc_with_adapter": 90.2,
+      "acc_clean_baseline": 89.0,
+      "delta": 1.4
+    }
+  }
+}

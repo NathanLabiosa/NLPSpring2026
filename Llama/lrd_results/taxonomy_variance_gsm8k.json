@@ -1,0 +1,79 @@
+{
+  "per_perturbation": {
+    "Typos_5%": {
+      "class": "directional",
+      "n_correct": 159,
+      "n_wrong": 41,
+      "std_correct": 0.07940569054991897,
+      "std_wrong": 0.06222425118987476,
+      "levene_stat": 2.4327085027352147,
+      "levene_p": 0.12042433877158416,
+      "wrong_std_gt_correct": false,
+      "significant": false,
+      "directional_confirmed": false
+    },
+    "OCR_5%": {
+      "class": "directional",
+      "n_correct": 171,
+      "n_wrong": 29,
+      "std_correct": 0.04833828242047643,
+      "std_wrong": 0.04942392835155908,
+      "levene_stat": 0.001421868789957203,
+      "levene_p": 0.9699587468526684,
+      "wrong_std_gt_correct": true,
+      "significant": false,
+      "directional_confirmed": false
+    },
+    "Whitespace_10%": {
+      "class": "uniform",
+      "n_correct": 167,
+      "n_wrong": 33,
+      "std_correct": 0.07129617451530616,
+      "std_wrong": 0.07230898219804209,
+      "levene_stat": 0.000936852182505931,
+      "levene_p": 0.9756129595342284,
+      "wrong_std_gt_correct": true,
+      "significant": false,
+      "directional_confirmed": false
+    },
+    "Case_10%": {
+      "class": "uniform",
+      "n_correct": 170,
+      "n_wrong": 30,
+      "std_correct": 0.06309685110539914,
+      "std_wrong": 0.060146038423147995,
+      "levene_stat": 0.039718714180201224,
+      "levene_p": 0.8422360764004838,
+      "wrong_std_gt_correct": false,
+      "significant": false,
+      "directional_confirmed": false
+    },
+    "Homophones_20%": {
+      "class": "directional",
+      "n_correct": 192,
+      "n_wrong": 8,
+      "std_correct": 0.0023373671061463703,
+      "std_wrong": 0.002902742576997309,
+      "levene_stat": 2.330988567365385,
+      "levene_p": 0.12841713784112604,
+      "wrong_std_gt_correct": true,
+      "significant": false,
+      "directional_confirmed": false
+    },
+    "Speech_10%": {
+      "class": "directional",
+      "n_correct": 177,
+      "n_wrong": 23,
+      "std_correct": 0.027554772308676683,
+      "std_wrong": 0.02393837981761492,
+      "levene_stat": 0.6692189323807096,
+      "levene_p": 0.41430743737646814,
+      "wrong_std_gt_correct": false,
+      "significant": false,
+      "directional_confirmed": false
+    }
+  },
+  "n_directional_tested": 4,
+  "n_directional_supported": 0,
+  "taxonomy_supported": false
+}

@@ -1,0 +1,5 @@
+Model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+Clean accuracy: 0.0% (0/50)
+Gate: 40.0% — FAILED
+Reason: Model accuracy too low for GSM8K pipeline.
+Timestamp: 2026-04-09T11:39:10.730943

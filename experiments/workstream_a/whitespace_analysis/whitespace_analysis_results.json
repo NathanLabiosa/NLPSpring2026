@@ -1,0 +1,111 @@
+{
+  "per_condition": {
+    "Typos_5%": {
+      "taxonomy": "directional",
+      "n_correct": 140,
+      "n_incorrect": 60,
+      "mean_lrd_correct": 0.01749,
+      "mean_lrd_incorrect": 0.02538,
+      "cohens_d_final": 0.4412,
+      "cohens_d_mean": 0.3559,
+      "ci_lo": 0.1094,
+      "ci_hi": 0.7696,
+      "significant": true
+    },
+    "OCR_5%": {
+      "taxonomy": "directional",
+      "n_correct": 134,
+      "n_incorrect": 66,
+      "mean_lrd_correct": 0.00954,
+      "mean_lrd_incorrect": 0.01536,
+      "cohens_d_final": 0.4023,
+      "cohens_d_mean": 0.3061,
+      "ci_lo": 0.0927,
+      "ci_hi": 0.6929,
+      "significant": true
+    },
+    "Whitespace_10%": {
+      "taxonomy": "uniform",
+      "n_correct": 142,
+      "n_incorrect": 58,
+      "mean_lrd_correct": 0.01739,
+      "mean_lrd_incorrect": 0.02523,
+      "cohens_d_final": 0.4805,
+      "cohens_d_mean": 0.3313,
+      "ci_lo": 0.1329,
+      "ci_hi": 0.8357,
+      "significant": true
+    },
+    "Case_10%": {
+      "taxonomy": "uniform",
+      "n_correct": 136,
+      "n_incorrect": 64,
+      "mean_lrd_correct": 0.03156,
+      "mean_lrd_incorrect": 0.03484,
+      "cohens_d_final": 0.1518,
+      "cohens_d_mean": 0.0651,
+      "ci_lo": -0.1537,
+      "ci_hi": 0.4747,
+      "significant": false
+    },
+    "Homophones_20%": {
+      "taxonomy": "directional",
+      "n_correct": 183,
+      "n_incorrect": 17,
+      "mean_lrd_correct": 0.00095,
+      "mean_lrd_incorrect": 0.00222,
+      "cohens_d_final": 0.3654,
+      "cohens_d_mean": 0.7494,
+      "ci_lo": -0.0657,
+      "ci_hi": 1.15,
+      "significant": false
+    },
+    "Speech_10%": {
+      "taxonomy": "uniform",
+      "n_correct": 153,
+      "n_incorrect": 47,
+      "mean_lrd_correct": 0.00679,
+      "mean_lrd_incorrect": 0.01088,
+      "cohens_d_final": 0.4811,
+      "cohens_d_mean": 0.4879,
+      "ci_lo": 0.1157,
+      "ci_hi": 0.8928,
+      "significant": true
+    }
+  },
+  "ranking": [
+    [
+      "Speech_10%",
+      0.4811,
+      "uniform"
+    ],
+    [
+      "Whitespace_10%",
+      0.4805,
+      "uniform"
+    ],
+    [
+      "Typos_5%",
+      0.4412,
+      "directional"
+    ],
+    [
+      "OCR_5%",
+      0.4023,
+      "directional"
+    ],
+    [
+      "Homophones_20%",
+      0.3654,
+      "directional"
+    ],
+    [
+      "Case_10%",
+      0.1518,
+      "uniform"
+    ]
+  ],
+  "directional_mean_d": 0.4029,
+  "uniform_mean_d": 0.3711,
+  "gap": -0.1157
+}

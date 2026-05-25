@@ -1,0 +1,12 @@
+{
+  "per_perturbation": {
+    "Typos_5%": {
+      "class": "directional",
+      "n_correct": 140,
+      "n_wrong": 60,
+      "std_correct": 0.015069858666384026,
+      "std_wrong": 0.022943505009635892,
+      "levene_stat": 2.837209676164626,
+      "levene_p": 0.09367967542573188,
+      "wrong_std_gt_correct": true,
+      "significant": 

@@ -1,0 +1,76 @@
+{
+  "harness_version": "v1",
+  "base_model": "mistralai/Mistral-7B-Instruct-v0.3",
+  "checkpoint": "/home1/labiosa/NLPSpring2026/stabilizer_weights/phase1_mistral_7b_v03_L05-09_seed42/lora_final",
+  "seed": 42,
+  "n_samples": 500,
+  "max_new_tokens": 512,
+  "harness": "exp3_heldout_style_fixed",
+  "clean_baseline": 59.6,
+  "mean_perturbed_delta": -17.5667,
+  "results": {
+    "clean_baseline": {
+      "method": "none",
+      "rate": 0.0,
+      "n_samples": 500,
+      "acc_no_adapter": 59.6,
+      "acc_with_adapter": 40.8,
+      "acc_clean_baseline": 59.6,
+      "delta": -18.8
+    },
+    "typos_5pct": {
+      "method": "typos",
+      "rate": 0.05,
+      "n_samples": 500,
+      "acc_no_adapter": 51.8,
+      "acc_with_adapter": 35.6,
+      "acc_clean_baseline": 59.6,
+      "delta": -16.2
+    },
+    "ocr_5pct": {
+      "method": "ocr",
+      "rate": 0.05,
+      "n_samples": 500,
+      "acc_no_adapter": 50.2,
+      "acc_with_adapter": 34.2,
+      "acc_clean_baseline": 59.6,
+      "delta": -16.0
+    },
+    "speech_10pct": {
+      "method": "speech",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 58.0,
+      "acc_with_adapter": 40.2,
+      "acc_clean_baseline": 59.6,
+      "delta": -17.8
+    },
+    "homophones_20pct": {
+      "method": "homophones",
+      "rate": 0.2,
+      "n_samples": 500,
+      "acc_no_adapter": 58.4,
+      "acc_with_adapter": 41.8,
+      "acc_clean_baseline": 59.6,
+      "delta": -16.6
+    },
+    "whitespace_10pct": {
+      "method": "whitespace",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 54.0,
+      "acc_with_adapter": 33.8,
+      "acc_clean_baseline": 59.6,
+      "delta": -20.2
+    },
+    "case_10pct": {
+      "method": "case",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 55.8,
+      "acc_with_adapter": 37.2,
+      "acc_clean_baseline": 59.6,
+      "delta": -18.6
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "excluded_mean": NaN,
+  "included_mean": NaN,
+  "U": NaN,
+  "p": NaN,
+  "verdict": "BIAS DETECTED (p=nan) \u2014 acknowledge as limitation."
+}

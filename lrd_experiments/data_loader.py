@@ -1,6 +1,25 @@
 from datasets import load_dataset, concatenate_datasets
 import random
 
+# Few-shot template for base models without chat template (matches train_lrd_stabilizer.py)
+GSM8K_FEW_SHOT = """\
+Solve each math problem step by step. The final answer must be on the last line as '#### NUMBER'.
+
+Question: Janet's ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much does she make every day at the farmers' market?
+Answer: She eats 3 eggs and uses 4 for muffins, so she uses 3 + 4 = 7 eggs. She has 16 - 7 = 9 eggs left to sell. She earns 9 × $2 = $18.
+#### 18
+
+Question: A robe takes 2 bolts of blue fiber and half that much white fiber. How many bolts in total does it take?
+Answer: White fiber needed is 2 / 2 = 1 bolt. Total is 2 + 1 = 3 bolts.
+#### 3
+
+Question: Josh decides to try flipping a house. He buys a house for $80,000 and then puts in $50,000 in repairs. This increased the value of the house by 150%. How much profit did he make?
+Answer: The value increased by 80,000 × 1.5 = $120,000. New value is 80,000 + 120,000 = $200,000. Total cost was 80,000 + 50,000 = $130,000. Profit is 200,000 - 130,000 = $70,000.
+#### 70000
+
+Question: {question}
+Answer:"""
+
 # BBH has a bunch of subtasks, we're using all of them
 BBH_TASKS = [
     "boolean_expressions", "causal_judgement", "date_understanding",
@@ -20,8 +39,27 @@ BBH_TASKS = [
 
 
 class DatasetManager:
-    def __init__(self, tokenizer):
+    def __init__(self, tokenizer, use_system_prompt=True, use_chat_template=True):
         self.tokenizer = tokenizer
+        self.use_system_prompt = use_system_prompt
+        self.use_chat_template = use_chat_template
+
+    def _format_prompt(self, messages):
+        """Format messages into a prompt string, with fallback for models without chat_template."""
+        if getattr(self.tokenizer, "chat_template", None) is not None:
+            return self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        # Fallback for base models without chat template
+        parts = []
+        for msg in messages:
+            role, content = msg["role"], msg["content"]
+            if role == "system":
+                parts.append(f"System: {content}\n")
+            elif role == "user":
+                parts.append(f"User: {content}\n")
+            elif role == "assistant":
+                parts.append(f"Assistant: {content}\n")
+        parts.append("Assistant:")
+        return "".join(parts)
 
     def load_and_format(self, dataset_name, perturbation_func=None, split="test"):
         """
@@ -64,7 +102,7 @@ class DatasetManager:
                 {"role": "system", "content": "You are a helpful coding assistant. Complete the Python function. Output ONLY the code within markdown code blocks."},
                 {"role": "user", "content": prompt_text}
             ]
-            return {"formatted_prompt": self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)}
+            return {"formatted_prompt": self._format_prompt(messages)}
 
         return dataset.map(format_fn)
 
@@ -73,17 +111,23 @@ class DatasetManager:
         dataset = load_dataset("openai/gsm8k", "main", split="test")
         # print(f"gsm8k: {len(dataset)} examples")
 
+        # Check if model has chat template - if not, use few-shot prompting
+        has_chat_template = getattr(self.tokenizer, "chat_template", None) is not None
+
         def format_fn(sample):
             prompt_text = sample['question']
             if perturbation_func:
                 prompt_text = perturbation_func(prompt_text)
 
-            # this system prompt is important for getting the model to output #### format
-            messages = [
-                {"role": "system", "content": "You are a helpful assistant. Solve the math problem step by step. The last line must be '#### ANSWER'."},
-                {"role": "user", "content": prompt_text}
-            ]
-            return {"formatted_prompt": self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)}
+            if has_chat_template:
+                messages = [
+                    {"role": "system", "content": "You are a helpful assistant. Solve the math problem step by step. The last line must be '#### ANSWER'."},
+                    {"role": "user", "content": prompt_text}
+                ]
+                return {"formatted_prompt": self._format_prompt(messages)}
+            else:
+                # Use few-shot template for base models
+                return {"formatted_prompt": GSM8K_FEW_SHOT.format(question=prompt_text)}
 
         return dataset.map(format_fn)
 
@@ -143,7 +187,7 @@ class DatasetManager:
                 {"role": "system", "content": "You are a helpful assistant. Choose the correct answer (A, B, C, or D) for the multiple choice question."},
                 {"role": "user", "content": formatted_input}
             ]
-            return {"formatted_prompt": self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)}
+            return {"formatted_prompt": self._format_prompt(messages)}
 
         return combined_dataset.map(format_fn)
 
@@ -185,11 +229,7 @@ class DatasetManager:
                     "content": f"{input_text}\nAnswer:"
                 }
             ]
-            return {
-                "formatted_prompt": self.tokenizer.apply_chat_template(
-                    messages, tokenize=False, add_generation_prompt=True
-                )
-            }
+            return {"formatted_prompt": self._format_prompt(messages)}
 
         return combined.map(format_fn)
 
@@ -215,7 +255,7 @@ class DatasetManager:
                 {"role": "system", "content": "You are a helpful assistant. Choose the correct answer from the options provided."},
                 {"role": "user", "content": formatted_input}
             ]
-            return {"formatted_prompt": self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)}
+            return {"formatted_prompt": self._format_prompt(messages)}
 
         return dataset.map(format_fn)
 
@@ -240,6 +280,6 @@ class DatasetManager:
                 {"role": "system", "content": "You are a helpful assistant. Answer the question based ONLY on the context provided. If the question cannot be answered from the context, respond with 'unanswerable'."},
                 {"role": "user", "content": prompt_content}
             ]
-            return {"formatted_prompt": self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)}
+            return {"formatted_prompt": self._format_prompt(messages)}
 
         return dataset.map(format_fn)

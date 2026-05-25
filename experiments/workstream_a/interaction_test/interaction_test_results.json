@@ -1,0 +1,140 @@
+{
+  "original_rate": {
+    "aggregate": {
+      "directional_mean_diff": 3.3,
+      "uniform_mean_diff": -2.3,
+      "observed_interaction": 5.6,
+      "p_value_permutation": 0.1354,
+      "significant_005": false
+    },
+    "paired": {
+      "directional": {
+        "n": 2000,
+        "mean_pct": 3.3,
+        "se_pct": 0.919
+      },
+      "uniform": {
+        "n": 1000,
+        "mean_pct": -2.3,
+        "se_pct": 1.282
+      },
+      "interaction_pct": 5.6,
+      "interaction_ci_lo_pct": 2.45,
+      "interaction_ci_hi_pct": 8.65,
+      "interaction_significant": true
+    },
+    "per_condition_ci": {
+      "case_10pct": {
+        "point_pct": -2.0,
+        "ci_lo_pct": -5.8,
+        "ci_hi_pct": 1.8,
+        "significant": false,
+        "taxonomy": "uniform"
+      },
+      "homophones_20pct": {
+        "point_pct": 1.8,
+        "ci_lo_pct": -1.6,
+        "ci_hi_pct": 5.2,
+        "significant": false,
+        "taxonomy": "directional"
+      },
+      "ocr_5pct": {
+        "point_pct": 1.0,
+        "ci_lo_pct": -2.6,
+        "ci_hi_pct": 4.6,
+        "significant": false,
+        "taxonomy": "directional"
+      },
+      "speech_10pct": {
+        "point_pct": 6.8,
+        "ci_lo_pct": 3.4,
+        "ci_hi_pct": 10.2,
+        "significant": true,
+        "taxonomy": "directional"
+      },
+      "typos_5pct": {
+        "point_pct": 3.6,
+        "ci_lo_pct": -0.2,
+        "ci_hi_pct": 7.4,
+        "significant": false,
+        "taxonomy": "directional"
+      },
+      "whitespace_10pct": {
+        "point_pct": -2.6,
+        "ci_lo_pct": -5.8,
+        "ci_hi_pct": 0.6,
+        "significant": false,
+        "taxonomy": "uniform"
+      }
+    }
+  },
+  "matched_rate": {
+    "aggregate": {
+      "directional_mean_diff": 0.85,
+      "uniform_mean_diff": 0.3,
+      "observed_interaction": 0.55,
+      "p_value_permutation": 0.7588,
+      "significant_005": false
+    },
+    "paired": {
+      "directional": {
+        "n": 2000,
+        "mean_pct": 0.85,
+        "se_pct": 0.909
+      },
+      "uniform": {
+        "n": 1000,
+        "mean_pct": 0.3,
+        "se_pct": 1.245
+      },
+      "interaction_pct": 0.55,
+      "interaction_ci_lo_pct": -2.45,
+      "interaction_ci_hi_pct": 3.55,
+      "interaction_significant": false
+    },
+    "per_condition_ci": {
+      "case_10pct": {
+        "point_pct": 0.4,
+        "ci_lo_pct": -3.0,
+        "ci_hi_pct": 3.8,
+        "significant": false,
+        "taxonomy": "uniform"
+      },
+      "homophones_10pct": {
+        "point_pct": 1.6,
+        "ci_lo_pct": -1.8,
+        "ci_hi_pct": 5.0,
+        "significant": false,
+        "taxonomy": "directional"
+      },
+      "ocr_10pct": {
+        "point_pct": -0.6,
+        "ci_lo_pct": -4.4,
+        "ci_hi_pct": 3.0,
+        "significant": false,
+        "taxonomy": "directional"
+      },
+      "speech_10pct": {
+        "point_pct": 3.8,
+        "ci_lo_pct": 0.4,
+        "ci_hi_pct": 7.2,
+        "significant": true,
+        "taxonomy": "directional"
+      },
+      "typos_10pct": {
+        "point_pct": -1.4,
+        "ci_lo_pct": -5.0,
+        "ci_hi_pct": 2.2,
+        "significant": false,
+        "taxonomy": "directional"
+      },
+      "whitespace_10pct": {
+        "point_pct": 0.2,
+        "ci_lo_pct": -3.2,
+        "ci_hi_pct": 3.6,
+        "significant": false,
+        "taxonomy": "uniform"
+      }
+    }
+  }
+}

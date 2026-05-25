@@ -1,0 +1,18 @@
+{
+  "C1_update_ratio": {
+    "rho": 0.3938,
+    "p": 0.0257
+  },
+  "C2_attn_entropy": {
+    "rho": -0.7124,
+    "p": 0.0
+  },
+  "C3_weight_rank": {
+    "rho": 0.7508,
+    "p": 0.0
+  },
+  "C4_grad_norm": {
+    "rho": -0.7135,
+    "p": 0.0
+  }
+}

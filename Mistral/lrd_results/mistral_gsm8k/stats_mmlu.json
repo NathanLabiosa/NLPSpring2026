@@ -1,0 +1,162 @@
+{
+  "Typos_5%": {
+    "n": 200,
+    "n_correct": 151,
+    "n_wrong": 49,
+    "accuracy": 0.755,
+    "mean_final_lrd": 0.03361607939004898,
+    "std_final_lrd": 0.03838053278136592,
+    "mean_cascade_slope": 0.0004361746075717521,
+    "pct_recovered": 3.0,
+    "lrd_failure_correlation": {
+      "r": -0.06929263972360705,
+      "p": 0.3295721580391566
+    },
+    "mannwhitney": {
+      "U": 4558.0,
+      "p": 0.007400268098703293
+    },
+    "mean_per_tok_final_lrd": 0.7465938144335907,
+    "per_tok_n": 192
+  },
+  "OCR_5%": {
+    "n": 200,
+    "n_correct": 165,
+    "n_wrong": 35,
+    "accuracy": 0.825,
+    "mean_final_lrd": 0.017789207994937897,
+    "std_final_lrd": 0.023374188835598622,
+    "mean_cascade_slope": 0.0002285798602204589,
+    "pct_recovered": 9.0,
+    "lrd_failure_correlation": {
+      "r": -0.16431728709188703,
+      "p": 0.020068860440651846
+    },
+    "mannwhitney": {
+      "U": 4171.0,
+      "p": 1.8462912241287376e-05
+    },
+    "mean_per_tok_final_lrd": 0.7299994512605837,
+    "per_tok_n": 169
+  },
+  "Whitespace_10%": {
+    "n": 200,
+    "n_correct": 162,
+    "n_wrong": 38,
+    "accuracy": 0.81,
+    "mean_final_lrd": 0.04087155699729919,
+    "std_final_lrd": 0.0419392185242542,
+    "mean_cascade_slope": 0.0005608612399568211,
+    "pct_recovered": 3.5000000000000004,
+    "lrd_failure_correlation": {
+      "r": -0.0222277304133938,
+      "p": 0.7547245147195619
+    },
+    "mannwhitney": {
+      "U": 3478.0,
+      "p": 0.10672705711557634
+    },
+    "mean_per_tok_final_lrd": 0.7453208659419432,
+    "per_tok_n": 193
+  },
+  "Case_10%": {
+    "n": 200,
+    "n_correct": 147,
+    "n_wrong": 53,
+    "accuracy": 0.735,
+    "mean_final_lrd": 0.05893139809370041,
+    "std_final_lrd": 0.05067022499464966,
+    "mean_cascade_slope": 0.0009130751935237226,
+    "pct_recovered": 0.5,
+    "lrd_failure_correlation": {
+      "r": -0.11342796263846074,
+      "p": 0.10977074434954974
+    },
+    "mannwhitney": {
+      "U": 4599.0,
+      "p": 0.02582508737785723
+    },
+    "mean_per_tok_final_lrd": 0.7937660974578528,
+    "per_tok_n": 198
+  },
+  "Homophones_20%": {
+    "n": 200,
+    "n_correct": 192,
+    "n_wrong": 8,
+    "accuracy": 0.96,
+    "mean_final_lrd": 0.00039384037256240845,
+    "std_final_lrd": 0.0015933945764578883,
+    "mean_cascade_slope": 5.7708532773555886e-06,
+    "pct_recovered": 43.0,
+    "lrd_failure_correlation": {
+      "r": -0.24963300478430941,
+      "p": 0.00036410504101247313
+    },
+    "mannwhitney": {
+      "U": 1423.0,
+      "p": 1.2054742439600621e-05
+    },
+    "mean_per_tok_final_lrd": 0.40034434482081327,
+    "per_tok_n": 33
+  },
+  "Speech_10%": {
+    "n": 200,
+    "n_correct": 167,
+    "n_wrong": 33,
+    "accuracy": 0.835,
+    "mean_final_lrd": 0.01144423931837082,
+    "std_final_lrd": 0.018742539585534807,
+    "mean_cascade_slope": 0.00015308306667017417,
+    "pct_recovered": 11.5,
+    "lrd_failure_correlation": {
+      "r": -0.2079009799784849,
+      "p": 0.0031360139955370838
+    },
+    "mannwhitney": {
+      "U": 3987.0,
+      "p": 2.518177465524617e-05
+    },
+    "mean_per_tok_final_lrd": 0.7055531934355793,
+    "per_tok_n": 155
+  },
+  "Homophones_40%": {
+    "n": 200,
+    "n_correct": 191,
+    "n_wrong": 9,
+    "accuracy": 0.955,
+    "mean_final_lrd": 0.0007802072167396545,
+    "std_final_lrd": 0.0020225921574752695,
+    "mean_cascade_slope": 1.2396949238796278e-05,
+    "pct_recovered": 37.5,
+    "lrd_failure_correlation": {
+      "r": -0.13648188384194812,
+      "p": 0.05397039065851785
+    },
+    "mannwhitney": {
+      "U": 1477.0,
+      "p": 0.00010398445944988183
+    },
+    "mean_per_tok_final_lrd": 0.4767568885155892,
+    "per_tok_n": 58
+  },
+  "Homophones_50%": {
+    "n": 200,
+    "n_correct": 183,
+    "n_wrong": 17,
+    "accuracy": 0.915,
+    "mean_final_lrd": 0.000928596556186676,
+    "std_final_lrd": 0.002564772699223072,
+    "mean_cascade_slope": 1.441177568413356e-05,
+    "pct_recovered": 33.5,
+    "lrd_failure_correlation": {
+      "r": -0.21363607954782243,
+      "p": 0.002385663451234274
+    },
+    "mannwhitney": {
+      "U": 2673.0,
+      "p": 2.9988448329146046e-07
+    },
+    "mean_per_tok_final_lrd": 0.4384329926340058,
+    "per_tok_n": 68
+  }
+}

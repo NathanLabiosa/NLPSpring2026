@@ -1,0 +1,176 @@
+{
+  "window": {
+    "meta": {
+      "variant": "window",
+      "label": "Augmentation-only (layers 15\u201319)",
+      "layer_start": 15,
+      "layer_end": 19,
+      "n_lora_layers": 5,
+      "lora_rank": 4,
+      "lora_alpha": 8,
+      "n_steps": 2000,
+      "loss": "CE_only (no stability loss)",
+      "avg_perturbed_delta": -10.23,
+      "clean_delta": -11.8
+    },
+    "results": {
+      "clean_baseline": {
+        "method": "none",
+        "rate": 0.0,
+        "n_samples": 500,
+        "acc_no_adapter": 78.6,
+        "acc_with_adapter": 66.8,
+        "acc_clean_baseline": 78.6,
+        "delta": -11.8,
+        "known_baseline": null
+      },
+      "typos_5pct": {
+        "method": "typos",
+        "rate": 0.05,
+        "n_samples": 500,
+        "acc_no_adapter": 60.4,
+        "acc_with_adapter": 51.2,
+        "acc_clean_baseline": 78.6,
+        "delta": -9.2,
+        "known_baseline": 70.0
+      },
+      "ocr_5pct": {
+        "method": "ocr",
+        "rate": 0.05,
+        "n_samples": 500,
+        "acc_no_adapter": 63.2,
+        "acc_with_adapter": 53.4,
+        "acc_clean_baseline": 78.6,
+        "delta": -9.8,
+        "known_baseline": 67.0
+      },
+      "whitespace_10pct": {
+        "method": "whitespace",
+        "rate": 0.1,
+        "n_samples": 500,
+        "acc_no_adapter": 65.0,
+        "acc_with_adapter": 52.2,
+        "acc_clean_baseline": 78.6,
+        "delta": -12.8,
+        "known_baseline": 71.0
+      },
+      "case_10pct": {
+        "method": "case",
+        "rate": 0.1,
+        "n_samples": 500,
+        "acc_no_adapter": 66.8,
+        "acc_with_adapter": 52.6,
+        "acc_clean_baseline": 78.6,
+        "delta": -14.2,
+        "known_baseline": 68.0
+      },
+      "speech_10pct": {
+        "method": "speech",
+        "rate": 0.1,
+        "n_samples": 500,
+        "acc_no_adapter": 72.4,
+        "acc_with_adapter": 65.4,
+        "acc_clean_baseline": 78.6,
+        "delta": -7.0,
+        "known_baseline": 76.5
+      },
+      "homophones_20pct": {
+        "method": "homophones",
+        "rate": 0.2,
+        "n_samples": 500,
+        "acc_no_adapter": 73.0,
+        "acc_with_adapter": 64.6,
+        "acc_clean_baseline": 78.6,
+        "delta": -8.4,
+        "known_baseline": 91.5
+      }
+    }
+  },
+  "all": {
+    "meta": {
+      "variant": "all",
+      "label": "Augmentation-only (all 32 layers)",
+      "layer_start": 0,
+      "layer_end": 31,
+      "n_lora_layers": 32,
+      "lora_rank": 4,
+      "lora_alpha": 8,
+      "n_steps": 2000,
+      "loss": "CE_only (no stability loss)",
+      "avg_perturbed_delta": -11.33,
+      "clean_delta": -16.4
+    },
+    "results": {
+      "clean_baseline": {
+        "method": "none",
+        "rate": 0.0,
+        "n_samples": 500,
+        "acc_no_adapter": 78.6,
+        "acc_with_adapter": 62.2,
+        "acc_clean_baseline": 78.6,
+        "delta": -16.4,
+        "known_baseline": null
+      },
+      "typos_5pct": {
+        "method": "typos",
+        "rate": 0.05,
+        "n_samples": 500,
+        "acc_no_adapter": 60.4,
+        "acc_with_adapter": 51.0,
+        "acc_clean_baseline": 78.6,
+        "delta": -9.4,
+        "known_baseline": 70.0
+      },
+      "ocr_5pct": {
+        "method": "ocr",
+        "rate": 0.05,
+        "n_samples": 500,
+        "acc_no_adapter": 63.2,
+        "acc_with_adapter": 51.0,
+        "acc_clean_baseline": 78.6,
+        "delta": -12.2,
+        "known_baseline": 67.0
+      },
+      "whitespace_10pct": {
+        "method": "whitespace",
+        "rate": 0.1,
+        "n_samples": 500,
+        "acc_no_adapter": 65.0,
+        "acc_with_adapter": 55.4,
+        "acc_clean_baseline": 78.6,
+        "delta": -9.6,
+        "known_baseline": 71.0
+      },
+      "case_10pct": {
+        "method": "case",
+        "rate": 0.1,
+        "n_samples": 500,
+        "acc_no_adapter": 66.8,
+        "acc_with_adapter": 54.4,
+        "acc_clean_baseline": 78.6,
+        "delta": -12.4,
+        "known_baseline": 68.0
+      },
+      "speech_10pct": {
+        "method": "speech",
+        "rate": 0.1,
+        "n_samples": 500,
+        "acc_no_adapter": 72.4,
+        "acc_with_adapter": 60.2,
+        "acc_clean_baseline": 78.6,
+        "delta": -12.2,
+        "known_baseline": 76.5
+      },
+      "homophones_20pct": {
+        "method": "homophones",
+        "rate": 0.2,
+        "n_samples": 500,
+        "acc_no_adapter": 73.0,
+        "acc_with_adapter": 60.8,
+        "acc_clean_baseline": 78.6,
+        "delta": -12.2,
+        "known_baseline": 91.5
+      }
+    }
+  }
+}

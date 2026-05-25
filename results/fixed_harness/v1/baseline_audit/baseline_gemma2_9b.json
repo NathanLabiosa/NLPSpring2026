@@ -1,0 +1,84 @@
+{
+  "harness_version": "v1",
+  "base_model": "google/gemma-2-9b",
+  "checkpoint": null,
+  "seed": 42,
+  "n_samples": 500,
+  "max_new_tokens": 512,
+  "attn_impl": "eager",
+  "harness": "exp3_heldout_style_fixed",
+  "clean_baseline": 64.8,
+  "mean_perturbed_delta": null,
+  "results": {
+    "clean_baseline": {
+      "method": "none",
+      "rate": 0.0,
+      "n_samples": 500,
+      "acc_no_adapter": 64.8,
+      "acc_with_adapter": null,
+      "acc_clean_baseline": 64.8,
+      "delta": null
+    },
+    "typos_5pct": {
+      "method": "typos",
+      "rate": 0.05,
+      "n_samples": 500,
+      "acc_no_adapter": 63.8,
+      "acc_with_adapter": null,
+      "acc_clean_baseline": 64.8,
+      "delta": null
+    },
+    "ocr_5pct": {
+      "method": "ocr",
+      "rate": 0.05,
+      "n_samples": 500,
+      "acc_no_adapter": 65.8,
+      "acc_with_adapter": null,
+      "acc_clean_baseline": 64.8,
+      "delta": null
+    },
+    "speech_10pct": {
+      "method": "speech",
+      "rate": 0.10,
+      "n_samples": 500,
+      "acc_no_adapter": 64.2,
+      "acc_with_adapter": null,
+      "acc_clean_baseline": 64.8,
+      "delta": null
+    },
+    "homophones_20pct": {
+      "method": "homophones",
+      "rate": 0.20,
+      "n_samples": 500,
+      "acc_no_adapter": 63.8,
+      "acc_with_adapter": null,
+      "acc_clean_baseline": 64.8,
+      "delta": null
+    },
+    "whitespace_10pct": {
+      "method": "whitespace",
+      "rate": 0.10,
+      "n_samples": 500,
+      "acc_no_adapter": 66.0,
+      "acc_with_adapter": null,
+      "acc_clean_baseline": 64.8,
+      "delta": null
+    },
+    "case_10pct": {
+      "method": "case",
+      "rate": 0.10,
+      "n_samples": 500,
+      "acc_no_adapter": null,
+      "acc_with_adapter": null,
+      "acc_clean_baseline": 64.8,
+      "delta": null,
+      "_note": "Not measured — slurm job hit 8h wall clock during this condition. Clean baseline + 5 perturbations are sufficient for the audit."
+    }
+  },
+  "_provenance": {
+    "slurm_job": 8908676,
+    "reconstructed_from_log": "logs/audit_gemma2_8908676.out",
+    "reason": "Job timed out at 8h after completing 6/7 conditions. Clean baseline (the audit-critical number) and 5 perturbations completed cleanly; case_10pct began but did not finish, so its no-adapter accuracy is unknown. Numbers below are verbatim from the per-condition 'no adapter: X%' log lines.",
+    "loading_overhead_minutes": 13
+  }
+}

@@ -1,0 +1,94 @@
+# V14 Instructions: LoRA Fine-Tuning on Perturbed Data
+
+## Context
+
+13 versions of external stabilizer modules (MLPs, gates, controllers inserted into the frozen model's forward pass) have systematically failed to produce consistent improvement across all perturbation types. The single-perturbation diagnostic experiment (v13b) definitively showed this is NOT a subspace competition problem — even models trained on a single perturbation type fail to help their own type, while randomly helping other types they never saw. The MLP at layers 2–4 cannot learn perturbation-specific corrections because Phi-3.5's spike-and-suppress pattern has already collapsed the perturbation-specific signal at those layers.
+
+**The pivot:** Instead of external correction modules reading suppressed signals, fine-tune the model's own layers with LoRA so the model learns to generate robust representations directly from noisy inputs. The model's own attention mechanism becomes the correction — working with the architecture rather than against it.
+
+## Architecture
+
+- **Base model:** Phi-3.5-mini-instruct (frozen except for LoRA adapters)
+- **LoRA adapters:** Apply to layers 0–8 (the confirmed causal window from activation patching)
+  - Target modules: q_proj, v_proj (standard LoRA targets for attention)
+  - Rank: 16
+  - Alpha: 32 (scaling factor = alpha/rank = 2.0)
+  - Dropout: 0.05
+  - This is ~2M trainable parameters, comparable to the v13 stabilizer
+- **No gate, no controller, no external MLP modules.** The LoRA adapters ARE the intervention.
+
+## Loss Function
+
+Keep it simple — two terms only:
+
+```
+L_total = lambda_acc * L_acc + lambda_stab * L_stab
+```
+
+- **L_acc (task CE):** Standard cross-entropy on the answer tokens, computed on the perturbed input. This is the primary signal — the model learns to get the right answer despite perturbation.
+- **L_stab (representation regularization):** MSE between LoRA-adapted hidden states and frozen-model hidden states at layer 9, computed on CLEAN inputs only. This prevents the LoRA adapters from drifting the model's clean-input behavior. Only fires on clean examples in each batch.
+  - Use the per-example routing from v11 (clean_mask/noisy_mask within each batch)
+  - L_stab on clean examples, L_acc on all examples (clean + noisy)
+
+**Suggested lambdas:** lambda_acc=0.7, lambda_stab=0.3. The task loss should dominate — the model needs to learn robustness, not reconstruct hidden states.
+
+## Training Data
+
+Same balanced mix from v11/v13:
+- 40% GSM8K, 30% MMLU, 30% C4
+- 7 perturbation conditions: typos 5%, OCR 5%, OCR 15%, speech 10%, homophones 30%, whitespace 10% (0.3× weight), case 10% (0.3× weight)
+- clean_fraction=0.25 (for L_stab regularization)
+- n_per_condition=500
+
+## Training Protocol
+
+- **Do NOT freeze base model weights for LoRA layers.** LoRA adds low-rank updates to the existing weights; the base weights themselves stay frozen (this is standard LoRA behavior — just apply LoRA normally).
+- Optimizer: AdamW, lr=2e-4 (standard for LoRA fine-tuning), weight_decay=0.01
+- Scheduler: cosine with warmup_ratio=0.05
+- batch_size=4, grad_accum_steps=4 (effective batch=16)
+- max_steps=25000
+- max_seq_len=512
+- Save checkpoints every 2500 steps
+- **Prompt masking:** Stabilizer hooks masked to prompt positions only (the teacher-forcing fix from v3 — CRITICAL, do not regress on this)
+
+## What to Log
+
+Every 25 steps:
+- L_acc (on noisy examples), L_stab (on clean examples)
+- Per-perturbation-type L_acc if feasible (to detect if one type dominates)
+- Gradient norm
+
+Every 500 steps:
+- Clean baseline accuracy on a held-out GSM8K validation set (50 examples) — early detection of clean regression
+
+## Eval
+
+At completion, eval on GSM8K with n=200 per condition:
+- clean_baseline
+- typos_5pct
+- ocr_5pct
+- whitespace_10pct
+- case_10pct
+- speech_10pct
+- homophones_30pct
+
+Report Δ vs. no-adapter baseline for each condition.
+
+## Success Criteria
+
+- Clean baseline Δ ≥ -1%
+- No perturbation type worse than -2%
+- At least 3 perturbation types with Δ > +2%
+- Typos and OCR both ≥ 0% (these have been the hardest)
+
+## Key Differences from Prior Runs
+
+| Aspect | V1–V12 (external stabilizer) | V13 (gateless MLP) | V14 (LoRA) |
+|--------|------------------------------|---------------------|------------|
+| What trains | External MLP + gate | External MLP only | Model's own attention layers |
+| Correction mechanism | Additive vector from external module | Additive vector from external module | Modified attention computation |
+| Gate | Learned (failed) or removed | None | None (not needed) |
+| Where it intervenes | Layers 1–8 (post-attention) | Layers 2, 4 (post-attention) | Layers 0–8 (within attention) |
+| Signal available | Suppressed residual at mid-network | Suppressed residual at mid-network | Full input at each layer's attention |
+| Clean protection | Gate suppression + adapter penalty | Norm clip | L_stab on clean inputs |
+| Plug-and-play? | Yes (load/unload modules) | Yes (load/unload modules) | Yes (load/unload LoRA adapter) |
