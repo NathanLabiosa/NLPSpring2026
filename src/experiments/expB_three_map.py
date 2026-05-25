@@ -287,7 +287,7 @@ def main():
         if result:
             out[model_name] = result
 
-    out_path = os.path.join(ROOT, "expB_three_map_overlay.json")
+    out_path = os.path.join(ROOT, "results", "expB_three_map_overlay.json")
     with open(out_path, "w") as f:
         json.dump(out, f, indent=2)
     print(f"\nSaved: {out_path}")

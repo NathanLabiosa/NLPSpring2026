@@ -24,7 +24,7 @@ Usage:
                    clean_only=./stabilizer_weights/p1_clean_only/lora_final \
                    rand_s1=./stabilizer_weights/p1_random_layers_seed1/lora_final \
         --n_samples 200 \
-        --output ./adapter_divergence_results.json
+        --output ./results/adapter_divergence_results.json
 """
 
 import os, sys, json, random, argparse
@@ -81,7 +81,7 @@ def main():
     parser.add_argument("--adapters", type=str, nargs="+", required=True,
                         help="name=path pairs, e.g. v17=./stabilizer_weights/lora_v17/lora_final")
     parser.add_argument("--n_samples", type=int, default=200)
-    parser.add_argument("--output", type=str, default="./adapter_divergence_results.json")
+    parser.add_argument("--output", type=str, default="./results/adapter_divergence_results.json")
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

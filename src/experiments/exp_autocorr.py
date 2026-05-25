@@ -21,8 +21,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from scipy.stats import spearmanr
 
-DATA_FILE = "expB_three_map_overlay.json"
-OUT_FILE  = "exp_autocorr_results.json"
+DATA_FILE   = "results/expB_three_map_overlay.json"
+OUT_FILE  = "results/exp_autocorr_results.json"
 OUT_PDF   = "exp_autocorr.pdf"
 
 MAX_LAG = 8

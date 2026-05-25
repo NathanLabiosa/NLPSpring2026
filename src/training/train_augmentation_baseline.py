@@ -384,7 +384,7 @@ def write_comparison():
         print("No variant results found yet.")
         return
 
-    out_path = os.path.join(ROOT, "aug_baseline_comparison.json")
+    out_path = os.path.join(ROOT, "results", "aug_baseline_comparison.json")
     json.dump(comparison, open(out_path, "w"), indent=2)
     print(f"\n=== Augmentation Baseline Comparison ===")
     print(f"{'Variant':<35} {'Avg Δ perturbed':>16} {'Clean Δ':>10}")

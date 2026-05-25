@@ -10,8 +10,8 @@ from scipy.stats import spearmanr
 
 RNG_SEED = 42
 N_BOOT = 10_000
-DATA_FILE = "expB_three_map_overlay.json"
-OUT_FILE = "bootstrap_correlations.json"
+DATA_FILE   = "results/expB_three_map_overlay.json"
+OUT_FILE = "results/bootstrap_correlations.json"
 
 
 def bootstrap_spearman(x, y, n_boot=N_BOOT, rng=None):

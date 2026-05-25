@@ -374,7 +374,7 @@ def main():
             results[model_name] = result
 
     if results:
-        combined = os.path.join(ROOT, "three_map_new_overlay.json")
+        combined = os.path.join(ROOT, "results", "three_map_new_overlay.json")
         json.dump(results, open(combined, "w"), indent=2)
         print(f"\nCombined results: {combined}")
 

@@ -163,7 +163,7 @@ def main():
 
         out_json[model_name] = model_out
 
-    out_path = os.path.join(ROOT, "expA_perlayer_cohens_d.json")
+    out_path = os.path.join(ROOT, "results", "expA_perlayer_cohens_d.json")
     with open(out_path, "w") as f:
         json.dump(out_json, f, indent=2)
     print(f"\nSaved: {out_path}")

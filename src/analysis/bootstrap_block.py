@@ -33,8 +33,8 @@ from scipy.stats import spearmanr
 RNG_SEED    = 42
 N_BOOT      = 10_000
 DEFAULT_B   = 5
-DATA_FILE   = "expB_three_map_overlay.json"
-OUT_FILE    = "bootstrap_block_results.json"
+DATA_FILE   = "results/expB_three_map_overlay.json"
+OUT_FILE    = "results/bootstrap_block_results.json"
 SENS_PDF    = "bootstrap_block_sensitivity.pdf"
 
 PAIRS = [
@@ -248,7 +248,7 @@ def main():
     print(f"Sensitivity plot: {SENS_PDF}")
 
     # Save sensitivity JSON
-    sens_file = "bootstrap_block_sensitivity.json"
+    sens_file = "results/bootstrap_block_sensitivity.json"
     json.dump(sensitivity, open(sens_file, "w"), indent=2)
     print(f"Sensitivity data: {sens_file}")
 

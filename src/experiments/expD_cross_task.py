@@ -195,7 +195,7 @@ def main():
         if result:
             out[model_name] = result
 
-    out_path = os.path.join(ROOT, "expD_cross_task_lrd.json")
+    out_path = os.path.join(ROOT, "results", "expD_cross_task_lrd.json")
     with open(out_path, "w") as f:
         json.dump(out, f, indent=2)
     print(f"\nSaved: {out_path}")
