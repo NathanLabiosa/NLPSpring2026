@@ -34,27 +34,27 @@ POINTS = OrderedDict([
     ("Qwen2.5-1.5B", {
         "family":  "Qwen",
         "params":  1.5e9,
-        "raw":     "Qwen2.5/scale_experiments/lrd_results_1.5B/raw_gsm8k.json",
+        "raw":     "models/qwen2.5/scale_experiments/lrd_results_1.5B/raw_gsm8k.json",
     }),
     ("Qwen2.5-7B", {
         "family":  "Qwen",
         "params":  7.6e9,
-        "raw":     "Qwen2.5/lrd_results/qwen_gsm8k/raw_gsm8k.json",
+        "raw":     "models/qwen2.5/lrd_results/qwen_gsm8k/raw_gsm8k.json",
     }),
     ("Qwen2.5-14B", {
         "family":  "Qwen",
         "params":  1.4e10,
-        "raw":     "Qwen2.5/scale_experiments/lrd_results_14B/raw_gsm8k.json",
+        "raw":     "models/qwen2.5/scale_experiments/lrd_results_14B/raw_gsm8k.json",
     }),
     ("Llama-3.2-1B", {
         "family":  "Llama",
         "params":  1.24e9,
-        "raw":     "Llama/lrd_results_3.2_1B/raw_gsm8k.json",
+        "raw":     "models/llama/lrd_results_3.2_1B/raw_gsm8k.json",
     }),
     ("Llama-3-8B", {
         "family":  "Llama",
         "params":  8.03e9,
-        "raw":     "Llama/lrd_results/raw_gsm8k.json",
+        "raw":     "models/llama/lrd_results/raw_gsm8k.json",
     }),
 ])
 

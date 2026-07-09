@@ -1,8 +1,41 @@
 # Layer-Wise Representation Divergence
 
-This repository contains experiments for evaluating language model robustness under input perturbations, training lightweight adaptive stabilizer layers, and running layer-wise representation divergence (LRD) diagnostics and LoRA window experiments.
+This repository contains the experimental code and results behind an ARR submission on layer-wise representation divergence (LRD): evaluating language model robustness under input perturbations, training lightweight adaptive stabilizer layers, and running LRD diagnostics and LoRA window experiments across six model families (Llama, Mistral, Phi-3.5, Qwen2.5, Gemma2, TinyLlama).
 
 These experiments are computationally expensive. Most workflows load 1B-9B parameter models, generate over full benchmark splits or hundreds of examples, and may run multiple perturbation conditions per model. Use a CUDA GPU whenever possible.
+
+## Repository Map
+
+```
+evaluation/                  Baseline perturbation-robustness eval harness (see §1)
+adaptive_layer_experiments/  Notebooks for training/evaluating adaptive stabilizer layers (see §2)
+lrd_experiments/             Model-agnostic LRD diagnostics, patching, LoRA window tooling (see §3)
+
+models/<name>/                Per-model driver scripts, raw LRD/patching results, and figures
+  llama/ mistral/ phi3.5/ qwen2.5/ gemma2/ tinyllama/
+
+src/                          Shared analysis, plotting, and eval code (post-hoc, cross-model)
+  analysis/                   Bootstrap resampling, power/interaction analysis, window prediction
+  diagnostics/                Batched/LoRA diagnostic runners
+  eval/                       Bootstrap, transfer, held-out, and regression eval harnesses
+  experiments/                Named paper experiments (expA-expF, three-map, CKA, ablations)
+  lib/                        Shared library code (stabilizer module, figure style, LoRA training)
+  plotting/                   Figure-generation scripts for the paper
+  training/                   LoRA/augmentation-baseline training scripts
+
+slurm/<family>/               SLURM submission scripts, grouped by model family (+ shared/)
+
+results/                      JSON/TeX result artifacts from analysis and eval scripts
+  bootstrap/                  Paired bootstrap significance results
+  predictions/                Predicted optimal LoRA windows
+  workstream_a/                Interaction/power/whitespace statistical analyses
+
+figures/                      Final PDF figures referenced by the paper
+```
+
+## Paper
+
+This code backs an ACL Rolling Review (ARR) submission. `figures/` contains every figure cited in the paper; `results/` contains the underlying numeric results; `models/<name>/` contains the per-model scripts and raw data used to produce them.
 
 ## Environment Setup
 
@@ -463,7 +496,7 @@ Qwen25
 Predictions are saved under:
 
 ```text
-predictions/
+results/predictions/
 ```
 
 ### Three-Map and Autocorrelation Post-Processing
@@ -503,3 +536,7 @@ exp_autocorr.pdf
 - Start with `--n_samples 20`, `--n_pairs 10`, `--n_eval 50`, or `--n_steps 20` for a smoke test.
 - Full sweeps for 7B-9B models are best run on A100-class GPUs or equivalent high-memory hardware.
 - The LRD scripts contain some hard-coded expected output paths for cross-model post-processing; keep output directory names consistent with the script configs or update the config dictionaries before running post-processing.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

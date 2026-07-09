@@ -12,8 +12,8 @@ then measures how well the profile shape transfers across tasks.
 Uses existing multi-task raw_*.json files - no forward passes needed.
 
 Data sources:
-  Phi3.5 - Phi3.5/lrd_{gsm,mmlu,bbh}/raw_{dataset}.json
-  Mistral - Mistral/lrd_results/mistral_gsm8k/raw_{dataset}.json
+  Phi3.5 - models/phi3.5/lrd_{gsm,mmlu,bbh}/raw_{dataset}.json
+  Mistral - models/mistral/lrd_results/mistral_gsm8k/raw_{dataset}.json
   Llama3  - only GSM8K available; included with a caveat note
 
 Procedure:
@@ -49,14 +49,14 @@ os.makedirs(FIG_DIR, exist_ok=True)
 # Data paths: model_name -> {task_label -> (raw_json_path, dataset_key)}
 MODEL_TASKS = {
     "Phi3.5": {
-        "GSM8K": (os.path.join(ROOT, "Phi3.5/lrd_gsm/raw_gsm8k.json"),  "gsm8k"),
-        "MMLU":  (os.path.join(ROOT, "Phi3.5/lrd_mmlu/raw_mmlu.json"),  "mmlu"),
-        "BBH":   (os.path.join(ROOT, "Phi3.5/lrd_bbh/raw_bbh.json"),    "bbh"),
+        "GSM8K": (os.path.join(ROOT, "models/phi3.5/lrd_gsm/raw_gsm8k.json"),  "gsm8k"),
+        "MMLU":  (os.path.join(ROOT, "models/phi3.5/lrd_mmlu/raw_mmlu.json"),  "mmlu"),
+        "BBH":   (os.path.join(ROOT, "models/phi3.5/lrd_bbh/raw_bbh.json"),    "bbh"),
     },
     "Mistral": {
-        "GSM8K": (os.path.join(ROOT, "Mistral/lrd_results/mistral_gsm8k/raw_gsm8k.json"), "gsm8k"),
-        "MMLU":  (os.path.join(ROOT, "Mistral/lrd_results/mistral_gsm8k/raw_mmlu.json"),  "mmlu"),
-        "BBH":   (os.path.join(ROOT, "Mistral/lrd_results/mistral_gsm8k/raw_bbh.json"),   "bbh"),
+        "GSM8K": (os.path.join(ROOT, "models/mistral/lrd_results/mistral_gsm8k/raw_gsm8k.json"), "gsm8k"),
+        "MMLU":  (os.path.join(ROOT, "models/mistral/lrd_results/mistral_gsm8k/raw_mmlu.json"),  "mmlu"),
+        "BBH":   (os.path.join(ROOT, "models/mistral/lrd_results/mistral_gsm8k/raw_bbh.json"),   "bbh"),
     },
 }
 

@@ -96,7 +96,7 @@ def main():
     fig_dir.mkdir(exist_ok=True)
 
     # Gemma-2-9B (42 layers + 1 = 43 total)
-    gemma_path = '/home1/labiosa/NLPSpring2026/Gemma2/lrd_results/gemma2_9b_gsm8k/raw_gsm8k.json'
+    gemma_path = '/home1/labiosa/NLPSpring2026/models/gemma2/lrd_results/gemma2_9b_gsm8k/raw_gsm8k.json'
     gemma_profiles = load_lrd_data(gemma_path)
     plot_lrd_heatmap(
         gemma_profiles,
@@ -107,7 +107,7 @@ def main():
     )
 
     # Qwen2.5-7B (28 layers + 1 = 29 total)
-    qwen_path = '/home1/labiosa/NLPSpring2026/Qwen2.5/lrd_results/qwen_gsm8k/raw_gsm8k.json'
+    qwen_path = '/home1/labiosa/NLPSpring2026/models/qwen2.5/lrd_results/qwen_gsm8k/raw_gsm8k.json'
     qwen_profiles = load_lrd_data(qwen_path)
     plot_lrd_heatmap(
         qwen_profiles,
@@ -118,7 +118,7 @@ def main():
     )
 
     # Mistral-7B (32 layers + 1 = 33 total)
-    mistral_path = '/home1/labiosa/NLPSpring2026/Mistral/lrd_results/mistral_gsm8k/raw_gsm8k.json'
+    mistral_path = '/home1/labiosa/NLPSpring2026/models/mistral/lrd_results/mistral_gsm8k/raw_gsm8k.json'
     mistral_profiles = load_lrd_data(mistral_path)
     plot_lrd_heatmap(
         mistral_profiles,

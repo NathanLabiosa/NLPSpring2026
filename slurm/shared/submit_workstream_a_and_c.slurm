@@ -20,19 +20,19 @@ export PYTHONUNBUFFERED=1
 mkdir -p logs
 
 echo "=== A1: Interaction Test ==="
-python3 experiments/workstream_a/interaction_test.py
+python3 src/analysis/interaction_test.py
 
 echo ""
 echo "=== A2: Whitespace Analysis ==="
-python3 experiments/workstream_a/whitespace_analysis.py
+python3 src/analysis/whitespace_analysis.py
 
 echo ""
 echo "=== A3: Power Analysis ==="
-python3 experiments/workstream_a/power_analysis.py
+python3 src/analysis/power_analysis.py
 
 echo ""
 echo "=== C: Generate Figures ==="
-python3 experiments/workstream_c/generate_figures.py
+python3 src/plotting/generate_workstream_c_figures.py
 
 echo ""
 echo "=== ALL DONE ==="

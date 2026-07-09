@@ -16,12 +16,12 @@ shared axes. Computes pairwise Spearman correlations and the "slack" composite
 score (1 - norm_LRD) x (1 - norm_patching) correlated against LoRA delta.
 
 Data sources (all pre-existing):
-  LRD     - Phi3.5/lrd_results/phi_hardening2/raw_gsm8k.json
-             Llama/lrd_results/raw_gsm8k.json
-             Mistral/lrd_results/mistral_gsm8k/raw_gsm8k.json
-  Patching - Phi3.5/lrd_results/phi_hardening2/patching_gsm8k_typos.json
-              Llama/lrd_results/patching_gsm8k_typos.json
-              Mistral/lrd_results/mistral_patching_nocache_v2/patching_gsm8k_ocr.json
+  LRD     - models/phi3.5/lrd_results/phi_hardening2/raw_gsm8k.json
+             models/llama/lrd_results/raw_gsm8k.json
+             models/mistral/lrd_results/mistral_gsm8k/raw_gsm8k.json
+  Patching - models/phi3.5/lrd_results/phi_hardening2/patching_gsm8k_typos.json
+              models/llama/lrd_results/patching_gsm8k_typos.json
+              models/mistral/lrd_results/mistral_patching_nocache_v2/patching_gsm8k_ocr.json
   LoRA     - stabilizer_weights/{model}_sweep_L{window}/eval_results.json
              (Phi3.5 uses p2_sweep_L* directories)
 
@@ -54,8 +54,8 @@ os.makedirs(FIG_DIR, exist_ok=True)
 
 MODELS = {
     "Phi3.5": {
-        "lrd_path":     "Phi3.5/lrd_results/phi_hardening2/raw_gsm8k.json",
-        "patch_path":   "Phi3.5/lrd_results/phi_patching_v3/patching_gsm8k_typos.json",
+        "lrd_path":     "models/phi3.5/lrd_results/phi_hardening2/raw_gsm8k.json",
+        "patch_path":   "models/phi3.5/lrd_results/phi_patching_v3/patching_gsm8k_typos.json",
         "patch_note":   "typos",
         "sweep_dirs":   [
             ("p2_sweep_L00_04", (0, 4)),
@@ -67,8 +67,8 @@ MODELS = {
         ],
     },
     "Llama3": {
-        "lrd_path":     "Llama/lrd_results/raw_gsm8k.json",
-        "patch_path":   "Llama/lrd_results/patching_gsm8k_typos.json",
+        "lrd_path":     "models/llama/lrd_results/raw_gsm8k.json",
+        "patch_path":   "models/llama/lrd_results/patching_gsm8k_typos.json",
         "patch_note":   "typos",
         "sweep_dirs":   [
             ("llama_sweep_L00_04", (0, 4)),
@@ -80,8 +80,8 @@ MODELS = {
         ],
     },
     "Mistral": {
-        "lrd_path":     "Mistral/lrd_results/mistral_gsm8k/raw_gsm8k.json",
-        "patch_path":   "Mistral/lrd_results/mistral_patching_nocache_v2/patching_gsm8k_ocr.json",
+        "lrd_path":     "models/mistral/lrd_results/mistral_gsm8k/raw_gsm8k.json",
+        "patch_path":   "models/mistral/lrd_results/mistral_patching_nocache_v2/patching_gsm8k_ocr.json",
         "patch_note":   "OCR (only available)",
         "sweep_dirs":   [
             ("mistral_sweep_L00_04", (0, 4)),

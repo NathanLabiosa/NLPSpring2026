@@ -11,18 +11,18 @@ recovery rates with error bands.
 
 Usage:
     python bootstrap_diagnostics.py \
-        --lrd_results_dir ./Phi3.5/lrd_results \
+        --lrd_results_dir ./models/phi3.5/lrd_results \
         --dataset gsm8k \
         --n_bootstrap 10000 \
-        --output ./bootstrap_results
+        --output ./results/bootstrap
 
     # With patching results:
     python bootstrap_diagnostics.py \
-        --lrd_results_dir ./Phi3.5/lrd_results \
-        --patching_dir ./Phi3.5/lrd_results \
+        --lrd_results_dir ./models/phi3.5/lrd_results \
+        --patching_dir ./models/phi3.5/lrd_results \
         --dataset gsm8k \
         --n_bootstrap 10000 \
-        --output ./bootstrap_results
+        --output ./results/bootstrap
 """
 
 import os, sys, json, argparse
@@ -146,7 +146,7 @@ def main():
     parser.add_argument("--patching_dir", type=str, default=None,
                         help="Directory with patching results (optional)")
     parser.add_argument("--n_bootstrap", type=int, default=10000)
-    parser.add_argument("--output", type=str, default="./bootstrap_results")
+    parser.add_argument("--output", type=str, default="./results/bootstrap")
     args = parser.parse_args()
 
     os.makedirs(args.output, exist_ok=True)

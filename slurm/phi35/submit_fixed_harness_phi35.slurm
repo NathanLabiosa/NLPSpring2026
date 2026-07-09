@@ -29,7 +29,7 @@ nvidia-smi
 
 ROOT=/home1/labiosa/NLPSpring2026
 PY=/home1/labiosa/miniconda3/envs/my_project_gemma/bin/python
-RESULTS=$ROOT/Qwen2.5/experiments/results
+RESULTS=$ROOT/models/qwen2.5/experiments/results
 mkdir -p $RESULTS
 
 $PY $ROOT/src/eval/eval_fixed_harness.py \

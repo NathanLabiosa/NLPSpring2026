@@ -36,8 +36,8 @@ SW   = os.path.join(ROOT, "stabilizer_weights")
 
 MODELS = {
     "Gemma2_9B": {
-        "lrd_path":   "Gemma2/lrd_results/gemma2_9b_gsm8k/raw_gsm8k.json",
-        "patch_path": "Gemma2/lrd_results/gemma2_9b_patching/patching_gsm8k_typos.json",
+        "lrd_path":   "models/gemma2/lrd_results/gemma2_9b_gsm8k/raw_gsm8k.json",
+        "patch_path": "models/gemma2/lrd_results/gemma2_9b_patching/patching_gsm8k_typos.json",
         "patch_note": "typos",
         "sweep_dirs": [
             ("gemma2_9b_sweep_L00_05", (0,  5)),
@@ -50,8 +50,8 @@ MODELS = {
         ],
     },
     "Qwen25_7B": {
-        "lrd_path":   "Qwen2.5/lrd_results/qwen_gsm8k/raw_gsm8k.json",
-        "patch_path": "Qwen2.5/lrd_results/qwen_patching/patching_gsm8k_typos.json",
+        "lrd_path":   "models/qwen2.5/lrd_results/qwen_gsm8k/raw_gsm8k.json",
+        "patch_path": "models/qwen2.5/lrd_results/qwen_patching/patching_gsm8k_typos.json",
         "patch_note": "typos",
         "sweep_dirs": [
             ("qwen_sweep_L00_03", (0,  3)),
@@ -64,8 +64,8 @@ MODELS = {
         ],
     },
     "TinyLlama_1B": {
-        "lrd_path":   "TinyLlama/lrd_results/tinyllama_gsm8k/raw_gsm8k.json",
-        "patch_path": "TinyLlama/lrd_results/tinyllama_patching/patching_gsm8k_typos.json",
+        "lrd_path":   "Tinymodels/llama/lrd_results/tinyllama_gsm8k/raw_gsm8k.json",
+        "patch_path": "Tinymodels/llama/lrd_results/tinyllama_patching/patching_gsm8k_typos.json",
         "patch_note": "typos",
         "sweep_dirs": [
             ("tinyllama_sweep_L00_03", (0,  3)),

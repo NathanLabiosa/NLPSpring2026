@@ -77,7 +77,7 @@ python src/experiments/expD_cross_task.py
 echo "  Done: figures/cross_task_phi35.pdf, figures/cross_task_mistral.pdf"
 
 echo "[5/8] Workstream C figures (patching recovery, layer sweep, etc.)..."
-python experiments/workstream_c/generate_figures.py
+python src/plotting/generate_workstream_c_figures.py
 echo "  Done: figures/patching_recovery.pdf, figures/layer_sweep.pdf, figures/interaction_forest.pdf, etc."
 
 # -----------------------------------------------------------------------------

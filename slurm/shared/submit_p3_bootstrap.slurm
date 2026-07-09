@@ -24,24 +24,24 @@ mkdir -p logs
 
 # Phi-3.5 (hardened results with per-token LRD)
 python src/analysis/bootstrap_diagnostics.py \
-    --lrd_results_dir ./Phi3.5/lrd_results/phi_hardening2 \
-    --patching_dir ./Phi3.5/lrd_results/phi_hardening2 \
+    --lrd_results_dir ./models/phi3.5/lrd_results/phi_hardening2 \
+    --patching_dir ./models/phi3.5/lrd_results/phi_hardening2 \
     --dataset gsm8k \
     --n_bootstrap 10000 \
-    --output ./bootstrap_results/phi35
+    --output ./results/bootstrap/phi35
 
 # Llama-3
 python src/analysis/bootstrap_diagnostics.py \
-    --lrd_results_dir ./Llama/lrd_results \
+    --lrd_results_dir ./models/llama/lrd_results \
     --dataset gsm8k \
     --n_bootstrap 10000 \
-    --output ./bootstrap_results/llama
+    --output ./results/bootstrap/llama
 
 # Qwen
 python src/analysis/bootstrap_diagnostics.py \
-    --lrd_results_dir ./Qwen2.5/lrd_results \
+    --lrd_results_dir ./models/qwen2.5/lrd_results \
     --dataset gsm8k \
     --n_bootstrap 10000 \
-    --output ./bootstrap_results/qwen
+    --output ./results/bootstrap/qwen
 
 echo "--- Bootstrap analysis complete ---"

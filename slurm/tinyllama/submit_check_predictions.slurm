@@ -27,4 +27,4 @@ $PY src/analysis/predict_optimal_window.py --model TinyLlama --check_prediction
 $PY src/analysis/predict_optimal_window.py --model Gemma2    --check_prediction
 $PY src/analysis/predict_optimal_window.py --model Qwen25    --check_prediction
 
-echo "--- Check complete. See predictions/*.json for results. ---"
+echo "--- Check complete. See results/predictions/*.json for results. ---"

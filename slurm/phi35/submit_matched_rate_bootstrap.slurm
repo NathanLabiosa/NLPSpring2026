@@ -29,7 +29,7 @@ if [ "$SLURM_ARRAY_TASK_ID" -eq 1 ]; then
     python src/eval/eval_paired_bootstrap.py \
         --model microsoft/Phi-3.5-mini-instruct \
         --checkpoint_dir ./stabilizer_weights/phi_matched_cosine_stab24/lora_final \
-        --output_dir ./bootstrap_results/phi_matched_cosine_stab24 \
+        --output_dir ./results/bootstrap/phi_matched_cosine_stab24 \
         --n_samples 500 --n_bootstrap 10000 \
         --uniform_rate 0.10
 
@@ -38,7 +38,7 @@ elif [ "$SLURM_ARRAY_TASK_ID" -eq 2 ]; then
     python src/eval/eval_paired_bootstrap.py \
         --model microsoft/Phi-3.5-mini-instruct \
         --checkpoint_dir ./stabilizer_weights/phi_matched_mse_stab24/lora_final \
-        --output_dir ./bootstrap_results/phi_matched_mse_stab24 \
+        --output_dir ./results/bootstrap/phi_matched_mse_stab24 \
         --n_samples 500 --n_bootstrap 10000 \
         --uniform_rate 0.10
 fi

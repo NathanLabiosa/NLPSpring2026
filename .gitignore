@@ -12,7 +12,7 @@ stabilizer_weights/
 *.ckpt
 
 # Cached training corpora derivable from HF datasets
-Phi3.5/stabilizer_corpus/
+models/phi3.5/stabilizer_corpus/
 
 # SLURM logs (reproducible, noisy)
 logs/

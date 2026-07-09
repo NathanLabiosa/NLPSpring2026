@@ -20,7 +20,7 @@ MODEL_CFGS = {
     "TinyLlama": {
         "model_id":  "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
         "n_layers": 22,
-        "lrd_path": "TinyLlama/lrd_results/tinyllama_gsm8k/raw_gsm8k.json",
+        "lrd_path": "Tinymodels/llama/lrd_results/tinyllama_gsm8k/raw_gsm8k.json",
         "q_weight_key": "model.layers.{l}.self_attn.q_proj",
         "q_fused": False,
         "sweep_dirs": [
@@ -34,7 +34,7 @@ MODEL_CFGS = {
     "Gemma2": {
         "model_id": "google/gemma-2-9b",
         "n_layers": 42,
-        "lrd_path":  "Gemma2/lrd_results/gemma2_9b_gsm8k/raw_gsm8k.json",
+        "lrd_path":  "models/gemma2/lrd_results/gemma2_9b_gsm8k/raw_gsm8k.json",
         "q_weight_key": "model.layers.{l}.self_attn.q_proj",
         "q_fused":   False,
         "sweep_dirs": [
@@ -50,7 +50,7 @@ MODEL_CFGS = {
     "Qwen25": {
         "model_id":   "Qwen/Qwen2.5-7B-Instruct",
         "n_layers":  28,
-        "lrd_path": "Qwen2.5/lrd_results/qwen_gsm8k/raw_gsm8k.json",
+        "lrd_path": "models/qwen2.5/lrd_results/qwen_gsm8k/raw_gsm8k.json",
         "q_weight_key": "model.layers.{l}.self_attn.q_proj",
         "q_fused":  False,
         "sweep_dirs": [
@@ -421,7 +421,7 @@ def main():
     args = p.parse_args()
 
     cfg = MODEL_CFGS[args.model]
-    pred_dir = os.path.join(ROOT, "predictions")
+    pred_dir = os.path.join(ROOT, "results/predictions")
     os.makedirs(pred_dir, exist_ok=True)
     ts  = datetime.now().strftime("%Y%m%d_%H%M%S")
     pred_path = os.path.join(pred_dir, f"{args.model}_{ts}.json")

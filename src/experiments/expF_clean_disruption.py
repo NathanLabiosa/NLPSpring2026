@@ -131,7 +131,7 @@ MODEL_CFGS = {
         # 7B fp32 = ~28GB, fits on A40.
         "torch_dtype": "float32",
         "use_chat_template": True,
-        # Canonical 4-layer Qwen sweep (per Qwen2.5/submit_sweep.slurm).
+        # Canonical 4-layer Qwen sweep (per slurm/qwen/submit_sweep.slurm).
         # The ad-hoc 5-layer variants (qwen_sweep_L00_04, qwen_sweep_L05_09) have
         # NaN weights — training diverged — and are excluded.
         "sweep_dirs": [

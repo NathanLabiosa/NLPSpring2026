@@ -42,7 +42,7 @@ apply_style()
 
 def figure_qwen14b_patching():
     d = json.load(open(os.path.join(
-        ROOT, "Qwen2.5/scale_experiments/patch_results_14B/patching_gsm8k_typos.json")))
+        ROOT, "models/qwen2.5/scale_experiments/patch_results_14B/patching_gsm8k_typos.json")))
     layer_recovery = {int(k): 100.0 * sum(v) / len(v) for k, v in d["layer_recovery"].items()}
     layers = sorted(layer_recovery)
     vals = [layer_recovery[l] for l in layers]

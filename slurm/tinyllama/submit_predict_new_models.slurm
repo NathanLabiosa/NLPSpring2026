@@ -14,7 +14,7 @@
 # Run BEFORE submitting sweep jobs for new models.
 # Loads each new model, computes C3 (weight effective rank) and C4 (gradient norm),
 # classifies regime from LRD diagnostic, and writes timestamped prediction to
-# predictions/{model}_{timestamp}.json BEFORE seeing sweep results.
+# results/predictions/{model}_{timestamp}.json BEFORE seeing sweep results.
 #
 # Submit order: submit_predict_new_models.slurm → (wait for LRD + patch jobs) →
 #               then submit_sweep.slurm for each model.
@@ -31,7 +31,7 @@ nvidia-smi
 
 cd /home1/labiosa/NLPSpring2026
 PY=/home1/labiosa/miniconda3/envs/my_project_gemma/bin/python
-mkdir -p predictions
+mkdir -p results/predictions
 
 echo "=== TinyLlama ==="
 $PY src/analysis/predict_optimal_window.py --model TinyLlama --compute_c3c4 --n_samples 50

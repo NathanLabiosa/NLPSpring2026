@@ -137,7 +137,7 @@ def main():
                         help="Max GSM8K test examples to evaluate during pre-filter")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--attn_impl", type=str, default="eager",
-                        help="Eager is the default for hidden-state extraction (matches Llama/lrd_diagnostics.py).")
+                        help="Eager is the default for hidden-state extraction (matches models/llama/lrd_diagnostics.py).")
     parser.add_argument("--max_new_tokens", type=int, default=256,
                         help="Generation length for the pre-filter and accuracy probe")
     args = parser.parse_args()

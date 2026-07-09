@@ -27,12 +27,12 @@ if [ "$SLURM_ARRAY_TASK_ID" -eq 1 ]; then
     echo "--- Paired bootstrap: Cosine v2, L15-19, stab=24, λ=3.0 (headline) ---"
     python src/eval/eval_paired_bootstrap.py \
         --checkpoint_dir ./stabilizer_weights/cosv2_L15_stab24_high/lora_final \
-        --output_dir     ./bootstrap_results/cosv2_L15_stab24_high \
+        --output_dir     ./results/bootstrap/cosv2_L15_stab24_high \
         --n_samples 500 --n_bootstrap 10000
 elif [ "$SLURM_ARRAY_TASK_ID" -eq 2 ]; then
     echo "--- Paired bootstrap: MSE, L15-19, stab=24, λ=3.0 (comparison) ---"
     python src/eval/eval_paired_bootstrap.py \
         --checkpoint_dir ./stabilizer_weights/mse_L15_stab24_high/lora_final \
-        --output_dir     ./bootstrap_results/mse_L15_stab24_high \
+        --output_dir     ./results/bootstrap/mse_L15_stab24_high \
         --n_samples 500 --n_bootstrap 10000
 fi

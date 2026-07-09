@@ -26,7 +26,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from stabilizer_system import MultiLayerStabilizerSystem, StabilizerConfig
 
-# PerturbationEngine lives in Phi3.5/perturbations.py
+# PerturbationEngine lives in models/phi3.5/perturbations.py
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.join(_os.path.dirname(__file__), "Phi3.5"))
 from perturbations import PerturbationEngine

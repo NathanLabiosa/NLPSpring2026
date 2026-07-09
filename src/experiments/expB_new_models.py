@@ -48,8 +48,8 @@ def compute_windows(n_layers: int, n_windows: int = 6):
 
 NEW_MODELS = {
     "TinyLlama": {
-        "lrd_path":   "TinyLlama/lrd_results/tinyllama_gsm8k/raw_gsm8k.json",
-        "patch_path": "TinyLlama/lrd_results/tinyllama_patching/patching_gsm8k_typos.json",
+        "lrd_path":   "Tinymodels/llama/lrd_results/tinyllama_gsm8k/raw_gsm8k.json",
+        "patch_path": "Tinymodels/llama/lrd_results/tinyllama_patching/patching_gsm8k_typos.json",
         "patch_note": "typos",
         "n_layers":   22,
         "sweep_prefix": "tinyllama_sweep",
@@ -63,8 +63,8 @@ NEW_MODELS = {
         ],
     },
     "Gemma2": {
-        "lrd_path":   "Gemma2/lrd_results/gemma2_gsm8k/raw_gsm8k.json",
-        "patch_path": "Gemma2/lrd_results/gemma2_patching/patching_gsm8k_typos.json",
+        "lrd_path":   "models/gemma2/lrd_results/gemma2_gsm8k/raw_gsm8k.json",
+        "patch_path": "models/gemma2/lrd_results/gemma2_patching/patching_gsm8k_typos.json",
         "patch_note": "typos",
         "n_layers":   26,
         "sweep_prefix": "gemma2_sweep",
@@ -78,8 +78,8 @@ NEW_MODELS = {
         ],
     },
     "Qwen25": {
-        "lrd_path":   "Qwen2.5/lrd_results/qwen_gsm8k/raw_gsm8k.json",
-        "patch_path": "Qwen2.5/lrd_results/qwen_patching/patching_gsm8k_typos.json",
+        "lrd_path":   "models/qwen2.5/lrd_results/qwen_gsm8k/raw_gsm8k.json",
+        "patch_path": "models/qwen2.5/lrd_results/qwen_patching/patching_gsm8k_typos.json",
         "patch_note": "typos",
         "n_layers":   28,
         "sweep_prefix": "qwen_sweep",

@@ -16,7 +16,7 @@ here in the paper without cross-checking against the fixed-harness eval.
 Usage:
   python eval_paired_bootstrap.py \
       --checkpoint_dir stabilizer_weights/cosv2_L15_stab24_high/lora_final \
-      --output_dir     bootstrap_results/cosv2_L15_stab24_high \
+      --output_dir     results/bootstrap/cosv2_L15_stab24_high \
       --n_samples 500 --n_bootstrap 10000
 """
 
