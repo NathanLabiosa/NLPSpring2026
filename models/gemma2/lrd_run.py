@@ -4,7 +4,7 @@ import sys
 import os
 
 ROOT    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PHI_DIR = os.path.join(ROOT, "Phi3.5")
+PHI_DIR = os.path.join(ROOT, "models", "phi3.5")
 for p in [PHI_DIR, os.path.dirname(os.path.abspath(__file__))]:
     if p not in sys.path:
         sys.path.insert(0, p)

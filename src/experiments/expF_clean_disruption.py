@@ -63,94 +63,95 @@ MODEL_CFGS = {
         "model_id": "microsoft/Phi-3.5-mini-instruct",
         "display_name": "Phi-3.5",
         "system_prompt": "Solve the math problem step by step. The last line must be '#### ANSWER'.",
+        "trust_remote_code": False,
+        "attn_implementation": "sdpa",
         "sweep_dirs": [
-            ("p2_sweep_L00_04", (0, 4)),
-            ("p2_sweep_L05_09", (5, 9)),
-            ("p2_sweep_L10_14", (10, 14)),
-            ("p2_sweep_L15_19", (15, 19)),
-            ("p2_sweep_L20_24", (20, 24)),
-            ("p2_sweep_L27_31", (27, 31)),
+            ("phase2_mmlu_phi35_L00-04_seed42", (0, 4)),
+            ("phase2_mmlu_phi35_L05-09_seed42", (5, 9)),
+            ("phase2_mmlu_phi35_L10-14_seed42", (10, 14)),
+            ("phase2_mmlu_phi35_L15-19_seed42", (15, 19)),
+            ("phase2_mmlu_phi35_L20-24_seed42", (20, 24)),
+            ("phase2_mmlu_phi35_L27-31_seed42", (27, 31)),
         ],
         "sweep_deltas": {
-            "p2_sweep_L00_04": 4.53,
-            "p2_sweep_L05_09": 4.80,
-            "p2_sweep_L10_14": 5.47,
-            "p2_sweep_L15_19": 7.27,
-            "p2_sweep_L20_24": 3.83,
-            "p2_sweep_L27_31": 1.10,
+            "phase2_mmlu_phi35_L00-04_seed42": None,
+            "phase2_mmlu_phi35_L05-09_seed42": None,
+            "phase2_mmlu_phi35_L10-14_seed42": None,
+            "phase2_mmlu_phi35_L15-19_seed42": None,
+            "phase2_mmlu_phi35_L20-24_seed42": None,
+            "phase2_mmlu_phi35_L27-31_seed42": None,
         },
     },
     "llama3": {
         "model_id": "meta-llama/Meta-Llama-3-8B-Instruct",
         "display_name": "Llama-3",
         "system_prompt": "Solve the math problem step by step. The last line must be '#### ANSWER'.",
+        "trust_remote_code": False,
+        "attn_implementation": "sdpa",
         "sweep_dirs": [
-            ("llama_sweep_L00_04", (0, 4)),
-            ("llama_sweep_L05_09", (5, 9)),
-            ("llama_sweep_L10_14", (10, 14)),
-            ("llama_sweep_L15_19", (15, 19)),
-            ("llama_sweep_L20_24", (20, 24)),
-            ("llama_sweep_L27_31", (27, 31)),
+            ("phase2_scatter_llama3_8b_L00-04_seed42", (0, 4)),
+            ("phase2_scatter_llama3_8b_L05-09_seed42", (5, 9)),
+            ("phase2_scatter_llama3_8b_L10-14_seed42", (10, 14)),
+            ("phase2_scatter_llama3_8b_L15-19_seed42", (15, 19)),
+            ("phase2_scatter_llama3_8b_L20-24_seed42", (20, 24)),
+            ("phase2_scatter_llama3_8b_L27-31_seed42", (27, 31)),
         ],
         "sweep_deltas": {
-            "llama_sweep_L00_04": -1.87,
-            "llama_sweep_L05_09": -3.67,
-            "llama_sweep_L10_14": -4.57,
-            "llama_sweep_L15_19":  0.00,
-            "llama_sweep_L20_24":  1.17,
-            "llama_sweep_L27_31":  0.00,
+            "phase2_scatter_llama3_8b_L00-04_seed42": None,
+            "phase2_scatter_llama3_8b_L05-09_seed42": None,
+            "phase2_scatter_llama3_8b_L10-14_seed42": None,
+            "phase2_scatter_llama3_8b_L15-19_seed42": None,
+            "phase2_scatter_llama3_8b_L20-24_seed42": None,
+            "phase2_scatter_llama3_8b_L27-31_seed42": None,
         },
     },
     "mistral": {
         "model_id": "mistralai/Mistral-7B-Instruct-v0.3",
         "display_name": "Mistral",
         "system_prompt": "Solve the math problem step by step. The last line must be '#### ANSWER'.",
+        "trust_remote_code": False,
+        "attn_implementation": "sdpa",
         "sweep_dirs": [
-            ("mistral_sweep_L00_04", (0, 4)),
-            ("mistral_sweep_L05_09", (5, 9)),
-            ("mistral_sweep_L10_14", (10, 14)),
-            ("mistral_sweep_L15_19", (15, 19)),
-            ("mistral_sweep_L20_24", (20, 24)),
-            ("mistral_sweep_L27_31", (27, 31)),
+            ("phase2_scatter_mistral_7b_v03_L00-04_seed42", (0, 4)),
+            ("phase2_scatter_mistral_7b_v03_L05-09_seed42", (5, 9)),
+            ("phase2_scatter_mistral_7b_v03_L10-14_seed42", (10, 14)),
+            ("phase2_scatter_mistral_7b_v03_L15-19_seed42", (15, 19)),
+            ("phase2_scatter_mistral_7b_v03_L20-24_seed42", (20, 24)),
+            ("phase2_scatter_mistral_7b_v03_L27-31_seed42", (27, 31)),
         ],
         "sweep_deltas": {
-            "mistral_sweep_L00_04": -8.30,
-            "mistral_sweep_L05_09": -9.43,
-            "mistral_sweep_L10_14": -3.97,
-            "mistral_sweep_L15_19": -10.50,
-            "mistral_sweep_L20_24":  0.13,
-            "mistral_sweep_L27_31": -1.43,
+            "phase2_scatter_mistral_7b_v03_L00-04_seed42": None,
+            "phase2_scatter_mistral_7b_v03_L05-09_seed42": None,
+            "phase2_scatter_mistral_7b_v03_L10-14_seed42": None,
+            "phase2_scatter_mistral_7b_v03_L15-19_seed42": None,
+            "phase2_scatter_mistral_7b_v03_L20-24_seed42": None,
+            "phase2_scatter_mistral_7b_v03_L27-31_seed42": None,
         },
     },
     "qwen": {
         "model_id": "Qwen/Qwen2.5-7B-Instruct",
         "display_name": "Qwen2.5-7B",
         "system_prompt": "Solve the math problem step by step. The last line must be '#### ANSWER'.",
-        # Qwen-7B needs fp32 + eager: bf16 collapses the rank-4 LoRA delta to zero,
-        # fp16 + eager attention overflows the attention scores at some layers.
-        # 7B fp32 = ~28GB, fits on A40.
+        # Qwen-7B needs fp32: bf16 collapses the rank-4 LoRA delta to zero.
         "torch_dtype": "float32",
         "use_chat_template": True,
-        # Canonical 4-layer Qwen sweep (per slurm/qwen/submit_sweep.slurm).
-        # The ad-hoc 5-layer variants (qwen_sweep_L00_04, qwen_sweep_L05_09) have
-        # NaN weights — training diverged — and are excluded.
+        "trust_remote_code": False,
+        "attn_implementation": "eager",
         "sweep_dirs": [
-            ("qwen_sweep_L00_03", (0, 3)),
-            ("qwen_sweep_L04_07", (4, 7)),
-            ("qwen_sweep_L08_11", (8, 11)),
-            ("qwen_sweep_L12_15", (12, 15)),
-            ("qwen_sweep_L16_19", (16, 19)),
-            ("qwen_sweep_L20_23", (20, 23)),
-            ("qwen_sweep_L24_27", (24, 27)),
+            ("phase2_mmlu_qwen2.5_7b_L00-04_seed42", (0, 4)),
+            ("phase2_mmlu_qwen2.5_7b_L05-09_seed42", (5, 9)),
+            ("phase2_mmlu_qwen2.5_7b_L08-11_seed42", (8, 11)),
+            ("phase2_mmlu_qwen2.5_7b_L15-19_seed42", (15, 19)),
+            ("phase2_mmlu_qwen2.5_7b_L20-23_seed42", (20, 23)),
+            ("phase2_mmlu_qwen2.5_7b_L24-27_seed42", (24, 27)),
         ],
         "sweep_deltas": {
-            "qwen_sweep_L00_03":  6.97,
-            "qwen_sweep_L04_07":  5.60,
-            "qwen_sweep_L08_11":  4.80,
-            "qwen_sweep_L12_15":  2.90,
-            "qwen_sweep_L16_19":  3.03,
-            "qwen_sweep_L20_23":  2.83,
-            "qwen_sweep_L24_27": 11.50,
+            "phase2_mmlu_qwen2.5_7b_L00-04_seed42": None,
+            "phase2_mmlu_qwen2.5_7b_L05-09_seed42": None,
+            "phase2_mmlu_qwen2.5_7b_L08-11_seed42": None,
+            "phase2_mmlu_qwen2.5_7b_L15-19_seed42": None,
+            "phase2_mmlu_qwen2.5_7b_L20-23_seed42": None,
+            "phase2_mmlu_qwen2.5_7b_L24-27_seed42": None,
         },
     },
     "gemma": {
@@ -159,6 +160,8 @@ MODEL_CFGS = {
         "system_prompt": "Solve the math problem step by step. The last line must be '#### ANSWER'.",
         "torch_dtype": "bfloat16",
         "use_chat_template": False,
+        "trust_remote_code": False,
+        "attn_implementation": "eager",
         "sweep_dirs": [
             ("gemma2_9b_sweep_L00_05", (0, 5)),
             ("gemma2_9b_sweep_L06_11", (6, 11)),
@@ -169,18 +172,18 @@ MODEL_CFGS = {
             ("gemma2_9b_sweep_L36_41", (36, 41)),
         ],
         "sweep_deltas": {
-            "gemma2_9b_sweep_L00_05": -1.07,
-            "gemma2_9b_sweep_L06_11":  0.77,
-            "gemma2_9b_sweep_L12_17":  0.00,
-            "gemma2_9b_sweep_L18_23": -0.80,
-            "gemma2_9b_sweep_L24_29": -0.50,
-            "gemma2_9b_sweep_L30_35": -2.13,
-            "gemma2_9b_sweep_L36_41": -1.70,
+            "gemma2_9b_sweep_L00_05": None,
+            "gemma2_9b_sweep_L06_11": None,
+            "gemma2_9b_sweep_L12_17": None,
+            "gemma2_9b_sweep_L18_23": None,
+            "gemma2_9b_sweep_L24_29": None,
+            "gemma2_9b_sweep_L30_35": None,
+            "gemma2_9b_sweep_L36_41": None,
         },
     },
 }
 
-SW = os.path.join(ROOT, "stabilizer_weights")
+SW = None  # resolved from --weights_dir in main()
 
 
 def format_prompt(tokenizer, question: str, system_prompt: str,
@@ -261,12 +264,15 @@ def compute_disruption_curves(
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model",     required=True,
+    parser.add_argument("--model",      required=True,
                         choices=list(MODEL_CFGS.keys()),
                         help="Model to evaluate")
-    parser.add_argument("--n_samples", type=int, default=200)
-    parser.add_argument("--batch_size",type=int, default=4)
-    parser.add_argument("--seed",      type=int, default=42)
+    parser.add_argument("--n_samples",  type=int, default=200)
+    parser.add_argument("--batch_size", type=int, default=4)
+    parser.add_argument("--seed",       type=int, default=42)
+    parser.add_argument("--weights_dir", type=str, default=None,
+                        help="Root dir containing adapter checkpoint subdirs "
+                             "(default: ROOT/stabilizer_weights)")
     parser.add_argument("--reuse_cache", action="store_true",
                         help="Skip GPU computation if cached JSON exists, just regenerate figures")
     args = parser.parse_args()
@@ -276,8 +282,10 @@ def main():
     display_name = cfg["display_name"]
     device  = "cuda" if torch.cuda.is_available() else "cpu"
 
-    # Check for cached data
-    cache_path = os.path.join(ROOT, f"expF_clean_disruption_{args.model}.json")
+    global SW
+    SW = args.weights_dir if args.weights_dir else os.path.join(ROOT, "stabilizer_weights")
+
+    cache_path = os.path.join(ROOT, "results", f"expF_clean_disruption_{args.model}.json")
     if args.reuse_cache and os.path.exists(cache_path):
         print(f"Loading cached data from {cache_path}")
         with open(cache_path) as f:
@@ -323,8 +331,8 @@ def main():
                 cfg["model_id"],
                 device_map={"": 0},
                 torch_dtype=dtype,
-                trust_remote_code=True,
-                attn_implementation="eager",
+                trust_remote_code=cfg.get("trust_remote_code", False),
+                attn_implementation=cfg.get("attn_implementation", "sdpa"),
             )
             base_model.eval()
             peft_model = PeftModel.from_pretrained(base_model, adapter_path)
@@ -445,7 +453,7 @@ def main():
     plt.close()
     print(f"Saved scatter: {fig2_path}")
 
-    out_path = os.path.join(ROOT, f"expF_clean_disruption_{args.model}.json")
+    out_path = os.path.join(ROOT, "results", f"expF_clean_disruption_{args.model}.json")
     with open(out_path, "w") as f:
         json.dump(all_results, f, indent=2)
     print(f"Saved: {out_path}")

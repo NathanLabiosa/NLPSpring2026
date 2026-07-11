@@ -202,7 +202,7 @@ def figure_harness_artifact():
     ax.bar(x - w / 2, old_vals, w, color="#D62728", alpha=0.85,
            label="Old harness (sweep, max_new_tokens=100)")
     ax.bar(x + w / 2, new_vals, w, color="#1F77B4", alpha=0.85,
-           label="Fixed harness v1 (max_new_tokens=512)")
+           label="Fixed harness (max_new_tokens=512)")
 
     # Value labels above/below bars
     for xi, val in zip(x - w / 2, old_vals):

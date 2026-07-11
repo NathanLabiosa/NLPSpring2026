@@ -35,6 +35,15 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 from datasets import load_dataset
 
+# Compatibility shims for transformers API changes
+_compat_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "lib")
+if _compat_dir not in sys.path:
+    sys.path.insert(0, _compat_dir)
+try:
+    import compat  # noqa: F401
+except ImportError:
+    pass
+
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, ROOT)
 
@@ -51,7 +60,14 @@ HARNESS_VERSION = "v1"
 try:
     from perturbations import PerturbationEngine
 except ImportError:
-    sys.path.insert(0, os.path.join(ROOT, "Phi3.5"))
+    # Search canonical locations across cluster layouts
+    for _p in [
+        os.path.join(ROOT, "evaluation"),
+        os.path.join(ROOT, "models", "phi3.5"),
+        os.path.join(ROOT, "Phi3.5"),
+    ]:
+        if _p not in sys.path:
+            sys.path.insert(0, _p)
     from perturbations import PerturbationEngine
 
 
@@ -204,7 +220,7 @@ def main():
         args.base_model,
         device_map={"": 0},
         torch_dtype=torch.bfloat16,
-        trust_remote_code=True,
+        trust_remote_code=False,
         attn_implementation=args.attn_impl,
     )
 

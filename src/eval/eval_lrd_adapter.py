@@ -198,7 +198,7 @@ def main():
     print(f"Device: {device}")
 
     print(f"\nLoading base model: {args.base_model}")
-    tokenizer = AutoTokenizer.from_pretrained(args.base_model, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(args.base_model, trust_remote_code=False)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "left"
@@ -207,8 +207,8 @@ def main():
         args.base_model,
         device_map={"": 0},
         torch_dtype=torch.float16,
-        trust_remote_code=True,
-        attn_implementation="eager",
+        trust_remote_code=False,
+        attn_implementation="sdpa",
     )
     print(f"Loading LoRA adapter: {args.checkpoint_dir}")
     model = PeftModel.from_pretrained(base_model, args.checkpoint_dir)

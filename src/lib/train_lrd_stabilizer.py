@@ -67,6 +67,12 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+# Compatibility shims (e.g. DynamicCache API changes across transformers versions)
+try:
+    from compat import *  # noqa: F401,F403
+except ImportError:
+    pass
+
 # ── Import stabilizer system ──────────────────────────────────────────────────
 from stabilizer_system import MultiLayerStabilizerSystem, StabilizerConfig
 
@@ -74,9 +80,12 @@ from stabilizer_system import MultiLayerStabilizerSystem, StabilizerConfig
 def _import_perturbation_engine():
     """Try to import PerturbationEngine from common project locations."""
     script_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_root = os.path.dirname(os.path.dirname(script_dir))  # NLPSpring2026/
     search_paths = [
         script_dir,
-        os.path.join(script_dir, "Phi3.5"),
+        os.path.join(repo_root, "evaluation"),        # canonical location
+        os.path.join(repo_root, "models", "phi3.5"),  # per-model copy
+        os.path.join(script_dir, "Phi3.5"),            # old cluster layout
         os.path.join(script_dir, "shared"),
     ]
     for p in search_paths:
@@ -87,8 +96,9 @@ def _import_perturbation_engine():
         return PerturbationEngine
     except ImportError:
         raise ImportError(
-            "Cannot find perturbations.py. Run from a directory that contains it, "
-            "or add it to PYTHONPATH."
+            "Cannot find perturbations.py. "
+            "Expected at <repo>/evaluation/perturbations.py. "
+            "Or set: export PYTHONPATH=<repo>/evaluation:$PYTHONPATH"
         )
 
 
@@ -877,7 +887,7 @@ def train(args):
         args.model,
         device_map={"": 0},
         torch_dtype=torch.float16,
-        trust_remote_code=True,
+        trust_remote_code=False,
         attn_implementation="eager",
     )
     model.eval()

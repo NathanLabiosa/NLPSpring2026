@@ -1,6 +1,15 @@
-torch
-transformers
-datasets
+# Core (verified in the `nlp2026` environment used for all Task 1-3 revision
+# results: window-length ablation, all-layer LoRA baseline, MMLU layer sweep,
+# and the fixed-harness GSM8K layer sweep re-runs)
+torch==2.7.1
+transformers==4.53.3
+datasets==4.1.1
+accelerate==1.14.0
+peft==0.17.1
+sentencepiece==0.2.1
+numpy==2.4.4
+scipy==1.17.1
 tqdm
-accelerate
-sentencepiece
+
+# Plotting only (figure generation scripts under src/plotting/, src/experiments/)
+matplotlib==3.10.8

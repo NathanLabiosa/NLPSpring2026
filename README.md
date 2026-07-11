@@ -35,7 +35,123 @@ figures/                      Final PDF figures referenced by the paper
 
 ## Paper
 
-This code backs an ACL Rolling Review (ARR) submission. `figures/` contains every figure cited in the paper; `results/` contains the underlying numeric results; `models/<name>/` contains the per-model scripts and raw data used to produce them.
+This code backs an ACL Rolling Review (ARR) submission, *"Sensitivity, Causality, and Repair Dissociate: A Layer-Wise Analysis of Perturbation Robustness and Its Scaling."* `figures/` contains every figure cited in the paper; `results/` contains the underlying numeric results; `models/<name>/` contains the per-model scripts and raw data used to produce them; `src/` holds the shared analysis/plotting/eval code, including the code behind the revision's new experiments (window-width ablation, all-layer LoRA baseline, MMLU layer sweep).
+
+### Reproducing every table and figure
+
+Every command below was verified against the actual script source (argparse flags, hardcoded paths, on-disk JSON schemas) rather than inferred from filenames. Run from the repo root with the pinned environment below unless noted.
+
+Two release-scope notes up front:
+
+- **"Per-cell config"** = the run's own result JSON, which is self-describing (model, checkpoint, seed, harness settings — see [Result File Schema](#result-file-schema)). There is no separate `configs/` directory duplicating that information; the JSON *is* the config record.
+- **"Evaluation logs"** = the per-perturbation-condition breakdown embedded in every fixed-harness result JSON (`acc_no_adapter`, `acc_with_adapter`, `delta` per condition — see schema below), not raw SLURM/tmux stdout, which is reproducible from scratch and not committed (`.gitignore`'d as noise).
+
+#### Main paper
+
+| Ref | What it shows | Command | Reads |
+|---|---|---|---|
+| **Table 1** (regime classification) | 5-model recovery %/slope | Per model: `cd models/<name> && python lrd_diagnostics.py --dataset gsm8k --model <hf_id> --n_samples 500 --output_dir lrd_results/<run>` (see the [per-model grid](#lrd-diagnostic-runs) below); Gemma-2 via `python lrd_run.py` (no flags). Table itself is hand-tabulated from each `stats_gsm8k.json`'s `"Typos_5%"` → `pct_recovered`/`mean_cascade_slope`; no aggregator script. | `stats_gsm8k.json` per model |
+| **Table 2** (scaling ratio) | Late/early LRD ratio, Qwen 1.5B/7B/14B + Llama 1B/8B | `python src/plotting/generate_scale_table.py` (no args) | `models/qwen2.5/{lrd_results/qwen_gsm8k,scale_experiments/lrd_results_{1.5B,14B}}/raw_gsm8k.json`, `models/llama/{lrd_results,lrd_results_3.2_1B}/raw_gsm8k.json` → writes `results/scale_table.json` + `results/scale_table.tex` |
+| **Table 3** (layer-sweep panel) | Mean perturbed Δ, 5 models × windows + all-layer | v1 windows (per model/window/seed): `python src/training/train_lrd_lora_v14.py ...` then `python src/eval/eval_fixed_harness.py --base_model <hf_id> --checkpoint <ckpt>/lora_final --n_samples 500 --seed {42,43,44} --output_file results/fixed_harness/v1/layer_sweep/<model>_<WIN>_seed<S>.json` (window/target-module/attn-impl grid [below](#lrd-diagnostic-runs)). All-layer column: `bash scripts/run_task2.sh {phi35\|qwen\|llama}` → `python scripts/aggregate_results.py task2`. **No single script builds the full panel** — mean±std per (model, window) is computed by hand from the 78 result JSONs in `results/fixed_harness/v1/layer_sweep/`. | `results/fixed_harness/v1/layer_sweep/*.json`, `results/fixed_harness/v2/all_layer/*.json` |
+| **Fig. 1** (`qwen_scaling_lrd`) | Scaling plot | `python src/plotting/generate_qwen_scaling.py` (run Table 2's command first — reads `results/scale_table.json`) | `results/scale_table.json` |
+| **Fig. 2** (`cohens_d_phi35`) | Per-layer Cohen's d | `python src/experiments/expA_cohens_d.py` (no args; one run also regenerates the appendix's Llama-3/Mistral/Qwen/Gemma panels) | `models/phi3.5/lrd_results/phi_hardening2/raw_gsm8k.json` |
+| **Fig. 3** (`patching_recovery`) | Patching recovery, Phi-3.5 + Llama-3 | `python src/plotting/generate_workstream_c_figures.py` (runs `figure_c1()`–`figure_c8()`; `figure_c2()` produces this one) | `models/{phi3.5/lrd_results/phi_patching_v3,llama/lrd_results}/patching_gsm8k_typos.json` |
+| **Fig. 4** (`three_map_{phi35,llama3}`) | Three-map overlay | `python src/experiments/expB_three_map.py` (no args; also writes `three_map_mistral.pdf`) | per-model LRD/patching/LoRA-sweep JSONs |
+| **Fig. 5** (`disruption_phi35`) | Cascade disruption curves | `python src/experiments/expF_clean_disruption.py --model phi35` (add `--reuse_cache` to replot from the cached `results/expF_clean_disruption_phi35.json` without reloading models) | GSM8K + per-window LoRA checkpoints |
+| **Fig. 6** (`layer_sweep`) | Sweep summary plot | `python src/plotting/generate_layer_sweep.py` (no args) | `results/fixed_harness/v1/layer_sweep/*.json` |
+| **Fig. 7** (`harness_artifact`) | Old vs. fixed harness | `python src/plotting/generate_supplement_figures.py` (`figure_harness_artifact()`; same run also produces the appendix's `layer_sweep_per_model_*.pdf` and `qwen14b_patching_per_layer.pdf`) | See [Known Gaps](#known-gaps) #3 — two of the four plotted deltas are cross-checked hardcoded literals, not live-computed |
+
+#### Appendix
+
+| Ref | Command | Notes |
+|---|---|---|
+| Fig. `heatmap` (Phi-3.5 + Llama-3) | `python src/plotting/generate_workstream_c_figures.py` (`figure_c1()`) | |
+| Fig. `supp_lrd` (Gemma/Qwen/Mistral heatmaps) | `python src/plotting/generate_lrd_heatmaps.py` | script hardcodes an old absolute `fig_dir` — edit the path before running |
+| Fig. `supp_scaling_heatmaps` (Qwen 1.5B/14B) | Byte-identical copies of `models/qwen2.5/scale_experiments/lrd_results_{1.5B,14B}/fig3_heatmap_gsm8k.pdf`, a side effect of the Table 2 LRD runs | copied into `figures/` by hand — no script performs the copy |
+| Fig. `supp_qwen14b_perlayer` | `cd models/qwen2.5/scale_experiments && python ../lrd_diagnostics.py --dataset gsm8k --model Qwen/Qwen2.5-14B-Instruct --n_samples 200 --max_new_tokens 512 --patching --n_pairs 100 --skip_sanity --output_dir patch_results_14B`, then `python src/plotting/generate_supplement_figures.py` | |
+| Table `supp_recovery` | hand-tabulated from each model's `stats_gsm8k.json` (same source as Table 1, all six perturbation types) | |
+| Table `correlations` | `python src/analysis/bootstrap_block.py` (block=5, 10k resamples, matches paper) | reads `results/expB_three_map_overlay.json` — only Phi-3.5/Llama-3/Mistral live there; see [Known Gaps](#known-gaps) #4 |
+| Table `intrinsic` (C1–C4) | `python src/experiments/expC_capacity_metrics.py --model {phi35\|llama3\|mistral} --n_samples 200` | writes its JSON to the repo root; move into `results/` by hand |
+| Table `supp_c3c4` | `python src/analysis/predict_optimal_window.py --model {TinyLlama\|Gemma2\|Qwen25} --compute_c3c4` then `--check_prediction` | see [Known Gaps](#known-gaps) #5 before trusting a fresh `--check_prediction` run |
+| Fig. `supp_three_map` (Mistral/Qwen/Gemma) | Mistral: same command as Fig. 4. Qwen/Gemma: see [Known Gaps](#known-gaps) #2 | |
+| Fig. `supp_cohens_d` (Llama/Mistral/Qwen/Gemma) | same command as Fig. 2 (one run produces all five) | |
+| Fig. `supp_capacity` (Llama-3/Mistral) | `python src/experiments/expC_capacity_metrics.py --model {llama3\|mistral}` | |
+| Fig. `supp_disruption` (Llama/Mistral/Qwen/Gemma) | `python src/experiments/expF_clean_disruption.py --model {llama3\|mistral\|qwen\|gemma}` | same script as Fig. 5 |
+| Fig. `supp_disruption_scatter` (Phi/Llama/Mistral) | see [Known Gaps](#known-gaps) #1 — **do not use the currently-committed PDFs** | |
+| Fig. `supp_crosstask` (Phi/Mistral) | `python src/experiments/expD_cross_task.py` (no args) | |
+| Fig. `supp_layer_sweep_per_model` (5 models) | `python src/plotting/generate_supplement_figures.py` (same run as Fig. 7) | reads `results/fixed_harness/v1/layer_sweep/*.json` |
+| Table `width_ablation` (Task 1) | `CUDA_VISIBLE_DEVICES=<gpu> bash scripts/run_task1.sh {w3_mid\|w3_late\|w7_mid\|w7_late}` | 3 seeds looped internally → `results/fixed_harness/v2/layer_sweep/` |
+| Table `all_layer` (Task 2) | `CUDA_VISIBLE_DEVICES=<gpu> bash scripts/run_task2.sh {phi35\|qwen\|llama}` | → `results/fixed_harness/v2/all_layer/` |
+| Table `mmlu_sweep` (Task 3) | `CUDA_VISIBLE_DEVICES=<gpu> bash scripts/run_task3.sh {phi35\|qwen} {0\|1}` | eval via `src/eval/eval_fixed_harness_mmlu.py --item_ids_file results/mmlu_eval_item_ids.json` → `results/fixed_harness/v2/mmlu/` |
+| Table `supp_repro` | this README + `requirements.txt` | |
+
+For any of the three Task tables: `python scripts/aggregate_results.py {task1\|task2\|task3}` prints the summary and a booktabs-formatted LaTeX snippet.
+
+#### LRD diagnostic runs
+
+Per-model invocations underlying Table 1 and the LRD-derived panels (all `--dataset gsm8k`, `--n_samples 500` unless noted):
+
+| Model | Command (run from `models/<name>/`) |
+|---|---|
+| Phi-3.5 | `python lrd_diagnostics.py --model microsoft/Phi-3.5-mini-instruct --max_new_tokens 256 --run_exclusion_analysis --run_taxonomy_variance --output_dir lrd_results/exp3_phi_n500` |
+| Llama-3-8B | `python lrd_diagnostics.py --model meta-llama/Meta-Llama-3-8B-Instruct --max_new_tokens 256 --run_exclusion_analysis --run_taxonomy_variance --output_dir lrd_results/exp3_llama_n500` |
+| Mistral-7B-v0.3 | `python lrd_diagnostics.py --model mistralai/Mistral-7B-Instruct-v0.3 --max_new_tokens 256 --run_exclusion_analysis --run_taxonomy_variance --output_dir lrd_results/exp3_mistral_n500` |
+| Qwen2.5-7B | `python lrd_diagnostics.py --model Qwen/Qwen2.5-7B-Instruct --max_new_tokens 768 --run_taxonomy_variance --output_dir lrd_results/qwen_gsm8k` |
+| Gemma-2-9B | `python lrd_run.py` (no flags; hardcodes `n_samples=500`, `google/gemma-2-9b`, `output_dir=lrd_results/gemma2_9b_gsm8k`) |
+
+Table 3's v1 layer-sweep window grid (per model, all width-5 nominal windows, LoRA `r=4`/`α=8`, CE-only):
+
+| Model | Windows | Target modules | Attn impl |
+|---|---|---|---|
+| Phi-3.5 (32 layers) | L00-04, L05-09, L10-14, L15-19, L20-24, L27-31 | `qkv_proj o_proj` | eager |
+| Llama-3-8B / Mistral-7B-v0.3 | L00-04, L05-09, L15-19, L20-24, L27-31 | `q_proj v_proj` | sdpa |
+| Qwen2.5-7B | L00-04, L05-09, L08-11, L15-19, L20-23, L24-27 | `q_proj v_proj` | sdpa |
+| Gemma-2-9B (42 layers) | L00-04, L06-11, L15-20, L25-30, L35-40 | `q_proj v_proj` | eager |
+
+Each cell above is trained + evaluated at seeds 42/43/44 by re-running with `--seed`.
+
+### Known gaps
+
+Stated plainly rather than papered over, since that's the point of a reproducibility statement:
+
+1. **`figures/disruption_{phi35,llama3,mistral}_scatter.pdf` are mid-regeneration.** The committed PDFs are known-wrong (hardcoded old-harness `acc_delta`); the fix pipeline (`scripts/run_scatter_{eval,train,disruption}.sh` → `scripts/update_scatter_deltas.py`) is running now. Do not treat the current PDFs as reproducing the appendix figure until that finishes.
+2. **`figures/three_map_{qwen,gemma}.pdf`** have no confirmed reproduction command in the current script layout — `expB_three_map.py` covers Phi-3.5/Llama-3/Mistral only; the older `src/experiments/three_map_new.py` targets a different model set and different output paths/filenames. Needs a short follow-up to wire these two models into `expB_three_map.py`.
+3. **`figures/harness_artifact.pdf`**: of its four plotted deltas, the fixed-harness Qwen value (-7.5pp) is an exact match to `models/qwen2.5/experiments/results/fixed_harness_qwen_vanilla.json`; the fixed-harness Phi-3.5 value (-3.5pp) is close but not exact against the nearest on-disk checkpoint eval (-2.87pp); the two pre-fix-harness values (+7.3pp/+11.6pp) have no surviving raw output in this repo. All four are archival/hardcoded literals in `generate_supplement_figures.py`, not live-computed from checkpoints on each run.
+4. **Appendix `tab:correlations`**: `results/expB_three_map_overlay.json` (read by `bootstrap_block.py`) covers Phi-3.5/Llama-3/Mistral only; the paper's Gemma-2/Qwen-2.5 rows were computed on a path not currently wired into that script.
+5. **Appendix `tab:supp_c3c4`**: `predict_optimal_window.py --check_prediction`'s "actual" column reads pre-fix-harness sweep deltas by default. The numbers in the paper are the corrected fixed-harness values — re-point the script (or read `results/fixed_harness/` by hand) rather than trusting a fresh `--check_prediction` run as-is.
+
+Items 2, 4, and 5 are wiring/documentation gaps in otherwise-correct analysis code, not open experimental questions — the underlying data each needs already exists on disk. Item 1 is an active, running fix. Item 3's two archival values predate the fixed harness and cannot be regenerated from this codebase; they are reported as-is in the paper.
+
+### Result File Schema
+
+Every fixed-harness result JSON (`results/fixed_harness/v1/`, `results/fixed_harness/v2/`) is self-describing and doubles as that cell's config record and evaluation log:
+
+```json
+{
+  "harness_version": "v2",
+  "base_model": "microsoft/Phi-3.5-mini-instruct",
+  "checkpoint": "<path>/phase2_phi35_L11-13_seed42/lora_final",
+  "seed": 42,
+  "n_samples": 500,
+  "max_new_tokens": 768,
+  "clean_baseline": 86.4,
+  "mean_perturbed_delta": -2.43,
+  "results": {
+    "typos_5pct": {
+      "method": "typos", "rate": 0.05, "n_samples": 500,
+      "acc_no_adapter": 60.0, "acc_with_adapter": 58.2,
+      "acc_clean_baseline": 69.2, "delta": -1.8
+    }
+    /* ... one entry per perturbation condition plus clean_baseline ... */
+  }
+}
+```
+
+The MMLU fixed evaluation subset (500 stratified items, seed 42) used by Task 3 is `results/mmlu_eval_item_ids.json`.
+
+### Hardware and compute
+
+The original diagnostic/patching/layer-sweep panel (Tables 1–3, Figs. 1–7 main results) ran on single-GPU SLURM jobs (NVIDIA A40 46GB / A100 80GB / V100 32GB), ≈900 GPU-hours total (reported experiments only, excludes exploratory/failed runs). The revision's Task 1–3 addenda (window-width ablation, all-layer LoRA baseline, MMLU layer sweep) ran on a second machine (8×RTX 6000 Ada 47GB, no SLURM — plain `CUDA_VISIBLE_DEVICES` GPU pinning) with the `requirements.txt` versions pinned below; per-window-sweep wall clock is a few hours per seed on a single GPU for the 3.8B–8B models.
 
 ## Environment Setup
 

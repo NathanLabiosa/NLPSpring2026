@@ -1,0 +1,77 @@
+{
+  "harness_version": "v2",
+  "task": "mmlu",
+  "base_model": "microsoft/Phi-3.5-mini-instruct",
+  "checkpoint": "/data/nathanlabiosa/nlp2026_weights/phase2_mmlu_phi35_L00-04_seed44/lora_final",
+  "seed": 42,
+  "n_samples": 500,
+  "max_new_tokens": 32,
+  "item_ids_file": "/home/nathanlabiosa/NLPSpring2026/results/mmlu_eval_item_ids.json",
+  "clean_baseline": 69.2,
+  "mean_perturbed_delta": 0.5,
+  "results": {
+    "clean_baseline": {
+      "method": "none",
+      "rate": 0.0,
+      "n_samples": 500,
+      "acc_no_adapter": 69.2,
+      "acc_with_adapter": 69.8,
+      "acc_clean_baseline": 69.2,
+      "delta": 0.6
+    },
+    "typos_5pct": {
+      "method": "typos",
+      "rate": 0.05,
+      "n_samples": 500,
+      "acc_no_adapter": 60.0,
+      "acc_with_adapter": 60.8,
+      "acc_clean_baseline": 69.2,
+      "delta": 0.8
+    },
+    "ocr_5pct": {
+      "method": "ocr",
+      "rate": 0.05,
+      "n_samples": 500,
+      "acc_no_adapter": 65.0,
+      "acc_with_adapter": 64.4,
+      "acc_clean_baseline": 69.2,
+      "delta": -0.6
+    },
+    "speech_10pct": {
+      "method": "speech",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 67.4,
+      "acc_with_adapter": 67.8,
+      "acc_clean_baseline": 69.2,
+      "delta": 0.4
+    },
+    "homophones_20pct": {
+      "method": "homophones",
+      "rate": 0.2,
+      "n_samples": 500,
+      "acc_no_adapter": 67.4,
+      "acc_with_adapter": 69.0,
+      "acc_clean_baseline": 69.2,
+      "delta": 1.6
+    },
+    "whitespace_10pct": {
+      "method": "whitespace",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 62.2,
+      "acc_with_adapter": 63.6,
+      "acc_clean_baseline": 69.2,
+      "delta": 1.4
+    },
+    "case_10pct": {
+      "method": "case",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 60.2,
+      "acc_with_adapter": 59.6,
+      "acc_clean_baseline": 69.2,
+      "delta": -0.6
+    }
+  }
+}

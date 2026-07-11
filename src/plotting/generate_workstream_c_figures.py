@@ -261,7 +261,11 @@ def figure_c3():
     remove_spines(ax)
 
     plt.tight_layout()
-    path = os.path.join(OUTPUT_DIR, "layer_sweep.pdf")
+    # NOTE: intentionally NOT figures/layer_sweep.pdf (Fig. 6) — this function
+    # reads the old broken-harness p2_sweep_* eval_results.json (no longer on
+    # disk) and would silently clobber the correct fixed-harness figure if it
+    # shared that filename. See generate_layer_sweep.py for the real Fig. 6.
+    path = os.path.join(OUTPUT_DIR, "legacy_p2_layer_sweep.pdf")
     fig.savefig(path, dpi=300, bbox_inches='tight')
     plt.close(fig)
     print(f"  Saved: {path}")

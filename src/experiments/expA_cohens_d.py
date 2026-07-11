@@ -37,6 +37,7 @@ os.makedirs(FIG_DIR, exist_ok=True)
 MODEL_DATA = {
     "Phi3.5":  os.path.join(ROOT, "models/phi3.5/lrd_results/phi_hardening2/raw_gsm8k.json"),
     "Llama3":  os.path.join(ROOT, "models/llama/lrd_results/raw_gsm8k.json"),
+    "Mistral": os.path.join(ROOT, "models/mistral/lrd_results/mistral_gsm8k/raw_gsm8k.json"),
     "Qwen2.5": os.path.join(ROOT, "models/qwen2.5/lrd_results/qwen_gsm8k/raw_gsm8k.json"),
     "Gemma2":  os.path.join(ROOT, "models/gemma2/lrd_results/gemma2_9b_gsm8k/raw_gsm8k.json"),
 }

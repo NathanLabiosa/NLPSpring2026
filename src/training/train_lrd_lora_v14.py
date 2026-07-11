@@ -242,7 +242,12 @@ def train(args):
         attn_impl = "eager"  # Gemma2 requires eager
     elif "qwen" in args.model.lower():
         dtype = torch.bfloat16
-        attn_impl = "sdpa"  # Qwen can use SDPA
+        attn_impl = "sdpa"
+    elif "phi" in args.model.lower():
+        # Phi-3.5 eager+float16 breaks with transformers>=4.46 (mask size mismatch).
+        # sdpa bypasses _prepare_4d_causal_attention_mask entirely.
+        dtype = torch.bfloat16
+        attn_impl = "sdpa"
     else:
         dtype = torch.float16
         attn_impl = "eager"
@@ -255,7 +260,7 @@ def train(args):
         args.model,
         device_map={"": 0},
         torch_dtype=dtype,
-        trust_remote_code=True,
+        trust_remote_code=False,
         attn_implementation=attn_impl,
     )
     print(f"Model loaded successfully!")
