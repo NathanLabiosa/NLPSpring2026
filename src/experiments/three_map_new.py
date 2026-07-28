@@ -274,13 +274,13 @@ def process_model(model_name, cfg):
     ax.set_xlabel("Layer", fontsize=12)
     ax.set_ylabel("Normalised signal [0, 1]", fontsize=11)
     ax.set_title(f"Three-Map Overlay - {model_name} / GSM8K", fontsize=13)
-    ax.legend(fontsize=9)
+    ax.legend(loc='lower left', framealpha=0.9, fontsize=9)
 
     txt = "\n".join([f"{k}: rho={v['rho']:+.3f} (p={v['p_two']:.3f})"
                      for k, v in corr_results.items()])
     ax.text(0.02, 0.97, txt, transform=ax.transAxes, fontsize=8,
             verticalalignment="top",
-            bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5))
+            bbox=dict(boxstyle="round", facecolor="white", edgecolor="0.6", alpha=0.9))
 
     plt.tight_layout()
     fig_path = os.path.join(ROOT, f"{model_name}_three_map.pdf")

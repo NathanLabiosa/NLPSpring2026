@@ -2,7 +2,7 @@
   "harness_version": "v1",
   "base_model": "meta-llama/Meta-Llama-3-8B-Instruct",
   "checkpoint": "/home1/labiosa/NLPSpring2026/stabilizer_weights/phase1_llama3_8b_L27-31_seed44/lora_final",
-  "seed": 42,
+  "seed": 44,
   "n_samples": 500,
   "max_new_tokens": 512,
   "harness": "exp3_heldout_style_fixed",

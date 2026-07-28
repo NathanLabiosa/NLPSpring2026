@@ -2,7 +2,7 @@
   "harness_version": "v1",
   "base_model": "mistralai/Mistral-7B-Instruct-v0.3",
   "checkpoint": "/home1/labiosa/NLPSpring2026/stabilizer_weights/phase1_mistral_7b_v03_L00-04_seed43/lora_final",
-  "seed": 42,
+  "seed": 43,
   "n_samples": 500,
   "max_new_tokens": 512,
   "harness": "exp3_heldout_style_fixed",

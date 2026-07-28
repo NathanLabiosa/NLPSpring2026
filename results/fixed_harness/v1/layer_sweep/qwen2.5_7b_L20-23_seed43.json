@@ -2,7 +2,7 @@
   "harness_version": "v1",
   "base_model": "Qwen/Qwen2.5-7B-Instruct",
   "checkpoint": "/home1/labiosa/NLPSpring2026/stabilizer_weights/phase1_qwen2.5_7b_L20-23_seed43/lora_final",
-  "seed": 42,
+  "seed": 43,
   "n_samples": 500,
   "max_new_tokens": 512,
   "harness": "exp3_heldout_style_fixed",
