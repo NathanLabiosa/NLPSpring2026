@@ -26,9 +26,9 @@ SCATTER_DIR = os.path.join(ROOT, "results", "fixed_harness", "v2", "scatter")
 RESULTS_DIR = os.path.join(ROOT, "results")
 
 MODEL_MAP = {
-    "phi35":   ("phi35",        "phase2_mmlu_phi35"),
-    "qwen":    ("qwen2.5_7b",   "phase2_mmlu_qwen2.5_7b"),
-    "llama3":  ("llama3_8b",    "phase2_scatter_llama3_8b"),
+    "phi35":   ("phi35",          "phase2_scatter_phi35"),
+    "qwen":    ("qwen2.5_7b",     "phase2_scatter_qwen2.5_7b"),
+    "llama3":  ("llama3_8b",      "phase2_scatter_llama3_8b"),
     "mistral": ("mistral_7b_v03", "phase2_scatter_mistral_7b_v03"),
 }
 

@@ -66,20 +66,20 @@ MODEL_CFGS = {
         "trust_remote_code": False,
         "attn_implementation": "sdpa",
         "sweep_dirs": [
-            ("phase2_mmlu_phi35_L00-04_seed42", (0, 4)),
-            ("phase2_mmlu_phi35_L05-09_seed42", (5, 9)),
-            ("phase2_mmlu_phi35_L10-14_seed42", (10, 14)),
-            ("phase2_mmlu_phi35_L15-19_seed42", (15, 19)),
-            ("phase2_mmlu_phi35_L20-24_seed42", (20, 24)),
-            ("phase2_mmlu_phi35_L27-31_seed42", (27, 31)),
+            ("phase2_scatter_phi35_L00-04_seed42", (0, 4)),
+            ("phase2_scatter_phi35_L05-09_seed42", (5, 9)),
+            ("phase2_scatter_phi35_L10-14_seed42", (10, 14)),
+            ("phase2_scatter_phi35_L15-19_seed42", (15, 19)),
+            ("phase2_scatter_phi35_L20-24_seed42", (20, 24)),
+            ("phase2_scatter_phi35_L27-31_seed42", (27, 31)),
         ],
         "sweep_deltas": {
-            "phase2_mmlu_phi35_L00-04_seed42": None,
-            "phase2_mmlu_phi35_L05-09_seed42": None,
-            "phase2_mmlu_phi35_L10-14_seed42": None,
-            "phase2_mmlu_phi35_L15-19_seed42": None,
-            "phase2_mmlu_phi35_L20-24_seed42": None,
-            "phase2_mmlu_phi35_L27-31_seed42": None,
+            "phase2_scatter_phi35_L00-04_seed42": None,
+            "phase2_scatter_phi35_L05-09_seed42": None,
+            "phase2_scatter_phi35_L10-14_seed42": None,
+            "phase2_scatter_phi35_L15-19_seed42": None,
+            "phase2_scatter_phi35_L20-24_seed42": None,
+            "phase2_scatter_phi35_L27-31_seed42": None,
         },
     },
     "llama3": {
@@ -138,20 +138,20 @@ MODEL_CFGS = {
         "trust_remote_code": False,
         "attn_implementation": "eager",
         "sweep_dirs": [
-            ("phase2_mmlu_qwen2.5_7b_L00-04_seed42", (0, 4)),
-            ("phase2_mmlu_qwen2.5_7b_L05-09_seed42", (5, 9)),
-            ("phase2_mmlu_qwen2.5_7b_L08-11_seed42", (8, 11)),
-            ("phase2_mmlu_qwen2.5_7b_L15-19_seed42", (15, 19)),
-            ("phase2_mmlu_qwen2.5_7b_L20-23_seed42", (20, 23)),
-            ("phase2_mmlu_qwen2.5_7b_L24-27_seed42", (24, 27)),
+            ("phase2_scatter_qwen2.5_7b_L00-04_seed42", (0, 4)),
+            ("phase2_scatter_qwen2.5_7b_L05-09_seed42", (5, 9)),
+            ("phase2_scatter_qwen2.5_7b_L08-11_seed42", (8, 11)),
+            ("phase2_scatter_qwen2.5_7b_L15-19_seed42", (15, 19)),
+            ("phase2_scatter_qwen2.5_7b_L20-23_seed42", (20, 23)),
+            ("phase2_scatter_qwen2.5_7b_L24-27_seed42", (24, 27)),
         ],
         "sweep_deltas": {
-            "phase2_mmlu_qwen2.5_7b_L00-04_seed42": None,
-            "phase2_mmlu_qwen2.5_7b_L05-09_seed42": None,
-            "phase2_mmlu_qwen2.5_7b_L08-11_seed42": None,
-            "phase2_mmlu_qwen2.5_7b_L15-19_seed42": None,
-            "phase2_mmlu_qwen2.5_7b_L20-23_seed42": None,
-            "phase2_mmlu_qwen2.5_7b_L24-27_seed42": None,
+            "phase2_scatter_qwen2.5_7b_L00-04_seed42": None,
+            "phase2_scatter_qwen2.5_7b_L05-09_seed42": None,
+            "phase2_scatter_qwen2.5_7b_L08-11_seed42": None,
+            "phase2_scatter_qwen2.5_7b_L15-19_seed42": None,
+            "phase2_scatter_qwen2.5_7b_L20-23_seed42": None,
+            "phase2_scatter_qwen2.5_7b_L24-27_seed42": None,
         },
     },
     "gemma": {
@@ -386,19 +386,18 @@ def main():
                 color=color, linewidth=2.5)
         # Removed shading per user request
 
-    ax.set_xlabel("Layer", fontsize=26)
-    ax.set_ylabel("Mean cosine distance (base vs LoRA, clean input)", fontsize=14)
+    ax.set_xlabel("Layer", fontsize=12)
+    ax.set_ylabel("Mean cosine distance (clean input)", fontsize=12)
     ax.set_title(
-        f"LoRA-Induced Clean Disruption - {display_name} / GSM8K (n={n_samples})",
-        fontsize=26
+        f"{display_name} / GSM8K (n={n_samples})",
+        fontsize=14
     )
-    ax.tick_params(axis='both', labelsize=22)
+    ax.tick_params(axis='both', labelsize=11)
 
     remove_spines(ax)
     ax.grid(True, axis='y', alpha=0.3, linewidth=0.5)
 
-    # Legend in upper-left with ncol=3
-    ax.legend(loc='upper left', fontsize=22, framealpha=0.9, ncol=3)
+    ax.legend(loc='upper right', fontsize=10, framealpha=0.9, ncol=2)
 
     plt.tight_layout()
     fig1_path = os.path.join(FIG_DIR, f"disruption_{args.model}.pdf")

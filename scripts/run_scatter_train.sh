@@ -4,6 +4,8 @@
 # Phi-3.5 and Qwen already have checkpoints — use run_scatter_eval.sh directly.
 # This script trains 3 seeds for a given model + window, then runs eval.
 #
+# Llama-3 is a gated model — export HF_TOKEN in your shell before running.
+#
 # Usage (one tmux window per window, 6 per model):
 #   CUDA_VISIBLE_DEVICES=0 bash scripts/run_scatter_train.sh llama   L00-04
 #   CUDA_VISIBLE_DEVICES=1 bash scripts/run_scatter_train.sh llama   L05-09
@@ -45,6 +47,22 @@ export PYTHONPATH="${ROOT}/evaluation:${ROOT}/src/lib:$PYTHONPATH"
 SEEDS=(42 43 44)
 
 case "$MODEL_ARG" in
+    phi35)
+        MODEL_ID="microsoft/Phi-3.5-mini-instruct"
+        MODEL_SLUG="phi35"
+        ATTN_IMPL="sdpa"
+        TARGET_MODULES=("qkv_proj" "o_proj")
+        N_LAYERS=32
+        CKPT_PREFIX="phase2_scatter_phi35"
+        ;;
+    qwen)
+        MODEL_ID="Qwen/Qwen2.5-7B-Instruct"
+        MODEL_SLUG="qwen2.5_7b"
+        ATTN_IMPL="sdpa"
+        TARGET_MODULES=("q_proj" "v_proj")
+        N_LAYERS=28
+        CKPT_PREFIX="phase2_scatter_qwen2.5_7b"
+        ;;
     llama)
         MODEL_ID="meta-llama/Meta-Llama-3-8B-Instruct"
         MODEL_SLUG="llama3_8b"
@@ -52,7 +70,6 @@ case "$MODEL_ARG" in
         TARGET_MODULES=("q_proj" "v_proj")
         N_LAYERS=32
         CKPT_PREFIX="phase2_scatter_llama3_8b"
-        # export HF_TOKEN="<paste_valid_token_here>"
         ;;
     mistral)
         MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3"
@@ -61,11 +78,9 @@ case "$MODEL_ARG" in
         TARGET_MODULES=("q_proj" "v_proj")
         N_LAYERS=32
         CKPT_PREFIX="phase2_scatter_mistral_7b_v03"
-        # export HF_TOKEN="<paste_valid_token_here>"
         ;;
     *)
-        echo "Unknown model: $MODEL_ARG. Use llama | mistral"
-        echo "(For phi35/qwen use run_scatter_eval.sh directly — checkpoints already exist)"
+        echo "Unknown model: $MODEL_ARG. Use phi35 | qwen | llama | mistral"
         exit 1
         ;;
 esac

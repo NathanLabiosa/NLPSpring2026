@@ -1,0 +1,76 @@
+{
+  "harness_version": "v1",
+  "base_model": "mistralai/Mistral-7B-Instruct-v0.3",
+  "checkpoint": "/data/nathanlabiosa/nlp2026_weights/phase2_scatter_mistral_7b_v03_L00-04_seed43/lora_final",
+  "seed": 42,
+  "n_samples": 500,
+  "max_new_tokens": 768,
+  "harness": "exp3_heldout_style_fixed",
+  "clean_baseline": 59.8,
+  "mean_perturbed_delta": -9.1,
+  "results": {
+    "clean_baseline": {
+      "method": "none",
+      "rate": 0.0,
+      "n_samples": 500,
+      "acc_no_adapter": 59.8,
+      "acc_with_adapter": 51.4,
+      "acc_clean_baseline": 59.8,
+      "delta": -8.4
+    },
+    "typos_5pct": {
+      "method": "typos",
+      "rate": 0.05,
+      "n_samples": 500,
+      "acc_no_adapter": 52.2,
+      "acc_with_adapter": 39.0,
+      "acc_clean_baseline": 59.8,
+      "delta": -13.2
+    },
+    "ocr_5pct": {
+      "method": "ocr",
+      "rate": 0.05,
+      "n_samples": 500,
+      "acc_no_adapter": 51.4,
+      "acc_with_adapter": 45.8,
+      "acc_clean_baseline": 59.8,
+      "delta": -5.6
+    },
+    "speech_10pct": {
+      "method": "speech",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 57.4,
+      "acc_with_adapter": 49.6,
+      "acc_clean_baseline": 59.8,
+      "delta": -7.8
+    },
+    "homophones_20pct": {
+      "method": "homophones",
+      "rate": 0.2,
+      "n_samples": 500,
+      "acc_no_adapter": 58.2,
+      "acc_with_adapter": 49.6,
+      "acc_clean_baseline": 59.8,
+      "delta": -8.6
+    },
+    "whitespace_10pct": {
+      "method": "whitespace",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 53.4,
+      "acc_with_adapter": 45.2,
+      "acc_clean_baseline": 59.8,
+      "delta": -8.2
+    },
+    "case_10pct": {
+      "method": "case",
+      "rate": 0.1,
+      "n_samples": 500,
+      "acc_no_adapter": 55.4,
+      "acc_with_adapter": 44.2,
+      "acc_clean_baseline": 59.8,
+      "delta": -11.2
+    }
+  }
+}
